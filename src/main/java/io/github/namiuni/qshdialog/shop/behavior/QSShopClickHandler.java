@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog;
+package io.github.namiuni.qshdialog.shop.behavior;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.QuickShopAPI;
@@ -25,19 +25,21 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
+import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.type.DialogType;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class ControlDialog implements InteractionBehavior {
+public final class QSShopClickHandler implements InteractionBehavior {
+
+    private final ShopModificationDialogFactory shopControlDialogFactory;
+
+    public QSShopClickHandler(final ShopModificationDialogFactory shopControlDialogFactory) {
+        this.shopControlDialogFactory = shopControlDialogFactory;
+    }
 
     @Override
     public String identifier() {
@@ -53,27 +55,13 @@ public final class ControlDialog implements InteractionBehavior {
             final InteractionClick interactionClick,
             final @Nullable InteractionType interactionType
     ) {
+        if (shop != null) {
+            playerInteractEvent.setCancelled(true);
 
-        if (shop == null) {
-            return;
+            final Dialog controlDialog = this.shopControlDialogFactory.create(shop);
+            player.showDialog(controlDialog);
+
+            shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
         }
-
-        final Dialog dialog = Dialog.create(builder -> builder.empty()
-                .base(DialogBase.builder(Component.text("Title")).build())
-                .type(DialogType.notice())
-        );
-
-        player.showDialog(dialog);
-
-        //send control panel
-//        MsgUtil.sendControlPanelInfo(player, shop);
-//        Util.playClickSound(player);
-        shop.onClick(player);
-        shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
-
-        //cancel event stuff
-        playerInteractEvent.setCancelled(true);
-        playerInteractEvent.setUseInteractedBlock(Event.Result.DENY);
-        playerInteractEvent.setUseItemInHand(Event.Result.DENY);
     }
 }

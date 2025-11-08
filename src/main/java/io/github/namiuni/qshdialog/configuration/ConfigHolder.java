@@ -17,22 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog;
+package io.github.namiuni.qshdialog.configuration;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import io.github.namiuni.qshdialog.utility.Reloadable;
+import java.util.function.Supplier;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class QSHDialogPlugin extends JavaPlugin {
+public final class ConfigHolder<T> implements Supplier<T>, Reloadable {
 
     @Override
-    public void onEnable() {
-//        QuickShop.getInstance().getInteractionManager().behavior(new QSShopClickHandler());
-//        QuickShop.getInstance().getInteractionManager().behavior(new QSContainerClickHandler());
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
+    public T get() {
+        return null; // TODO
     }
 }
