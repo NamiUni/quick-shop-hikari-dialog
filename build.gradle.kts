@@ -3,9 +3,10 @@ import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml.Load
 
 plugins {
     id("java")
+    id("checkstyle")
+    id("com.diffplug.spotless") version "8.0.0"
     id("xyz.jpenilla.run-paper") version "3.0.2"
     id("xyz.jpenilla.resource-factory-paper-convention") version "1.3.1"
-    id("com.diffplug.spotless") version "8.0.0"
 }
 
 group = "io.github.namiuni"
@@ -13,6 +14,10 @@ version = "1.0-SNAPSHOT"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+checkstyle {
+    configDirectory = rootProject.file(".checkstyle")
 }
 
 spotless {
