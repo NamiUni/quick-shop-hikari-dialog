@@ -28,7 +28,7 @@ public final class QSHDialogPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        QuickShop.getInstance().getInteractionManager().behavior(new DialogPanel());
+        QuickShop.getInstance().getInteractionManager().behavior(new ControlDialog());
     }
 
     @Override

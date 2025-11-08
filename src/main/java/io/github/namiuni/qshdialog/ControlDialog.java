@@ -37,11 +37,11 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-public final class DialogPanel implements InteractionBehavior {
+public final class ControlDialog implements InteractionBehavior {
 
     @Override
     public String identifier() {
-        return "DIALOG_CONTROL_PANEL";
+        return "CONTROL_DIALOG";
     }
 
     @Override
