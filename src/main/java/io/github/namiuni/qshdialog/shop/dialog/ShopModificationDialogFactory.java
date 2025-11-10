@@ -23,7 +23,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
-import io.github.namiuni.qshdialog.translation.TranslatorHolder;
+import io.github.namiuni.qshdialog.user.QSHUser;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -38,48 +38,43 @@ import org.jspecify.annotations.NullMarked;
 @SuppressWarnings("UnstableApiUsage")
 public final class ShopModificationDialogFactory {
 
-    private static final DialogType SHOP_MODIFICATION_CONFIRMATION = DialogType.confirmation(
-            ActionButton.builder(TranslationMessages.shopModificationConfirmationApply()).build(),
-            ActionButton.builder(TranslationMessages.shopModificationConfirmationCancel()).build()
-    );
-
     private final ConfigurationHolder<PrimaryConfiguration> configHolder;
-    private final TranslatorHolder translatorHolder;
 
-    public ShopModificationDialogFactory(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
-            final TranslatorHolder translatorHolder
-    ) {
+    public ShopModificationDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
         this.configHolder = configHolder;
-        this.translatorHolder = translatorHolder;
     }
 
-    public Dialog create(final Shop shop) {
-        final DialogBase dialogBase = DialogBase.builder(this.title())
-                .body(this.body(shop))
-                .inputs(this.inputs(shop))
+    public Dialog create(final Shop shop, final QSHUser qshUser) {
+        final DialogBase dialogBase = DialogBase.builder(this.title(shop, qshUser))
+                .body(this.body(shop, qshUser))
+                .inputs(this.inputs(shop, qshUser))
                 .build();
+
+        final DialogType dialogType = DialogType.confirmation(
+                ActionButton.builder(TranslationMessages.shopModificationConfirmationApply(qshUser)).build(),
+                ActionButton.builder(TranslationMessages.shopModificationConfirmationCancel(qshUser)).build()
+        );
 
         return Dialog.create(builder -> builder
                 .empty()
                 .base(dialogBase)
-                .type(SHOP_MODIFICATION_CONFIRMATION)
+                .type(dialogType)
         );
     }
 
-    private Component title() {
-        return TranslationMessages.shopModificationTitle();
+    private Component title(final Shop shop, final QSHUser qshUser) {
+        return TranslationMessages.shopModificationTitle(qshUser);
     }
 
-    private List<? extends DialogBody> body(final Shop shop) {
+    private List<? extends DialogBody> body(final Shop shop, final QSHUser qshUser) {
         final DialogBody body = DialogBody.item(shop.getItem())
-                .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription()))
+                .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription(qshUser)))
                 .build();
 
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final Shop shop) {
+    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser qshUser) {
         return List.of();
     }
 }

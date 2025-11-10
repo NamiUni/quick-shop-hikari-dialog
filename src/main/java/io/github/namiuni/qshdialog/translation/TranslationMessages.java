@@ -19,7 +19,10 @@
  */
 package io.github.namiuni.qshdialog.translation;
 
+import io.github.namiuni.qshdialog.user.QSHUser;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -46,89 +49,109 @@ public final class TranslationMessages {
 
     /* Shop Creation Dialog */
 
-    public static Component shopCreationTitle() {
-        return Component.translatable("qsh_dialog.shop.creation.title");
+    public static Component shopCreationTitle(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.title");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationDescription() {
-        return Component.translatable("qsh_dialog.shop.creation.description");
+    public static Component shopCreationDescription(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.description");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationPriceLabel() {
-        return Component.translatable("qsh_dialog.shop.creation.price.label");
+    public static Component shopCreationPriceLabel(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.price.label");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationTypeLabel() {
-        return Component.translatable("qsh_dialog.shop.creation.type.label");
+    public static Component shopCreationTypeLabel(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.type.label");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationTypeSell() {
-        return Component.translatable("qsh_dialog.shop.creation.type.sell");
+    public static Component shopCreationTypeSell(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.type.sell");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationTypeBuy() {
-        return Component.translatable("qsh_dialog.shop.creation.type.buy");
+    public static Component shopCreationTypeBuy(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.type.buy");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationConfirmationCreate() {
-        return Component.translatable("qsh_dialog.shop.creation.confirmation.create");
+    public static Component shopCreationConfirmationCreate(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.confirmation.create");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationConfirmationCancel() {
-        return Component.translatable("qsh_dialog.shop.creation.confirmation.cancel");
+    public static Component shopCreationConfirmationCancel(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.confirmation.cancel");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
     /* Shop Modify Dialog */
 
-    public static Component shopModificationTitle() {
-        return Component.translatable("qsh_dialog.shop.modification.title");
+    public static Component shopModificationTitle(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.modification.title");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopModificationDescription() {
-        return Component.translatable("qsh_dialog.shop.modification.description");
+    public static Component shopModificationDescription(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.modification.description");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopModificationConfirmationApply() {
-        return Component.translatable("qsh_dialog.shop.modification.confirmation.apply");
+    public static Component shopModificationConfirmationApply(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.modification.confirmation.apply");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopModificationConfirmationCancel() {
-        return Component.translatable("qsh_dialog.shop.modification.confirmation.cancel");
+    public static Component shopModificationConfirmationCancel(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.modification.confirmation.cancel");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
     /* Shop Purchase Dialog */
 
-    public static Component itemPurchaseTitle() {
-        return Component.translatable("qsh_dialog.shop.purchase.title");
+    public static Component itemPurchaseTitle(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.purchase.title");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemPurchaseDescription() {
-        return Component.translatable("qsh_dialog.shop.purchase.description");
+    public static Component itemPurchaseDescription(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.purchase.description");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemPurchaseConfirmationConfirm() {
-        return Component.translatable("qsh_dialog.shop.purchase.confirmation.buy");
+    public static Component itemPurchaseConfirmationConfirm(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.purchase.confirmation.buy");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemPurchaseConfirmationCancel() {
-        return Component.translatable("qsh_dialog.shop.purchase.confirmation.cancel");
+    public static Component itemPurchaseConfirmationCancel(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.purchase.confirmation.cancel");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
     /* Shop Sale Dialog */
 
-    public static Component itemSaleTitle() {
-        return Component.translatable("qsh_dialog.shop.sale.title");
+    public static Component itemSaleTitle(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.title");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemSaleDescription() {
-        return Component.translatable("qsh_dialog.shop.sale.description");
+    public static Component itemSaleDescription(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.description");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemSaleConfirmationConfirm() {
-        return Component.translatable("qsh_dialog.shop.sale.confirmation.sell");
+    public static Component itemSaleConfirmationConfirm(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.confirmation.sell");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemSaleConfirmationCancel() {
-        return Component.translatable("qsh_dialog.shop.sale.confirmation.cancel");
+    public static Component itemSaleConfirmationCancel(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.confirmation.cancel");
+        return GlobalTranslator.render(component, qshUser.locale());
     }
 }

@@ -50,7 +50,8 @@ public final class TranslatorHolder implements Reloadable<Translator, IOExceptio
     public Result<Translator, IOException> reload() {
         final Result<Translator, IOException> result = this.translatorLoader.load();
         if (result instanceof Result.Success<Translator, IOException>(Translator newTranslator)) {
-            GlobalTranslator.translator().removeSource(this.translator.getAndUpdate(old -> newTranslator));
+            GlobalTranslator.translator().removeSource(this.translator.get());
+            this.translator.set(newTranslator);
             GlobalTranslator.translator().addSource(newTranslator);
         }
 

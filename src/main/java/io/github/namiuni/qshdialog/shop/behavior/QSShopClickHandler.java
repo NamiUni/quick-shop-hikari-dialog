@@ -25,8 +25,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
-import io.papermc.paper.dialog.Dialog;
+import io.github.namiuni.qshdialog.user.QSHUserService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jspecify.annotations.NullMarked;
@@ -35,10 +34,10 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class QSShopClickHandler implements InteractionBehavior {
 
-    private final ShopModificationDialogFactory shopModificationDialogFactory;
+    private final QSHUserService userService;
 
-    public QSShopClickHandler(final ShopModificationDialogFactory shopModificationDialogFactory) {
-        this.shopModificationDialogFactory = shopModificationDialogFactory;
+    public QSShopClickHandler(final QSHUserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -58,9 +57,7 @@ public final class QSShopClickHandler implements InteractionBehavior {
         if (shop != null) {
             playerInteractEvent.setCancelled(true);
 
-            final Dialog modificationDialog = this.shopModificationDialogFactory.create(shop);
-            player.showDialog(modificationDialog);
-
+            this.userService.getUser(player).showShopModificationDialog(shop);
             shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
         }
     }

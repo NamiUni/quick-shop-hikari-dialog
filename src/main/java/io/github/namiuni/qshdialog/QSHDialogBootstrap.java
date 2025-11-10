@@ -23,8 +23,13 @@ import io.github.namiuni.qshdialog.command.commands.AdminCommand;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.ConfigurationLoader;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.translation.TranslatorHolder;
 import io.github.namiuni.qshdialog.translation.TranslatorLoader;
+import io.github.namiuni.qshdialog.user.QSHUserService;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
@@ -41,29 +46,52 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
 
     private @MonotonicNonNull ConfigurationHolder<PrimaryConfiguration> configHolder;
     private @MonotonicNonNull TranslatorHolder translatorHolder;
+    private @MonotonicNonNull QSHUserService userService;
 
     @Override
     public void bootstrap(final BootstrapContext context) {
-        final Path dataDirectory = context.getDataDirectory();
-        final ComponentLogger logger = context.getLogger();
-
-        final ConfigurationLoader<PrimaryConfiguration> configLoader = new ConfigurationLoader<>(
-                PrimaryConfiguration.class,
-                new PrimaryConfiguration(),
-                dataDirectory,
-                logger
-        );
-        this.configHolder = new ConfigurationHolder<>(configLoader);
-
-        final TranslatorLoader translatorLoader = new TranslatorLoader(dataDirectory, logger);
-        this.translatorHolder = new TranslatorHolder(translatorLoader);
+        this.configHolder = this.createConfigHolder(context);
+        this.translatorHolder = this.createTranslatorHolder(context);
+        this.userService = this.createUserService();
 
         this.registerCommands(context);
     }
 
     @Override
     public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(this.configHolder, this.translatorHolder);
+        return new QSHDialogPlugin(this.userService);
+    }
+
+    private ConfigurationHolder<PrimaryConfiguration> createConfigHolder(final BootstrapContext context) {
+        final Path dataDirectory = context.getDataDirectory();
+        final ComponentLogger logger = context.getLogger();
+        final ConfigurationLoader<PrimaryConfiguration> configLoader = new ConfigurationLoader<>(
+                PrimaryConfiguration.class,
+                new PrimaryConfiguration(),
+                dataDirectory,
+                logger
+        );
+        return new ConfigurationHolder<>(configLoader);
+    }
+
+    private TranslatorHolder createTranslatorHolder(final BootstrapContext context) {
+        final Path dataDirectory = context.getDataDirectory();
+        final ComponentLogger logger = context.getLogger();
+        final TranslatorLoader translatorLoader = new TranslatorLoader(dataDirectory, logger);
+        return new TranslatorHolder(translatorLoader);
+    }
+
+    private QSHUserService createUserService() {
+        final var itemPurchaseDialogFactory = new ItemPurchaseDialogFactory(this.configHolder);
+        final var itemSaleDialogFactory = new ItemSaleDialogFactory(this.configHolder);
+        final var shopCreationDialogFactory = new ShopCreationDialogFactory(this.configHolder);
+        final var shopModificationDialogFactory = new ShopModificationDialogFactory(this.configHolder);
+        return new QSHUserService(
+                shopCreationDialogFactory,
+                shopModificationDialogFactory,
+                itemPurchaseDialogFactory,
+                itemSaleDialogFactory
+        );
     }
 
     private void registerCommands(final BootstrapContext context) {

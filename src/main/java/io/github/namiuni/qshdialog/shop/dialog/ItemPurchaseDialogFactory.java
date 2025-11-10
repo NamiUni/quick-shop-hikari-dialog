@@ -23,7 +23,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
-import io.github.namiuni.qshdialog.translation.TranslatorHolder;
+import io.github.namiuni.qshdialog.user.QSHUser;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -38,52 +38,46 @@ import org.jspecify.annotations.NullMarked;
 @SuppressWarnings("UnstableApiUsage")
 public final class ItemPurchaseDialogFactory {
 
-    private static final DialogType ITEM_PURCHASE_CONFIRMATION = DialogType.confirmation(
-            ActionButton.builder(TranslationMessages.itemPurchaseConfirmationConfirm()).build(),
-            ActionButton.builder(TranslationMessages.itemPurchaseConfirmationCancel()).build()
-    );
-
     private final ConfigurationHolder<PrimaryConfiguration> configHolder;
-    private final TranslatorHolder translatorHolder;
 
-    public ItemPurchaseDialogFactory(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
-            final TranslatorHolder translatorHolder
-    ) {
+    public ItemPurchaseDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
         this.configHolder = configHolder;
-        this.translatorHolder = translatorHolder;
     }
 
-    public Dialog create(final Shop shop) {
+    public Dialog create(final Shop shop, final QSHUser qshUser) {
         if (!shop.isSelling()) {
             throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.getShopType()));
         }
 
-        final DialogBase dialogBase = DialogBase.builder(this.title())
-                .body(this.body(shop))
-                .inputs(this.inputs(shop))
+        final DialogBase dialogBase = DialogBase.builder(this.title(shop, qshUser))
+                .body(this.body(shop, qshUser))
+                .inputs(this.inputs(shop, qshUser))
                 .build();
+
+        final DialogType dialogType = DialogType.confirmation(
+                ActionButton.builder(TranslationMessages.itemPurchaseConfirmationConfirm(qshUser)).build(),
+                ActionButton.builder(TranslationMessages.itemPurchaseConfirmationCancel(qshUser)).build());
 
         return Dialog.create(builder -> builder
                 .empty()
                 .base(dialogBase)
-                .type(ITEM_PURCHASE_CONFIRMATION)
+                .type(dialogType)
         );
     }
 
-    private Component title() {
-        return TranslationMessages.itemPurchaseTitle();
+    private Component title(final Shop shop, final QSHUser qshUser) {
+        return TranslationMessages.itemPurchaseTitle(qshUser);
     }
 
-    private List<? extends DialogBody> body(final Shop shop) {
+    private List<? extends DialogBody> body(final Shop shop, final QSHUser qshUser) {
         final DialogBody body = DialogBody.item(shop.getItem())
-                .description(DialogBody.plainMessage(TranslationMessages.itemPurchaseDescription()))
+                .description(DialogBody.plainMessage(TranslationMessages.itemPurchaseDescription(qshUser)))
                 .build();
 
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final Shop shop) {
+    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser qshUser) {
         return List.of();
     }
 }

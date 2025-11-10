@@ -25,10 +25,9 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
-import io.papermc.paper.dialog.Dialog;
+import io.github.namiuni.qshdialog.user.QSHUser;
+import io.github.namiuni.qshdialog.user.QSHUserService;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -38,18 +37,10 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class QSContainerClickHandler implements InteractionBehavior {
 
-    private final ShopCreationDialogFactory creationDialogFactory;
-    private final ItemPurchaseDialogFactory purchaseDialogFactory;
-    private final ItemSaleDialogFactory saleDialogFactory;
+    private final QSHUserService userService;
 
-    public QSContainerClickHandler(
-            final ShopCreationDialogFactory creationDialogFactory,
-            final ItemPurchaseDialogFactory purchaseDialogFactory,
-            final ItemSaleDialogFactory saleDialogFactory
-    ) {
-        this.creationDialogFactory = creationDialogFactory;
-        this.purchaseDialogFactory = purchaseDialogFactory;
-        this.saleDialogFactory = saleDialogFactory;
+    public QSContainerClickHandler(final QSHUserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -69,10 +60,12 @@ public final class QSContainerClickHandler implements InteractionBehavior {
 
         // Show Shop Creation Dialog
         final ItemStack usingItem = interactEvent.getItem();
-        if (shop == null && usingItem != null) {
+        final QSHUser qshUser = this.userService.getUser(player);
+        final Block clickedBlock = interactEvent.getClickedBlock();
+        if (shop == null && usingItem != null && clickedBlock != null) {
             interactEvent.setCancelled(true);
-            final Dialog shopCreationDialog = this.creationDialogFactory.create(usingItem);
-            player.showDialog(shopCreationDialog);
+
+            qshUser.showShopCreationDialog(clickedBlock);
             return;
         }
 
@@ -80,16 +73,8 @@ public final class QSContainerClickHandler implements InteractionBehavior {
             interactEvent.setCancelled(true);
             shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
             switch (shop.getShopType()) {
-                case SELLING -> {
-                    // Show Purchase Dialog
-                    final Dialog purchaseDialog = this.purchaseDialogFactory.create(shop);
-                    player.showDialog(purchaseDialog);
-                }
-                case BUYING -> {
-                    // Show Sale Dialog
-                    final Dialog saleDialog = this.saleDialogFactory.create(shop);
-                    player.showDialog(saleDialog);
-                }
+                case SELLING -> qshUser.showItemPurchaseDialog(shop);
+                case BUYING -> qshUser.showItemSaleDialog(shop);
                 case FROZEN -> ((QuickShop) quickShopAPI).text()
                         .of(interactEvent.getPlayer(), "shop-cannot-trade-when-freezing")
                         .send();

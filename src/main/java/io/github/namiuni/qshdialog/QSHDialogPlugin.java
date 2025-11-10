@@ -20,45 +20,26 @@
 package io.github.namiuni.qshdialog;
 
 import com.ghostchu.quickshop.QuickShop;
-import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.behavior.QSContainerClickHandler;
 import io.github.namiuni.qshdialog.shop.behavior.QSShopClickHandler;
-import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
-import io.github.namiuni.qshdialog.translation.TranslatorHolder;
+import io.github.namiuni.qshdialog.user.QSHUserService;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class QSHDialogPlugin extends JavaPlugin {
 
-    private final ConfigurationHolder<PrimaryConfiguration> configHolder;
-    private final TranslatorHolder translatorHolder;
 
-    public QSHDialogPlugin(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
-            final TranslatorHolder translatorHolder
-    ) {
-        this.configHolder = configHolder;
-        this.translatorHolder = translatorHolder;
+    private final QSHUserService userService;
+
+    public QSHDialogPlugin(final QSHUserService userService) {
+        this.userService = userService;
     }
 
     @Override
     public void onEnable() {
-        final var itemPurchaseDialogFactory = new ItemPurchaseDialogFactory(this.configHolder, this.translatorHolder);
-        final var itemSaleDialogFactory = new ItemSaleDialogFactory(this.configHolder, this.translatorHolder);
-        final var shopCreationDialogFactory = new ShopCreationDialogFactory(this.configHolder, this.translatorHolder);
-        final var shopModificationDialogFactory = new ShopModificationDialogFactory(this.configHolder, this.translatorHolder);
-
-        final var shopHandler = new QSShopClickHandler(shopModificationDialogFactory);
-        final var containerHandler = new QSContainerClickHandler(
-                shopCreationDialogFactory,
-                itemPurchaseDialogFactory,
-                itemSaleDialogFactory
-        );
+        final var shopHandler = new QSShopClickHandler(this.userService);
+        final var containerHandler = new QSContainerClickHandler(this.userService);
 
         QuickShop.getInstance().getInteractionManager().behavior(shopHandler);
         QuickShop.getInstance().getInteractionManager().behavior(containerHandler);

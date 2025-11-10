@@ -22,7 +22,7 @@ package io.github.namiuni.qshdialog.shop.dialog;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
-import io.github.namiuni.qshdialog.translation.TranslatorHolder;
+import io.github.namiuni.qshdialog.user.QSHUser;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -32,80 +32,76 @@ import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import java.util.List;
 import net.kyori.adventure.text.Component;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.block.Block;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
 public final class ShopCreationDialogFactory {
 
-    private static final DialogInput SHOP_TYPE_TOGGLE = DialogInput
-            .singleOption(
-                    "shop_type",
-                    TranslationMessages.shopCreationTypeLabel(),
-                    List.of(
-                            SingleOptionDialogInput.OptionEntry.create(
-                                    "shop_type_sell",
-                                    TranslationMessages.shopCreationTypeSell(),
-                                    true
-                            ),
-                            SingleOptionDialogInput.OptionEntry.create(
-                                    "shop_type_buy",
-                                    TranslationMessages.shopCreationTypeBuy(),
-                                    false
-                            )
-                    )
-            )
-            .build();
-    private static final DialogType SHOP_CREATION_CONFIRMATION = DialogType.confirmation(
-            ActionButton.builder(TranslationMessages.shopCreationConfirmationCreate()).build(),
-            ActionButton.builder(TranslationMessages.shopCreationConfirmationCancel()).build()
-    );
-
     private final ConfigurationHolder<PrimaryConfiguration> configHolder;
-    private final TranslatorHolder translatorHolder;
 
-    public ShopCreationDialogFactory(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
-            final TranslatorHolder translatorHolder
-    ) {
+    public ShopCreationDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
         this.configHolder = configHolder;
-        this.translatorHolder = translatorHolder;
     }
 
-    public Dialog create(final ItemStack product) {
-        final DialogBase dialogBase = DialogBase.builder(this.title())
-                .body(this.body(product))
-                .inputs(this.inputs(product))
+    public Dialog create(final Block block, final QSHUser qshUser) {
+        final DialogBase dialogBase = DialogBase.builder(this.title(block, qshUser))
+                .body(this.body(block, qshUser))
+                .inputs(this.inputs(block, qshUser))
                 .build();
+
+        final DialogType dialogType = DialogType.confirmation(
+                ActionButton.builder(TranslationMessages.shopCreationConfirmationCreate(qshUser)).build(),
+                ActionButton.builder(TranslationMessages.shopCreationConfirmationCancel(qshUser)).build()
+        );
 
         return Dialog.create(builder -> builder
                 .empty()
                 .base(dialogBase)
-                .type(SHOP_CREATION_CONFIRMATION)
+                .type(dialogType)
         );
     }
 
-    private Component title() {
-        return TranslationMessages.shopCreationTitle();
+    private Component title(final Block block, final QSHUser qshUser) {
+        return TranslationMessages.shopCreationTitle(qshUser);
     }
 
-    private List<? extends DialogBody> body(final ItemStack product) {
-        final DialogBody body = DialogBody.item(product.asOne())
-                .description(DialogBody.plainMessage(TranslationMessages.shopCreationDescription()))
+    private List<? extends DialogBody> body(final Block block, final QSHUser qshUser) {
+        final DialogBody body = DialogBody.item(qshUser.mainHandItem().asOne())
+                .description(DialogBody.plainMessage(TranslationMessages.shopCreationDescription(qshUser)))
                 .build();
 
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final ItemStack product) {
-        final DialogInput price = DialogInput.text("product_price", TranslationMessages.shopCreationPriceLabel())
+    private List<? extends DialogInput> inputs(final Block block, final QSHUser qshUser) {
+        final DialogInput price = DialogInput.text("product_price", TranslationMessages.shopCreationPriceLabel(qshUser))
                 .initial("100") // TODO: price-restriction.yml
+                .build();
+
+        final DialogInput shopTypeToggle = DialogInput
+                .singleOption(
+                        "shop_type",
+                        TranslationMessages.shopCreationTypeLabel(qshUser),
+                        List.of(
+                                SingleOptionDialogInput.OptionEntry.create(
+                                        "shop_type_sell",
+                                        TranslationMessages.shopCreationTypeSell(qshUser),
+                                        true
+                                ),
+                                SingleOptionDialogInput.OptionEntry.create(
+                                        "shop_type_buy",
+                                        TranslationMessages.shopCreationTypeBuy(qshUser),
+                                        false
+                                )
+                        )
+                )
                 .build();
 
         return List.of(
                 price,
-                SHOP_TYPE_TOGGLE
+                shopTypeToggle
         );
     }
 }

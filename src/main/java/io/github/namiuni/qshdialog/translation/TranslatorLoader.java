@@ -45,8 +45,10 @@ public final class TranslatorLoader {
     private static final Set<Locale> INCLUDED_BUNDLE_LOCALES = Set.of(Locale.US, Locale.JAPAN);
     private static final Key STORE_NAME = Key.key("qsh_dialog", "translations");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
-            .tags(TagResolver.standard())
-            .tags(JisSafetyColors.jisSafetyColors())
+            .tags(TagResolver.builder()
+                    .resolver(TagResolver.standard())
+                    .resolver(JisSafetyColors.jisSafetyColors())
+                    .build())
             .build();
 
     private final Path dataDirectory;
@@ -65,7 +67,7 @@ public final class TranslatorLoader {
 
         try (Stream<Path> pathStream = Files.list(translationDirectory)) {
             pathStream.filter(Files::isRegularFile)
-                    .filter(file -> file.endsWith(".properties"))
+                    .filter(file -> file.toString().endsWith(".properties"))
                     .map(LocaleBundlePair::of)
                     .forEach(localeBundlePair -> {
                         store.registerAll(localeBundlePair.locale, localeBundlePair.bundlePath, false);
