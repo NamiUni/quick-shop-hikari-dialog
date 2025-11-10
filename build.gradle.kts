@@ -7,6 +7,7 @@ plugins {
     id("com.diffplug.spotless") version "8.0.0"
     id("xyz.jpenilla.run-paper") version "3.0.2"
     id("xyz.jpenilla.resource-factory-paper-convention") version "1.3.1"
+    id("com.gradleup.shadow") version "9.2.2"
 }
 
 group = "io.github.namiuni"
@@ -34,6 +35,11 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("org.spongepowered:configurate-yaml:4.2.0")
+    implementation("net.kyori:adventure-serializer-configurate4:4.25.0")
+    implementation("com.github.sviperll:result4j:1.2.0")
+
+    // Quick Shop
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
     compileOnly("com.ghostchu:quickshop-api:6.2.0.11-SNAPSHOT-6")
     compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11-SNAPSHOT-6")
@@ -41,17 +47,20 @@ dependencies {
 
 val mainPackage = "${group}.qshdialog"
 paperPluginYaml {
-    name = "QuickShopHikari-Dialog"
+    name = "QuickShop-Hikari-Dialog"
     author = "Namiu (うにたろう)"
     website = "https://github.com/NamiUni"
     apiVersion = "1.21.10"
 
     main = "$mainPackage.QSHDialogPlugin"
-//    bootstrapper = "$mainPackage."
+    bootstrapper = "$mainPackage.QSHDialogBootstrap"
 //    loader = "$mainPackage."
 
     permissions {
-
+        register("qshdialog.reload") {
+            description = "Reloads QuickShop-Hikari-Dialog's config and translations."
+            default = Default.OP
+        }
     }
 
     dependencies {

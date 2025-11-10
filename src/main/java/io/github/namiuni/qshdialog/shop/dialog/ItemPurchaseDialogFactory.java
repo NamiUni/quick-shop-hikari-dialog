@@ -20,9 +20,10 @@
 package io.github.namiuni.qshdialog.shop.dialog;
 
 import com.ghostchu.quickshop.api.shop.Shop;
-import io.github.namiuni.qshdialog.configuration.ConfigHolder;
-import io.github.namiuni.qshdialog.configuration.PrimaryConfig;
+import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
+import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
+import io.github.namiuni.qshdialog.translation.TranslatorHolder;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -42,10 +43,15 @@ public final class ItemPurchaseDialogFactory {
             ActionButton.builder(TranslationMessages.itemPurchaseConfirmationCancel()).build()
     );
 
-    private final ConfigHolder<PrimaryConfig> config;
+    private final ConfigurationHolder<PrimaryConfiguration> configHolder;
+    private final TranslatorHolder translatorHolder;
 
-    public ItemPurchaseDialogFactory(final ConfigHolder<PrimaryConfig> config) {
-        this.config = config;
+    public ItemPurchaseDialogFactory(
+            final ConfigurationHolder<PrimaryConfiguration> configHolder,
+            final TranslatorHolder translatorHolder
+    ) {
+        this.configHolder = configHolder;
+        this.translatorHolder = translatorHolder;
     }
 
     public Dialog create(final Shop shop) {

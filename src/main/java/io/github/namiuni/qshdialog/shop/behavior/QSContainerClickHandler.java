@@ -54,7 +54,7 @@ public final class QSContainerClickHandler implements InteractionBehavior {
 
     @Override
     public String identifier() {
-        return "TRADE_DIALOG";
+        return "ITEM_TRADING_DIALOG";
     }
 
     @Override

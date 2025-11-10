@@ -28,15 +28,29 @@ public final class TranslationMessages {
     private TranslationMessages() {
     }
 
+    public static Component configurationReloadSuccess() {
+        return Component.translatable("qsh_dialog.command.reload.config.success");
+    }
+
+    public static Component configurationReloadError() {
+        return Component.translatable("qsh_dialog.command.reload.config.error");
+    }
+
+    public static Component translationReloadSuccess() {
+        return Component.translatable("qsh_dialog.command.reload.translation.success");
+    }
+
+    public static Component translationReloadError() {
+        return Component.translatable("qsh_dialog.command.reload.translation.error");
+    }
+
     /* Shop Creation Dialog */
 
     public static Component shopCreationTitle() {
-        // "Shop Creation Menu"
         return Component.translatable("qsh_dialog.shop.creation.title");
     }
 
     public static Component shopCreationDescription() {
-        // "Create your shop. Once you’ve filled out all the required fields, click <b><yellow>Create</yellow></b> to finish."
         return Component.translatable("qsh_dialog.shop.creation.description");
     }
 
@@ -93,7 +107,7 @@ public final class TranslationMessages {
     }
 
     public static Component itemPurchaseConfirmationConfirm() {
-        return Component.translatable("qsh_dialog.shop.purchase.confirmation.confirm");
+        return Component.translatable("qsh_dialog.shop.purchase.confirmation.buy");
     }
 
     public static Component itemPurchaseConfirmationCancel() {
@@ -111,7 +125,7 @@ public final class TranslationMessages {
     }
 
     public static Component itemSaleConfirmationConfirm() {
-        return Component.translatable("qsh_dialog.shop.sale.confirmation.confirm");
+        return Component.translatable("qsh_dialog.shop.sale.confirmation.sell");
     }
 
     public static Component itemSaleConfirmationCancel() {

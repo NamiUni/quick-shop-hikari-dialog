@@ -35,15 +35,15 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class QSShopClickHandler implements InteractionBehavior {
 
-    private final ShopModificationDialogFactory shopControlDialogFactory;
+    private final ShopModificationDialogFactory shopModificationDialogFactory;
 
-    public QSShopClickHandler(final ShopModificationDialogFactory shopControlDialogFactory) {
-        this.shopControlDialogFactory = shopControlDialogFactory;
+    public QSShopClickHandler(final ShopModificationDialogFactory shopModificationDialogFactory) {
+        this.shopModificationDialogFactory = shopModificationDialogFactory;
     }
 
     @Override
     public String identifier() {
-        return "CONTROL_DIALOG";
+        return "SHOP_MODIFICATION_DIALOG";
     }
 
     @Override
@@ -58,8 +58,8 @@ public final class QSShopClickHandler implements InteractionBehavior {
         if (shop != null) {
             playerInteractEvent.setCancelled(true);
 
-            final Dialog controlDialog = this.shopControlDialogFactory.create(shop);
-            player.showDialog(controlDialog);
+            final Dialog modificationDialog = this.shopModificationDialogFactory.create(shop);
+            player.showDialog(modificationDialog);
 
             shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
         }

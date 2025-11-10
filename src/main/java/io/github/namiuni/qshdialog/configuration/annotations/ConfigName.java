@@ -17,13 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.utility;
+package io.github.namiuni.qshdialog.configuration.annotations;
 
-import com.github.sviperll.result4j.Result;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public interface Reloadable<T, E> {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ConfigName {
 
-    Result<T, E> reload();
+    String value();
 }

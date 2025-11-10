@@ -17,17 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.configuration;
+package io.github.namiuni.qshdialog;
 
-import io.github.namiuni.qshdialog.utility.Reloadable;
-import java.util.function.Supplier;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class ConfigHolder<T> implements Supplier<T>, Reloadable {
+public final class QSHPermissions {
 
-    @Override
-    public T get() {
-        return null; // TODO
+    public static final String RELOAD = "qshdialog.reload";
+
+    private QSHPermissions() {
     }
 }

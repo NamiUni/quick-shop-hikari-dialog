@@ -17,10 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.configuration;
+package io.github.namiuni.qshdialog.command.commands;
 
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.List;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public final class PrimaryConfig {
+public interface QSHCommand {
+
+    LiteralCommandNode<CommandSourceStack> node();
+
+    default List<String> aliases() {
+        return List.of();
+    }
+
+    default String description() {
+        return "Provided by the QuickShop-Hikari Dialog";
+    }
 }

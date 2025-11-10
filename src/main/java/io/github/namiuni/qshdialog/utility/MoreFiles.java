@@ -19,11 +19,23 @@
  */
 package io.github.namiuni.qshdialog.utility;
 
-import com.github.sviperll.result4j.Result;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public interface Reloadable<T, E> {
+public final class MoreFiles {
 
-    Result<T, E> reload();
+    private MoreFiles() {
+    }
+
+    public static Path createDirectories(final Path path) {
+        try {
+            return Files.createDirectories(path);
+        } catch (final IOException exception) {
+            throw new UncheckedIOException(exception);
+        }
+    }
 }
