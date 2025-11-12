@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.shop.behavior;
+package io.github.namiuni.qshdialog.shop.policy;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.QuickShopAPI;
@@ -25,27 +25,28 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
+import com.ghostchu.quickshop.api.shop.type.BuyingType;
+import com.ghostchu.quickshop.api.shop.type.FrozenType;
+import com.ghostchu.quickshop.api.shop.type.SellingType;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.user.QSHUserService;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public final class QSContainerClickHandler implements InteractionBehavior {
+public final class QSItemTradingPolicy implements InteractionBehavior {
 
     private final QSHUserService userService;
 
-    public QSContainerClickHandler(final QSHUserService userService) {
+    public QSItemTradingPolicy(final QSHUserService userService) {
         this.userService = userService;
     }
 
     @Override
     public String identifier() {
-        return "ITEM_TRADING_DIALOG";
+        return "TRADING_DIALOG";
     }
 
     @Override
@@ -57,28 +58,25 @@ public final class QSContainerClickHandler implements InteractionBehavior {
             final InteractionClick interactionClick,
             final @Nullable InteractionType interactionType
     ) {
-
-        // Show Shop Creation Dialog
-        final ItemStack usingItem = interactEvent.getItem();
-        final QSHUser qshUser = this.userService.getUser(player);
-        final Block clickedBlock = interactEvent.getClickedBlock();
-        if (shop == null && usingItem != null && clickedBlock != null) {
-            interactEvent.setCancelled(true);
-
-            qshUser.showShopCreationDialog(clickedBlock);
+        if (shop == null) {
             return;
         }
 
-        if (shop != null) {
-            interactEvent.setCancelled(true);
-            shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
-            switch (shop.getShopType()) {
-                case SELLING -> qshUser.showItemPurchaseDialog(shop);
-                case BUYING -> qshUser.showItemSaleDialog(shop);
-                case FROZEN -> ((QuickShop) quickShopAPI).text()
-                        .of(interactEvent.getPlayer(), "shop-cannot-trade-when-freezing")
-                        .send();
+        interactEvent.setCancelled(true);
+        shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
+
+        final QSHUser qshUser = this.userService.getUser(player);
+        switch (shop.shopType()) {
+            case SellingType ignored -> qshUser.showItemPurchaseDialog(shop);
+            case BuyingType ignored -> qshUser.showItemSaleDialog(shop);
+            case FrozenType ignored -> QuickShop.getInstance().text()
+                    .of(interactEvent.getPlayer(), "shop-cannot-trade-when-freezing")
+                    .send();
+            default -> {
+                // ignored
             }
         }
+
+        shop.setSignText((QuickShop.getInstance().text().findRelativeLanguages(player)));
     }
 }

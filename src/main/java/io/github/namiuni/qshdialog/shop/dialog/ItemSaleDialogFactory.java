@@ -46,7 +46,7 @@ public final class ItemSaleDialogFactory {
 
     public Dialog create(final Shop shop, final QSHUser qshUser) {
         if (!shop.isBuying()) {
-            throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.getShopType()));
+            throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.shopType().identifier()));
         }
 
         final DialogBase dialogBase = DialogBase.builder(this.title(shop, qshUser))

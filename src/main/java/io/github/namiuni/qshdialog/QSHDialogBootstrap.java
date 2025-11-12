@@ -19,6 +19,7 @@
  */
 package io.github.namiuni.qshdialog;
 
+import com.google.common.base.Suppliers;
 import io.github.namiuni.qshdialog.command.commands.AdminCommand;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.ConfigurationLoader;
@@ -35,6 +36,7 @@ import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -46,13 +48,13 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
 
     private @MonotonicNonNull ConfigurationHolder<PrimaryConfiguration> configHolder;
     private @MonotonicNonNull TranslatorHolder translatorHolder;
-    private @MonotonicNonNull QSHUserService userService;
+    private @MonotonicNonNull Supplier<QSHUserService> userService;
 
     @Override
     public void bootstrap(final BootstrapContext context) {
         this.configHolder = this.createConfigHolder(context);
         this.translatorHolder = this.createTranslatorHolder(context);
-        this.userService = this.createUserService();
+        this.userService = Suppliers.memoize(this::createUserService);
 
         this.registerCommands(context);
     }

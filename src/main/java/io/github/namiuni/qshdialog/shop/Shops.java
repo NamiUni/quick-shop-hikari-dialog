@@ -17,37 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.user;
+package io.github.namiuni.qshdialog.shop;
 
-import com.ghostchu.quickshop.api.obj.QUser;
-import com.ghostchu.quickshop.api.shop.Shop;
-import java.util.Locale;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.identity.Identity;
-import net.kyori.adventure.permission.PermissionChecker;
 import org.bukkit.block.Container;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public interface QSHUser extends Audience {
+public final class Shops {
 
-    QUser quickShopUser();
-
-    default Locale locale() {
-        return this.get(Identity.LOCALE).orElse(Locale.US);
+    private Shops() {
     }
 
-    default boolean hasPermission(final String permission) {
-        return this.get(PermissionChecker.POINTER)
-                .orElseThrow()
-                .test(permission);
+    public static ContainerShopBuilder container(final Container container) {
+        return new ContainerShopBuilder(container);
     }
-
-    void showShopCreationDialog(Container container);
-
-    void showShopModificationDialog(Shop shop);
-
-    void showItemPurchaseDialog(Shop shop);
-
-    void showItemSaleDialog(Shop shop);
 }

@@ -55,7 +55,7 @@ public final class QSHUserService {
 
     public QSHUser getUser(final Player player) {
         return new QSHUserImpl(
-                Objects.requireNonNull(player),
+                player,
                 this.shopCreationDialogFactory,
                 this.shopModificationDialogFactory,
                 this.itemPurchaseDialogFactory,

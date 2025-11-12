@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.shop.behavior;
+package io.github.namiuni.qshdialog.shop.policy;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.QuickShopAPI;
@@ -25,6 +25,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
+import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.user.QSHUserService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -32,17 +33,17 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public final class QSShopClickHandler implements InteractionBehavior {
+public final class QSShopModificationPolicy implements InteractionBehavior {
 
     private final QSHUserService userService;
 
-    public QSShopClickHandler(final QSHUserService userService) {
+    public QSShopModificationPolicy(final QSHUserService userService) {
         this.userService = userService;
     }
 
     @Override
     public String identifier() {
-        return "SHOP_MODIFICATION_DIALOG";
+        return "MODIFICATION_DIALOG";
     }
 
     @Override
@@ -57,8 +58,9 @@ public final class QSShopClickHandler implements InteractionBehavior {
         if (shop != null) {
             playerInteractEvent.setCancelled(true);
 
-            this.userService.getUser(player).showShopModificationDialog(shop);
-            shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
+            final QSHUser qshUser = this.userService.getUser(player);
+            qshUser.showShopModificationDialog(shop);
+            shop.setSignText((QuickShop.getInstance().text().findRelativeLanguages(player)));
         }
     }
 }

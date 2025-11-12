@@ -20,29 +20,32 @@
 package io.github.namiuni.qshdialog;
 
 import com.ghostchu.quickshop.QuickShop;
-import io.github.namiuni.qshdialog.shop.behavior.QSContainerClickHandler;
-import io.github.namiuni.qshdialog.shop.behavior.QSShopClickHandler;
+import io.github.namiuni.qshdialog.shop.policy.QSItemTradingPolicy;
+import io.github.namiuni.qshdialog.shop.policy.QSShopCreationPolicy;
+import io.github.namiuni.qshdialog.shop.policy.QSShopModificationPolicy;
 import io.github.namiuni.qshdialog.user.QSHUserService;
+import java.util.function.Supplier;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class QSHDialogPlugin extends JavaPlugin {
 
+    private final Supplier<QSHUserService> userService;
 
-    private final QSHUserService userService;
-
-    public QSHDialogPlugin(final QSHUserService userService) {
+    public QSHDialogPlugin(final Supplier<QSHUserService> userService) {
         this.userService = userService;
     }
 
     @Override
     public void onEnable() {
-        final var shopHandler = new QSShopClickHandler(this.userService);
-        final var containerHandler = new QSContainerClickHandler(this.userService);
+        final var creationPolicy = new QSShopCreationPolicy(this.userService.get());
+        final var modificationPolicy = new QSShopModificationPolicy(this.userService.get());
+        final var tradingPolicy = new QSItemTradingPolicy(this.userService.get());
 
-        QuickShop.getInstance().getInteractionManager().behavior(shopHandler);
-        QuickShop.getInstance().getInteractionManager().behavior(containerHandler);
+        QuickShop.getInstance().getInteractionManager().behavior(creationPolicy);
+        QuickShop.getInstance().getInteractionManager().behavior(modificationPolicy);
+        QuickShop.getInstance().getInteractionManager().behavior(tradingPolicy);
     }
 
     @Override

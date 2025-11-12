@@ -19,18 +19,24 @@
  */
 package io.github.namiuni.qshdialog.user;
 
+import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.obj.QUserImpl;
 import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
+import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
 import io.papermc.paper.dialog.Dialog;
-import java.util.Locale;
+import java.util.Objects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
-import org.bukkit.block.Block;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -48,8 +54,23 @@ public record QSHUserImpl(
     }
 
     @Override
-    public void showShopCreationDialog(final Block targetBlock) {
-        final Dialog dialog = this.shopCreationDialogFactory.create(targetBlock, this);
+    public QUser quickShopUser() {
+        return QUserImpl.createFullFilled(this.player);
+    }
+
+    @Override
+    public void showShopCreationDialog(final Container container) {
+        final BlockFace signCreationFace;
+        if (container.getBlockData() instanceof Directional directional) {
+            signCreationFace = directional.getFacing();
+        } else {
+            final int interactionRange = (int) this.getBlockInteractionRange();
+            final BlockFace blockFace = this.player.getTargetBlockFace(interactionRange);
+            signCreationFace = Objects.requireNonNullElse(blockFace, this.getDirection().getOppositeFace());
+        }
+
+        final ShopCreationContext context = new ShopCreationContext(this, this.player.getInventory().getItemInMainHand(), container, signCreationFace);
+        final Dialog dialog = this.shopCreationDialogFactory.create(context);
         this.showDialog(dialog);
     }
 
@@ -71,13 +92,19 @@ public record QSHUserImpl(
         this.showDialog(dialog);
     }
 
-    @Override
-    public ItemStack mainHandItem() {
-        return this.player.getInventory().getItemInMainHand();
+    private double getBlockInteractionRange() {
+        final AttributeInstance clickDistance = Objects.requireNonNull(this.player.getAttribute(Attribute.BLOCK_INTERACTION_RANGE));
+        return clickDistance.getValue();
     }
 
-    @Override
-    public Locale locale() {
-        return this.player.locale();
+    private BlockFace getDirection() {
+        final float yaw = ((this.player.getYaw() % 360) + 360) % 360;
+
+        return switch ((int) ((yaw + 45) / 90) % 4) {
+            case 1 -> BlockFace.WEST;
+            case 2 -> BlockFace.NORTH;
+            case 3 -> BlockFace.EAST;
+            default -> BlockFace.SOUTH;
+        };
     }
 }

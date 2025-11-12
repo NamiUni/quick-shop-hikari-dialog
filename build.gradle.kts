@@ -41,8 +41,8 @@ dependencies {
 
     // Quick Shop
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
-    compileOnly("com.ghostchu:quickshop-api:6.2.0.11-SNAPSHOT-6")
-    compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11-SNAPSHOT-6")
+    compileOnly("com.ghostchu:quickshop-api:6.2.0.11-SNAPSHOT-9")
+    compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11-SNAPSHOT-9")
 }
 
 val mainPackage = "${group}.qshdialog"
@@ -74,7 +74,7 @@ tasks {
         downloadPlugins {
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
             url("https://ci.minebench.de/job/FakeEconomy/lastSuccessfulBuild/artifact/target/FakeEconomy.jar")
-            url("https://ci.codemc.io/job/Ghost-chu/job/QuickShop-Hikari-SNAPSHOT/lastBuild/com.ghostchu\$quickshop-bukkit/artifact/com.ghostchu/quickshop-bukkit/6.2.0.11-SNAPSHOT-6/quickshop-bukkit-6.2.0.11-SNAPSHOT-6-shaded.jar")
+//            url("https://ci.codemc.io/job/Ghost-chu/job/QuickShop-Hikari-SNAPSHOT/lastBuild/com.ghostchu\$quickshop-bukkit/artifact/com.ghostchu/quickshop-bukkit/6.2.0.11-SNAPSHOT-9/quickshop-bukkit-6.2.0.11-SNAPSHOT-9-shaded.jar")
         }
     }
 }
