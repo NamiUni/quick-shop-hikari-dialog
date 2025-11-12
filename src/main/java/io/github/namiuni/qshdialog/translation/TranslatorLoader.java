@@ -27,8 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.kyori.adventure.key.Key;
@@ -78,6 +80,7 @@ public final class TranslatorLoader {
         }
 
         INCLUDED_BUNDLE_LOCALES.stream()
+                .filter(Predicate.not(installedLocales::contains))
                 .map(locale -> ResourceBundle.getBundle(
                         "translations/messages",
                         locale,
@@ -100,7 +103,7 @@ public final class TranslatorLoader {
             final String localeString = translationFile.getFileName().toString()
                     .substring("messages_".length())
                     .replace(".properties", "");
-            final Locale locale = Locale.of(localeString);
+            final Locale locale = Objects.requireNonNull(Translator.parseLocale(localeString));
             return new LocaleBundlePair(locale, translationFile);
         }
     }
