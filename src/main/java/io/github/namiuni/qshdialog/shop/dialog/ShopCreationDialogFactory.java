@@ -39,7 +39,6 @@ import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,15 +58,20 @@ public final class ShopCreationDialogFactory {
     }
 
     public Dialog create(final ShopCreationContext context) {
+        final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
+                .check(context.owner().quickShopUser(), context.product(), null, 1.0);
+        final double minPrice = priceLimit.getMin();
+        final double maxPrice = priceLimit.getMax();
+
         final DialogBase dialogBase = DialogBase.builder(this.title(context))
                 .body(this.body(context))
-                .inputs(this.inputs(context))
+                .inputs(this.inputs(context, minPrice, maxPrice))
                 .build();
 
         return Dialog.create(builder -> builder
                 .empty()
                 .base(dialogBase)
-                .type(this.dialogType(context))
+                .type(this.dialogType(context, minPrice, maxPrice))
         );
     }
 
@@ -83,7 +87,7 @@ public final class ShopCreationDialogFactory {
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final ShopCreationContext context) {
+    private List<? extends DialogInput> inputs(final ShopCreationContext context, final double minPrice, final double maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
         final List<SingleOptionDialogInput.OptionEntry> types = new ArrayList<>();
@@ -116,11 +120,7 @@ public final class ShopCreationDialogFactory {
             inputs.add(bundleSizeInput);
         }
 
-        final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
-                .check(context.owner().quickShopUser(), context.product(), null, 1.0);
-        final double minPrice = priceLimit.getMin();
-
-        final Component priceLabel = TranslationMessages.shopInputPriceLabel(context.owner()); // TODO: 最低最高平均上限下限
+        final Component priceLabel = TranslationMessages.shopInputPriceLabel(context.owner(), minPrice, maxPrice);
         final DialogInput priceInput = DialogInput.text("price", priceLabel)
                 .initial(String.valueOf(minPrice))
                 .build();
@@ -157,7 +157,7 @@ public final class ShopCreationDialogFactory {
         return inputs;
     }
 
-    private DialogType dialogType(final ShopCreationContext context) {
+    private DialogType dialogType(final ShopCreationContext context, final double minPrice, final double maxPrice) {
         final DialogActionCallback callback = (response, audience) -> {
             final ContainerShopBuilder builder = Shops.container(context.shopContainer())
                     .owner(context.owner().quickShopUser())
@@ -171,7 +171,8 @@ public final class ShopCreationDialogFactory {
                     .ifPresentOrElse(
                             builder::price,
                             () -> {
-                                final Component message = TranslationMessages.shopCreationErrorEmptyInput(context.owner(), TranslationMessages.shopInputPriceLabel(context.owner()));
+                                final Component label = TranslationMessages.shopInputPriceLabel(context.owner(), minPrice, maxPrice);
+                                final Component message = TranslationMessages.shopCreationErrorEmptyInput(context.owner(), label);
                                 context.owner().sendMessage(message);
                             });
 

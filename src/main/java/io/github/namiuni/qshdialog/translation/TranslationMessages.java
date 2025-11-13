@@ -155,8 +155,12 @@ public final class TranslationMessages {
         return PlainTextComponentSerializer.plainText().serialize(component); // Maybe bad approach
     }
 
-    public static Component shopInputPriceLabel(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.price.label");
+    public static Component shopInputPriceLabel(final QSHUser qshUser, final double minPrice, final double maxPrice) {
+        final TranslatableComponent component = Component.translatable(
+                "qsh_dialog.shop.input.price.label",
+                Argument.numeric("min_price", minPrice),
+                Argument.numeric("max_price", maxPrice)
+        );
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
