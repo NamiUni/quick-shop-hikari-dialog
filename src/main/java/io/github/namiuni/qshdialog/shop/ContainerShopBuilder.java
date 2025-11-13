@@ -24,6 +24,7 @@ import com.ghostchu.quickshop.api.inventory.InventoryWrapperManager;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.economy.QSBenefitProvider;
 import com.ghostchu.quickshop.shop.ContainerShop;
+import com.ghostchu.quickshop.shop.SimpleShopManager;
 import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapper;
 import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapperManager;
 import java.util.Map;
@@ -39,19 +40,22 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class ContainerShopBuilder {
 
+    private final long id;
     private final Container container;
     private double price;
     private @MonotonicNonNull ItemStack product;
-    private int quantity = 1;
+    private int bundleSize = 1;
     private @MonotonicNonNull QUser owner;
     private boolean unlimited = false;
     private TradeType type = TradeType.SELL;
+    private boolean suspend = false;
     private @Nullable String currency = null;
     private boolean showDisplay = true;
     private @Nullable String name = null;
     private Map<UUID, String> playerGroup = Map.of();
 
     ContainerShopBuilder(final Container container) {
+        this.id = -1;
         this.container = container;
     }
 
@@ -65,8 +69,8 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder bundleSize(final int quantity) {
-        this.quantity = quantity;
+    public ContainerShopBuilder bundleSize(final int bundleSize) {
+        this.bundleSize = bundleSize;
         return this;
     }
 
@@ -108,7 +112,7 @@ public final class ContainerShopBuilder {
     public ContainerShop build() {
         Objects.requireNonNull(this.product, "product");
         Objects.requireNonNull(this.owner, "owner");
-        this.product.setAmount(this.quantity);
+        this.product.setAmount(this.bundleSize);
 
         final QuickShop quickShop = QuickShop.getInstance();
 
@@ -119,13 +123,13 @@ public final class ContainerShopBuilder {
 
         return new ContainerShop(
                 quickShop,
-                -1,
+                this.id,
                 this.container.getLocation(),
                 this.price,
                 this.product,
                 this.owner,
                 this.unlimited,
-                this.type.shopType(),
+                this.suspend ? SimpleShopManager.FROZEN_TYPE : this.type.shopType(),
                 new YamlConfiguration(),
                 this.currency,
                 !this.showDisplay,

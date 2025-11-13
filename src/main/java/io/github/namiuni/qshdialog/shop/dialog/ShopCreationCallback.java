@@ -40,6 +40,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
 final class ShopCreationCallback implements DialogActionCallback {
+
     private final ShopCreationContext context;
     private final double minPrice;
     private final double maxPrice;

@@ -19,16 +19,20 @@
  */
 package io.github.namiuni.qshdialog.shop.dialog;
 
-import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
+import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import net.kyori.adventure.text.Component;
+
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
@@ -37,72 +41,75 @@ final class DialogInputs {
     private DialogInputs() {
     }
 
-    public static DialogInput tradeType(final QSHUser qshUser) {
+    public static DialogInput tradeType(final QSHUser qshUser, final TradeType initial) {
         final Component label = TranslationMessages.shopTradeTypeLabel(qshUser);
         final List<SingleOptionDialogInput.OptionEntry> types = new ArrayList<>();
 
         if (qshUser.hasPermission("quickshop.create.sell")) {
             final Component sell = TranslationMessages.shopTradeTypeSell(qshUser);
-            final var option = SingleOptionDialogInput.OptionEntry.create("SELL", sell, true);
+            final var option = SingleOptionDialogInput.OptionEntry.create("SELL", sell, initial == TradeType.SELL);
             types.add(option);
         }
 
         if (qshUser.hasPermission("quickshop.create.buy")) {
             final Component buy = TranslationMessages.shopTradeTypeBuy(qshUser);
-            final var option = SingleOptionDialogInput.OptionEntry.create("BUY", buy, false);
+            final var option = SingleOptionDialogInput.OptionEntry.create("BUY", buy, initial == TradeType.BUY);
             types.add(option);
         }
 
         return DialogInput.singleOption("trade_type", label, types).build();
     }
 
-    public static DialogInput productBundleSize(final ShopCreationContext context) {
-        final Component label = TranslationMessages.shopProductBundleSize(context.owner());
-        final String format = TranslationMessages.shopProductBundleFormat(context.owner());
+    public static DialogInput productBundleSize(final QSHUser owner, final int initial, final int max) {
+        final Component label = TranslationMessages.shopProductBundleSize(owner);
+        final String format = TranslationMessages.shopProductBundleFormat(owner);
 
-        return DialogInput.numberRange("product_size", label, 0.0f, 64.0f)
+        return DialogInput.numberRange("product_size", label, 1.0f, max)
                 .step(1.0f)
-                .initial((float) context.product().getAmount())
+                .initial((float) initial)
                 .labelFormat(format)
                 .build();
     }
 
-    public static DialogInput productPrice(final QSHUser qshUser, final double minPrice, final double maxPrice) {
+    public static DialogInput productPrice(final QSHUser qshUser, final double initial, final double minPrice, final double maxPrice) {
         final Component productPrice = TranslationMessages.productPriceLabel(qshUser, minPrice, maxPrice);
 
         return DialogInput.text("product_price", productPrice)
-                .initial(String.valueOf(minPrice))
+                .initial(BigDecimal.valueOf(initial).toPlainString())
                 .build();
     }
 
-    public static DialogInput shopName(final QSHUser qshUser) {
+    public static DialogInput shopName(final QSHUser qshUser, final @Nullable String initial) {
         final double namingCost = QuickShopUtil.namingCost(qshUser);
         final Component label = TranslationMessages.shopNameLabel(qshUser, namingCost);
 
         return DialogInput.text("shop_name", label)
+                .initial(Optional.ofNullable(initial).orElse(""))
                 .maxLength(QuickShopUtil.maxNameLength())
                 .build();
     }
 
-    public static DialogInput shopCurrency(final QSHUser qshUser) {
+    public static DialogInput shopCurrency(final QSHUser qshUser, final @Nullable String initial) {
         final Component label = TranslationMessages.shopCurrencyLabel(qshUser);
 
-        return DialogInput.text("shop_currency", label).build();
-    }
-
-    public static DialogInput shopShowDisplay(final QSHUser qshUser) {
-        final Component label = TranslationMessages.shopShowDisplayLabel(qshUser);
-
-        return DialogInput.bool("show_display", label)
-                .initial(true)
+        return DialogInput.text("shop_currency", label)
+                .initial(Optional.ofNullable(initial).orElse(""))
                 .build();
     }
 
-    public static DialogInput shopUnlimitedStock(final QSHUser qshUser) {
+    public static DialogInput shopShowDisplay(final QSHUser qshUser, final boolean initial) {
+        final Component label = TranslationMessages.shopShowDisplayLabel(qshUser);
+
+        return DialogInput.bool("show_display", label)
+                .initial(initial)
+                .build();
+    }
+
+    public static DialogInput shopUnlimitedStock(final QSHUser qshUser, final boolean initial) {
         final Component label = TranslationMessages.shopUnlimitedStockLabel(qshUser);
 
         return DialogInput.bool("unlimited_stock", label)
-                .initial(false)
+                .initial(initial)
                 .build();
     }
 }

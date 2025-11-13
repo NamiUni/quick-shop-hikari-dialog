@@ -19,19 +19,26 @@
  */
 package io.github.namiuni.qshdialog.shop.dialog;
 
+import com.ghostchu.quickshop.QuickShop;
+import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
+import java.util.ArrayList;
 import java.util.List;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -45,20 +52,20 @@ public final class ShopModificationDialogFactory {
     }
 
     public Dialog create(final Shop shop, final QSHUser qshUser) {
+        final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
+                .check(qshUser.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
+        final double minPrice = priceLimit.getMin();
+        final double maxPrice = priceLimit.getMax();
+
         final DialogBase dialogBase = DialogBase.builder(this.title(shop, qshUser))
                 .body(this.body(shop, qshUser))
-                .inputs(this.inputs(shop, qshUser))
+                .inputs(this.inputs(shop, qshUser, minPrice, maxPrice))
                 .build();
-
-        final DialogType dialogType = DialogType.confirmation(
-                ActionButton.builder(TranslationMessages.shopModificationConfirmationApply(qshUser)).build(),
-                ActionButton.builder(TranslationMessages.shopModificationConfirmationCancel(qshUser)).build()
-        );
 
         return Dialog.create(builder -> builder
                 .empty()
                 .base(dialogBase)
-                .type(dialogType)
+                .type(this.dialogType(shop, qshUser))
         );
     }
 
@@ -74,7 +81,54 @@ public final class ShopModificationDialogFactory {
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser qshUser) {
-        return List.of();
+    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser owner, final double minPrice, final double maxPrice) {
+        final List<DialogInput> inputs = new ArrayList<>();
+
+        inputs.add(DialogInputs.tradeType(owner, TradeType.of(shop.shopType())));
+
+        if (owner.hasPermission("quickshop.create.stacks") && QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
+            final DialogInput input = DialogInputs.productBundleSize(owner, shop.getItem().getAmount(), shop.getItem().getMaxStackSize());
+            inputs.add(input);
+        }
+
+        inputs.add(DialogInputs.productPrice(owner, shop.getPrice(), minPrice, maxPrice));
+
+        if (owner.hasPermission("quickshop.shopnaming")) {
+            inputs.add(DialogInputs.shopName(owner, shop.getShopName()));
+        }
+
+        if (owner.hasPermission("quickshop.currency")) {
+            inputs.add(DialogInputs.shopCurrency(owner, shop.getCurrency()));
+        }
+
+        if (owner.hasPermission("quickshop.toggledisplay")) {
+            inputs.add(DialogInputs.shopShowDisplay(owner, !shop.isDisableDisplay()));
+        }
+
+        if (owner.hasPermission("quickshop.unlimited")) {
+            inputs.add(DialogInputs.shopUnlimitedStock(owner, shop.isUnlimited()));
+        }
+
+        return inputs;
+    }
+
+    private DialogType dialogType(final Shop shop, final QSHUser qshUser) {
+        final DialogActionCallback callback = new ShopModificationCallback(shop, qshUser);
+
+        final ClickCallback.Options options = ClickCallback.Options.builder()
+                .uses(1)
+                .lifetime(ClickCallback.DEFAULT_LIFETIME)
+                .build();
+
+        final ActionButton applyBotton = ActionButton
+                .builder(TranslationMessages.shopModificationConfirmationApply(qshUser))
+                .action(DialogAction.customClick(callback, options))
+                .build();
+
+        final ActionButton cancelButton = ActionButton
+                .builder(TranslationMessages.shopModificationConfirmationCancel(qshUser))
+                .build();
+
+        return DialogType.confirmation(applyBotton, cancelButton);
     }
 }

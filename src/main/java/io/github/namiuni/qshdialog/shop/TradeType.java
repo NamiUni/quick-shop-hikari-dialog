@@ -20,11 +20,14 @@
 package io.github.namiuni.qshdialog.shop;
 
 import com.ghostchu.quickshop.api.shop.IShopType;
+import com.ghostchu.quickshop.api.shop.type.BuyingType;
+import com.ghostchu.quickshop.api.shop.type.SellingType;
 import com.ghostchu.quickshop.shop.SimpleShopManager;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public enum TradeType {
+
     BUY(SimpleShopManager.BUYING_TYPE),
     SELL(SimpleShopManager.SELLING_TYPE);
 
@@ -32,6 +35,14 @@ public enum TradeType {
 
     TradeType(final IShopType buyingType) {
         this.shopType = buyingType;
+    }
+
+    public static TradeType of(final IShopType shopType) {
+        return switch (shopType) {
+            case BuyingType ignored -> BUY;
+            case SellingType ignored -> SELL;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public IShopType shopType() {

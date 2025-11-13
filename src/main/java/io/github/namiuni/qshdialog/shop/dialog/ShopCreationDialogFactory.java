@@ -23,6 +23,7 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.papermc.paper.dialog.Dialog;
@@ -85,28 +86,33 @@ public final class ShopCreationDialogFactory {
     private List<? extends DialogInput> inputs(final ShopCreationContext context, final double minPrice, final double maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
-        inputs.add(DialogInputs.tradeType(context.owner()));
+        inputs.add(DialogInputs.tradeType(context.owner(), TradeType.SELL));
 
-        if (context.owner().hasPermission("quickshop.create.stacks")) {
-            inputs.add(DialogInputs.productBundleSize(context));
+        if (context.owner().hasPermission("quickshop.create.stacks") && QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
+            final DialogInput input = DialogInputs.productBundleSize(
+                    context.owner(),
+                    context.product().getAmount(),
+                    context.product().getMaxStackSize()
+            );
+            inputs.add(input);
         }
 
-        inputs.add(DialogInputs.productPrice(context.owner(), minPrice, maxPrice));
+        inputs.add(DialogInputs.productPrice(context.owner(), minPrice, minPrice, maxPrice));
 
         if (context.owner().hasPermission("quickshop.shopnaming")) {
-            inputs.add(DialogInputs.shopName(context.owner()));
+            inputs.add(DialogInputs.shopName(context.owner(), ""));
         }
 
         if (context.owner().hasPermission("quickshop.currency")) {
-            inputs.add(DialogInputs.shopCurrency(context.owner()));
+            inputs.add(DialogInputs.shopCurrency(context.owner(), ""));
         }
 
         if (context.owner().hasPermission("quickshop.toggledisplay")) {
-            inputs.add(DialogInputs.shopShowDisplay(context.owner()));
+            inputs.add(DialogInputs.shopShowDisplay(context.owner(), true));
         }
 
         if (context.owner().hasPermission("quickshop.unlimited")) {
-            inputs.add(DialogInputs.shopUnlimitedStock(context.owner()));
+            inputs.add(DialogInputs.shopUnlimitedStock(context.owner(), false));
         }
 
         return inputs;
