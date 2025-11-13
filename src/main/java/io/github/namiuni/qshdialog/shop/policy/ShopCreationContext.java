@@ -26,5 +26,5 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public record ShopCreationContext(QSHUser owner, ItemStack product, Container container, BlockFace face) {
+public record ShopCreationContext(QSHUser owner, ItemStack product, Container shopContainer, BlockFace shopFace) {
 }

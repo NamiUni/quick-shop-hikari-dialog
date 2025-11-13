@@ -23,6 +23,7 @@ import io.github.namiuni.qshdialog.user.QSHUser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.minimessage.translation.Argument;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
 import org.jspecify.annotations.NullMarked;
 
@@ -143,9 +144,15 @@ public final class TranslationMessages {
 
     /* Shop General Dialog inputs */
 
-    public static Component shopInputQuantity(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.quantity.label");
+    public static Component shopInputBundleSize(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.bundle_size.label");
         return GlobalTranslator.render(component, qshUser.locale());
+    }
+
+    public static String shopInputBundleFormat(final QSHUser qshUser) {
+        final TranslatableComponent format = Component.translatable("qsh_dialog.shop.input.bundle_size.format");
+        final Component component = GlobalTranslator.render(format, qshUser.locale());
+        return PlainTextComponentSerializer.plainText().serialize(component); // Maybe bad approach
     }
 
     public static Component shopInputPriceLabel(final QSHUser qshUser) {

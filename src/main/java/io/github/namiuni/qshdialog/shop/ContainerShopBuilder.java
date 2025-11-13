@@ -65,7 +65,7 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder quantity(final int quantity) {
+    public ContainerShopBuilder bundleSize(final int quantity) {
         this.quantity = quantity;
         return this;
     }

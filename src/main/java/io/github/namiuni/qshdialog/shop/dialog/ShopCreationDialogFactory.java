@@ -33,11 +33,13 @@ import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -104,12 +106,14 @@ public final class ShopCreationDialogFactory {
         inputs.add(shopTypeInput);
 
         if (context.owner().hasPermission("quickshop.create.stacks")) {
-            final Component quantityLabel = TranslationMessages.shopInputQuantity(context.owner());
-            final DialogInput quantityInput = DialogInput.numberRange("quantity", quantityLabel, 0.0f, 64.0f)
+            final Component bundleSizeLabel = TranslationMessages.shopInputBundleSize(context.owner());
+            final String format = TranslationMessages.shopInputBundleFormat(context.owner());
+            final DialogInput bundleSizeInput = DialogInput.numberRange("bundle_size", bundleSizeLabel, 0.0f, 64.0f)
                     .step(1.0f)
                     .initial((float) context.product().getAmount())
+                    .labelFormat(format)
                     .build();
-            inputs.add(quantityInput);
+            inputs.add(bundleSizeInput);
         }
 
         final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
@@ -154,53 +158,56 @@ public final class ShopCreationDialogFactory {
     }
 
     private DialogType dialogType(final ShopCreationContext context) {
-        return DialogType.confirmation(
-                ActionButton.builder(TranslationMessages.shopCreationConfirmationCreate(context.owner()))
-                        .action(DialogAction.customClick((response, audience) -> {
-                                    final ContainerShopBuilder builder = Shops.container(context.container())
-                                            .owner(context.owner().quickShopUser())
-                                            .product(context.product());
+        final DialogActionCallback callback = (response, audience) -> {
+            final ContainerShopBuilder builder = Shops.container(context.shopContainer())
+                    .owner(context.owner().quickShopUser())
+                    .product(context.product());
+            Optional.ofNullable(response.getFloat("bundle_size"))
+                    .ifPresent(bundleSize -> builder.bundleSize(bundleSize.intValue()));
 
-                                    Optional.ofNullable(response.getFloat("quantity"))
-                                            .ifPresent(quantity -> builder.quantity(quantity.intValue()));
+            Optional.ofNullable(response.getText("price"))
+                    .map(BigDecimal::new)
+                    .map(BigDecimal::doubleValue)
+                    .ifPresentOrElse(
+                            builder::price,
+                            () -> {
+                                final Component message = TranslationMessages.shopCreationErrorEmptyInput(context.owner(), TranslationMessages.shopInputPriceLabel(context.owner()));
+                                context.owner().sendMessage(message);
+                            });
 
-                                    Optional.ofNullable(response.getText("price"))
-                                            .map(BigDecimal::new)
-                                            .map(BigDecimal::doubleValue)
-                                            .ifPresentOrElse(
-                                                    builder::price,
-                                                    () -> {
-                                                        final Component message = TranslationMessages.shopCreationErrorEmptyInput(
-                                                                context.owner(),
-                                                                TranslationMessages.shopInputPriceLabel(context.owner()));
-                                                        context.owner().sendMessage(message);
-                                                    }
-                                            );
+            Optional.ofNullable(response.getText("type"))
+                    .map(ShopType::valueOf)
+                    .ifPresent(builder::type);
 
-                                    Optional.ofNullable(response.getText("type"))
-                                            .map(ShopType::valueOf)
-                                            .ifPresent(builder::type);
+            builder.name(response.getText("name"));
+            builder.currency(response.getText("currency"));
 
-                                    builder.name(response.getText("name"));
-                                    builder.currency(response.getText("currency"));
+            Optional.ofNullable(response.getBoolean("display"))
+                    .ifPresent(builder::display);
 
-                                    Optional.ofNullable(response.getBoolean("display"))
-                                            .ifPresent(builder::display);
+            Optional.ofNullable(response.getBoolean("unlimited"))
+                    .ifPresent(builder::display);
 
-                                    Optional.ofNullable(response.getBoolean("unlimited"))
-                                            .ifPresent(builder::display);
+            final Shop shop = builder.build();
+            final Block signLocationBlock = context.shopContainer().getBlock().getRelative(context.shopFace());
+            QuickShop.getInstance().getShopManager().createShop(shop, signLocationBlock, false);
 
-                                    final Shop shop = builder.build();
-                                    final Block signLocationBlock = context.container().getBlock().getRelative(context.face());
-                                    QuickShop.getInstance().getShopManager().createShop(shop, signLocationBlock, false);
+        };
 
-                                }, ClickCallback.Options.builder()
-                                        .uses(1)
-                                        .lifetime(ClickCallback.DEFAULT_LIFETIME)
-                                        .build())
-                        )
-                        .build(),
-                ActionButton.builder(TranslationMessages.shopCreationConfirmationCancel(context.owner())).build()
-        );
+        final ClickCallback.Options options = ClickCallback.Options.builder()
+                .uses(1)
+                .lifetime(ClickCallback.DEFAULT_LIFETIME)
+                .build();
+
+        final ActionButton createButton = ActionButton
+                .builder(TranslationMessages.shopCreationConfirmationCreate(context.owner()))
+                .action(DialogAction.customClick(callback, options))
+                .build();
+
+        final ActionButton cancelButton = ActionButton
+                .builder(TranslationMessages.shopCreationConfirmationCancel(context.owner()))
+                .build();
+
+        return DialogType.confirmation(createButton, cancelButton);
     }
 }
