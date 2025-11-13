@@ -72,7 +72,10 @@ public final class TranslationMessages {
     }
 
     public static Component shopCreationErrorEmptyInput(final QSHUser qshUser, final Component inputLabel) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.error.empty_input", Argument.component("input_label", inputLabel));
+        final TranslatableComponent component = Component.translatable(
+                "qsh_dialog.shop.creation.error.empty_input",
+                Argument.component("input_label", inputLabel)
+        );
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
@@ -144,57 +147,60 @@ public final class TranslationMessages {
 
     /* Shop General Dialog inputs */
 
-    public static Component shopInputBundleSize(final QSHUser qshUser) {
+    public static Component shopProductBundleSize(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.bundle_size.label");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static String shopInputBundleFormat(final QSHUser qshUser) {
+    public static String shopProductBundleFormat(final QSHUser qshUser) {
         final TranslatableComponent format = Component.translatable("qsh_dialog.shop.input.bundle_size.format");
         final Component component = GlobalTranslator.render(format, qshUser.locale());
         return PlainTextComponentSerializer.plainText().serialize(component); // Maybe bad approach
     }
 
-    public static Component shopInputPriceLabel(final QSHUser qshUser, final double minPrice, final double maxPrice) {
-        final TranslatableComponent component = Component.translatable(
+    public static Component productPriceLabel(final QSHUser qshUser, final double minPrice, final double maxPrice) {
+        final TranslatableComponent translatableLabel = Component.translatable(
                 "qsh_dialog.shop.input.price.label",
                 Argument.numeric("min_price", minPrice),
                 Argument.numeric("max_price", maxPrice)
         );
-        return GlobalTranslator.render(component, qshUser.locale());
+        return GlobalTranslator.render(translatableLabel, qshUser.locale());
     }
 
-    public static Component shopInputTypeLabel(final QSHUser qshUser) {
+    public static Component shopTradeTypeLabel(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.type.label");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopInputTypeSell(final QSHUser qshUser) {
+    public static Component shopTradeTypeSell(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.type.sell");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopInputTypeBuy(final QSHUser qshUser) {
+    public static Component shopTradeTypeBuy(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.type.buy");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopInputShopName(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.name.label");
+    public static Component shopNameLabel(final QSHUser qshUser, final double namingCost) {
+        final TranslatableComponent component = Component.translatable(
+                "qsh_dialog.shop.input.name.label",
+                Argument.numeric("naming_cost", namingCost)
+        );
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopInputCurrency(final QSHUser qshUser) {
+    public static Component shopCurrencyLabel(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.currency.label");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopInputDisableDisplay(final QSHUser qshUser) {
+    public static Component shopShowDisplayLabel(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.display.label");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopInputUnlimited(final QSHUser qshUser) {
+    public static Component shopUnlimitedStockLabel(final QSHUser qshUser) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.input.unlimited.label");
         return GlobalTranslator.render(component, qshUser.locale());
     }

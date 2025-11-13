@@ -21,12 +21,8 @@ package io.github.namiuni.qshdialog.shop.dialog;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
-import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
-import io.github.namiuni.qshdialog.shop.ContainerShopBuilder;
-import io.github.namiuni.qshdialog.shop.ShopType;
-import io.github.namiuni.qshdialog.shop.Shops;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.papermc.paper.dialog.Dialog;
@@ -35,16 +31,13 @@ import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
+import io.papermc.paper.registry.data.dialog.body.PlainMessageDialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
-import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
-import org.bukkit.block.Block;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -63,7 +56,8 @@ public final class ShopCreationDialogFactory {
         final double minPrice = priceLimit.getMin();
         final double maxPrice = priceLimit.getMax();
 
-        final DialogBase dialogBase = DialogBase.builder(this.title(context))
+        final DialogBase dialogBase = DialogBase
+                .builder(this.title(context))
                 .body(this.body(context))
                 .inputs(this.inputs(context, minPrice, maxPrice))
                 .build();
@@ -80,8 +74,9 @@ public final class ShopCreationDialogFactory {
     }
 
     private List<? extends DialogBody> body(final ShopCreationContext context) {
+        final PlainMessageDialogBody description = DialogBody.plainMessage(TranslationMessages.shopCreationDescription(context.owner()));
         final DialogBody body = DialogBody.item(context.product().asOne())
-                .description(DialogBody.plainMessage(TranslationMessages.shopCreationDescription(context.owner())))
+                .description(description)
                 .build();
 
         return List.of(body);
@@ -90,110 +85,35 @@ public final class ShopCreationDialogFactory {
     private List<? extends DialogInput> inputs(final ShopCreationContext context, final double minPrice, final double maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
-        final List<SingleOptionDialogInput.OptionEntry> types = new ArrayList<>();
-        if (context.owner().hasPermission("quickshop.create.sell")) {
-            types.add(SingleOptionDialogInput.OptionEntry.create(
-                    "SELL",
-                    TranslationMessages.shopInputTypeSell(context.owner()),
-                    true
-            ));
-        }
-        if (context.owner().hasPermission("quickshop.create.buy")) {
-            types.add(SingleOptionDialogInput.OptionEntry.create(
-                    "BUY",
-                    TranslationMessages.shopInputTypeBuy(context.owner()),
-                    false
-            ));
-        }
-        final Component typeLabel = TranslationMessages.shopInputTypeLabel(context.owner());
-        final DialogInput shopTypeInput = DialogInput.singleOption("type", typeLabel, types).build();
-        inputs.add(shopTypeInput);
+        inputs.add(DialogInputs.tradeType(context.owner()));
 
         if (context.owner().hasPermission("quickshop.create.stacks")) {
-            final Component bundleSizeLabel = TranslationMessages.shopInputBundleSize(context.owner());
-            final String format = TranslationMessages.shopInputBundleFormat(context.owner());
-            final DialogInput bundleSizeInput = DialogInput.numberRange("bundle_size", bundleSizeLabel, 0.0f, 64.0f)
-                    .step(1.0f)
-                    .initial((float) context.product().getAmount())
-                    .labelFormat(format)
-                    .build();
-            inputs.add(bundleSizeInput);
+            inputs.add(DialogInputs.productBundleSize(context));
         }
 
-        final Component priceLabel = TranslationMessages.shopInputPriceLabel(context.owner(), minPrice, maxPrice);
-        final DialogInput priceInput = DialogInput.text("price", priceLabel)
-                .initial(String.valueOf(minPrice))
-                .build();
-        inputs.add(priceInput);
+        inputs.add(DialogInputs.productPrice(context.owner(), minPrice, maxPrice));
 
         if (context.owner().hasPermission("quickshop.shopnaming")) {
-            final Component nameLabel = TranslationMessages.shopInputShopName(context.owner());
-            final DialogInput nameInput = DialogInput.text("name", nameLabel).build();
-            inputs.add(nameInput);
+            inputs.add(DialogInputs.shopName(context.owner()));
         }
 
         if (context.owner().hasPermission("quickshop.currency")) {
-            final Component currencyLabel = TranslationMessages.shopInputCurrency(context.owner());
-            final DialogInput currencyInput = DialogInput.text("currency", currencyLabel).build();
-            inputs.add(currencyInput);
+            inputs.add(DialogInputs.shopCurrency(context.owner()));
         }
 
         if (context.owner().hasPermission("quickshop.toggledisplay")) {
-            final Component displayLabel = TranslationMessages.shopInputDisableDisplay(context.owner());
-            final DialogInput displayInput = DialogInput.bool("display", displayLabel)
-                    .initial(true)
-                    .build();
-            inputs.add(displayInput);
+            inputs.add(DialogInputs.shopShowDisplay(context.owner()));
         }
 
         if (context.owner().hasPermission("quickshop.unlimited")) {
-            final Component unlimitedLabel = TranslationMessages.shopInputUnlimited(context.owner());
-            final DialogInput unlimitedInput = DialogInput.bool("unlimited", unlimitedLabel)
-                    .initial(false)
-                    .build();
-            inputs.add(unlimitedInput);
+            inputs.add(DialogInputs.shopUnlimitedStock(context.owner()));
         }
 
         return inputs;
     }
 
     private DialogType dialogType(final ShopCreationContext context, final double minPrice, final double maxPrice) {
-        final DialogActionCallback callback = (response, audience) -> {
-            final ContainerShopBuilder builder = Shops.container(context.shopContainer())
-                    .owner(context.owner().quickShopUser())
-                    .product(context.product());
-            Optional.ofNullable(response.getFloat("bundle_size"))
-                    .ifPresent(bundleSize -> builder.bundleSize(bundleSize.intValue()));
-
-            Optional.ofNullable(response.getText("price"))
-                    .map(BigDecimal::new)
-                    .map(BigDecimal::doubleValue)
-                    .ifPresentOrElse(
-                            builder::price,
-                            () -> {
-                                final Component label = TranslationMessages.shopInputPriceLabel(context.owner(), minPrice, maxPrice);
-                                final Component message = TranslationMessages.shopCreationErrorEmptyInput(context.owner(), label);
-                                context.owner().sendMessage(message);
-                            });
-
-            Optional.ofNullable(response.getText("type"))
-                    .map(ShopType::valueOf)
-                    .ifPresent(builder::type);
-
-            builder.name(response.getText("name"));
-            builder.currency(response.getText("currency"));
-
-            Optional.ofNullable(response.getBoolean("display"))
-                    .ifPresent(builder::display);
-
-            Optional.ofNullable(response.getBoolean("unlimited"))
-                    .ifPresent(builder::display);
-
-            final Shop shop = builder.build();
-            final Block signLocationBlock = context.shopContainer().getBlock().getRelative(context.shopFace());
-            QuickShop.getInstance().getShopManager().createShop(shop, signLocationBlock, false);
-
-        };
+        final DialogActionCallback callback = new ShopCreationCallback(context, minPrice, maxPrice);
 
         final ClickCallback.Options options = ClickCallback.Options.builder()
                 .uses(1)

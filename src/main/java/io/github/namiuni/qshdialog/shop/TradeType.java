@@ -24,13 +24,13 @@ import com.ghostchu.quickshop.shop.SimpleShopManager;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public enum ShopType {
+public enum TradeType {
     BUY(SimpleShopManager.BUYING_TYPE),
     SELL(SimpleShopManager.SELLING_TYPE);
 
     private final IShopType shopType;
 
-    ShopType(final IShopType buyingType) {
+    TradeType(final IShopType buyingType) {
         this.shopType = buyingType;
     }
 

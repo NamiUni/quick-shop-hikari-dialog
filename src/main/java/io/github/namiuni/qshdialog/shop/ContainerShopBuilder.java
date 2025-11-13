@@ -45,9 +45,9 @@ public final class ContainerShopBuilder {
     private int quantity = 1;
     private @MonotonicNonNull QUser owner;
     private boolean unlimited = false;
-    private ShopType type = ShopType.SELL;
+    private TradeType type = TradeType.SELL;
     private @Nullable String currency = null;
-    private boolean display = true;
+    private boolean showDisplay = true;
     private @Nullable String name = null;
     private Map<UUID, String> playerGroup = Map.of();
 
@@ -80,7 +80,7 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder type(final ShopType type) {
+    public ContainerShopBuilder type(final TradeType type) {
         this.type = type;
         return this;
     }
@@ -90,8 +90,8 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder display(final boolean disableDisplay) {
-        this.display = disableDisplay;
+    public ContainerShopBuilder showDisplay(final boolean showDisplay) {
+        this.showDisplay = showDisplay;
         return this;
     }
 
@@ -128,7 +128,7 @@ public final class ContainerShopBuilder {
                 this.type.shopType(),
                 new YamlConfiguration(),
                 this.currency,
-                !this.display,
+                !this.showDisplay,
                 null,
                 quickShop.getJavaPlugin().getName(),
                 symbolLink,

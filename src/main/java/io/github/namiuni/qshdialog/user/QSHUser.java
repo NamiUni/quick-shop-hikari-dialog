@@ -22,14 +22,14 @@ package io.github.namiuni.qshdialog.user;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import java.util.Locale;
-import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.permission.PermissionChecker;
 import org.bukkit.block.Container;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public interface QSHUser extends Audience {
+public interface QSHUser extends ForwardingAudience.Single {
 
     QUser quickShopUser();
 
@@ -39,8 +39,8 @@ public interface QSHUser extends Audience {
 
     default boolean hasPermission(final String permission) {
         return this.get(PermissionChecker.POINTER)
-                .orElseThrow()
-                .test(permission);
+                .map(checker -> checker.test(permission))
+                .orElseThrow();
     }
 
     void showShopCreationDialog(Container container);

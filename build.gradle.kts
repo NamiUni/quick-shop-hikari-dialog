@@ -74,6 +74,7 @@ tasks {
         downloadPlugins {
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
             url("https://ci.minebench.de/job/FakeEconomy/lastSuccessfulBuild/artifact/target/FakeEconomy.jar")
+            modrinth("packetevents", "2.10.1")
 //            url("https://ci.codemc.io/job/Ghost-chu/job/QuickShop-Hikari-SNAPSHOT/lastBuild/com.ghostchu\$quickshop-bukkit/artifact/com.ghostchu/quickshop-bukkit/6.2.0.11-SNAPSHOT-9/quickshop-bukkit-6.2.0.11-SNAPSHOT-9-shaded.jar")
         }
     }
