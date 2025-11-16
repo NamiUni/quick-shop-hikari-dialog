@@ -67,20 +67,8 @@ public final class QSItemTradingPolicy implements InteractionBehavior {
 
         final QSHUser qshUser = this.userService.getUser(player);
         switch (shop.shopType()) {
-            case SellingType ignored when shop.inventoryAvailable() -> qshUser.showProductPurchaseDialog(shop);
-            case SellingType ignored when !shop.inventoryAvailable() -> {
-                final Component message = QuickShop.getInstance().text()
-                        .of(player, "purchase-out-of-stock")
-                        .forLocale(player.locale().toString());
-                qshUser.sendActionBar(message);
-            }
-            case BuyingType ignored when shop.inventoryAvailable() -> qshUser.showProductSaleDialog(shop);
-            case BuyingType ignored when !shop.inventoryAvailable() -> {
-                final Component message = QuickShop.getInstance().text()
-                        .of(player, "purchase-out-of-space")
-                        .forLocale(player.locale().toString());
-                qshUser.sendActionBar(message);
-            }
+            case SellingType ignored -> qshUser.showProductPurchaseDialog(shop);
+            case BuyingType ignored -> qshUser.showProductSaleDialog(shop);
             case FrozenType ignored -> QuickShop.getInstance().text()
                     .of(player, "shop-cannot-trade-when-freezing")
                     .send();
