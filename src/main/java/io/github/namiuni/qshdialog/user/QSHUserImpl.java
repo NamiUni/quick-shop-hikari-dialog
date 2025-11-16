@@ -72,14 +72,20 @@ public record QSHUserImpl(
         }
 
         final ShopCreationContext context = new ShopCreationContext(this, this.player.getInventory().getItemInMainHand(), container, signCreationFace);
-        final Dialog dialog = this.shopCreationDialogFactory.create(context);
-        this.showDialog(dialog);
+        final Result<Dialog, Component> result = this.shopCreationDialogFactory.create(context);
+        switch (result) {
+            case Result.Success<Dialog, Component>(Dialog dialog) -> this.showDialog(dialog);
+            case Result.Error<Dialog, Component>(Component errorMessage) -> this.sendActionBar(errorMessage);
+        }
     }
 
     @Override
     public void showShopModificationDialog(final Shop shop) {
-        final Dialog dialog = this.shopModificationDialogFactory.create(shop, this);
-        this.showDialog(dialog);
+        final Result<Dialog, Component> result = this.shopModificationDialogFactory.create(this, shop);
+        switch (result) {
+            case Result.Success<Dialog, Component>(Dialog dialog) -> this.showDialog(dialog);
+            case Result.Error<Dialog, Component>(Component errorMessage) -> this.sendActionBar(errorMessage);
+        }
     }
 
     @Override

@@ -22,6 +22,7 @@ package io.github.namiuni.qshdialog.shop.dialog;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.TradeType;
@@ -53,40 +54,55 @@ public final class ShopModificationDialogFactory {
         this.configHolder = configHolder;
     }
 
-    public Dialog create(final Shop shop, final QSHUser qshUser) {
+    public Result<Dialog, Component> create(final QSHUser owner, final Shop shop) {
         final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
-                .check(qshUser.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
+                .check(owner.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
         final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
         final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
 
-        final DialogBase dialogBase = DialogBase.builder(this.title(shop, qshUser))
-                .body(this.body(shop, qshUser))
-                .inputs(this.inputs(shop, qshUser, minPrice, maxPrice))
-                .build();
+        final Result<List<? extends DialogInput>, Component> inputs = this.inputs(owner, shop, minPrice, maxPrice);
+        return switch (inputs) {
+            case Result.Success<List<? extends DialogInput>, Component>(List<? extends DialogInput> result) -> {
+                final DialogBase dialogBase = DialogBase
+                        .builder(this.title(owner, shop))
+                        .body(this.body(owner, shop))
+                        .inputs(result)
+                        .build();
 
-        return Dialog.create(builder -> builder
-                .empty()
-                .base(dialogBase)
-                .type(this.dialogType(shop, qshUser))
-        );
+                final Dialog dialog = Dialog.create(builder -> builder
+                        .empty()
+                        .base(dialogBase)
+                        .type(this.dialogType(shop, owner))
+                );
+
+                yield Result.success(dialog);
+            }
+            case Result.Error<List<? extends DialogInput>, Component>(Component errorMessage) -> Result.error(errorMessage);
+        };
     }
 
-    private Component title(final Shop shop, final QSHUser qshUser) {
-        return TranslationMessages.shopModificationTitle(qshUser);
+    private Component title(final QSHUser owner, final Shop shop) {
+        return TranslationMessages.shopModificationTitle(owner);
     }
 
-    private List<? extends DialogBody> body(final Shop shop, final QSHUser qshUser) {
+    private List<? extends DialogBody> body(final QSHUser owner, final Shop shop) {
         final DialogBody body = DialogBody.item(shop.getItem())
-                .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription(qshUser)))
+                .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription(owner)))
                 .build();
 
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser owner, final BigDecimal minPrice, final BigDecimal maxPrice) {
+    private Result<List<? extends DialogInput>, Component> inputs(final QSHUser owner, final Shop shop, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
-        inputs.add(DialogInputs.tradeType(owner, TradeType.of(shop.shopType())));
+        final Result<DialogInput, Component> typeInput = DialogInputs.tradeType(owner, TradeType.SELL);
+        switch (typeInput) {
+            case Result.Success<DialogInput, Component>(DialogInput result) -> inputs.add(result);
+            case Result.Error<DialogInput, Component>(Component errorMessage) -> {
+                return Result.error(errorMessage);
+            }
+        }
 
         if (owner.hasPermission("quickshop.create.stacks") && QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
             final DialogInput input = DialogInputs.productBundleSize(owner, shop.getItem().getAmount(), shop.getItem().getMaxStackSize());
@@ -111,7 +127,7 @@ public final class ShopModificationDialogFactory {
             inputs.add(DialogInputs.shopUnlimitedStock(owner, shop.isUnlimited()));
         }
 
-        return inputs;
+        return Result.success(inputs);
     }
 
     private DialogType dialogType(final Shop shop, final QSHUser qshUser) {

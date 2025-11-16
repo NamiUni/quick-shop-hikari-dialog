@@ -42,7 +42,7 @@ final class DialogInputs {
     private DialogInputs() {
     }
 
-    public static DialogInput tradeType(final QSHUser qshUser, final TradeType initial) {
+    public static Result<DialogInput, Component> tradeType(final QSHUser qshUser, final TradeType initial) {
         final Component label = TranslationMessages.shopTradeTypeLabel(qshUser);
         final List<SingleOptionDialogInput.OptionEntry> types = new ArrayList<>();
 
@@ -58,7 +58,12 @@ final class DialogInputs {
             types.add(option);
         }
 
-        return DialogInput.singleOption("trade_type", label, types).build();
+        if (!types.isEmpty()) {
+            final DialogInput input = DialogInput.singleOption("trade_type", label, types).build();
+            return Result.success(input);
+        } else {
+            return Result.error(TranslationMessages.shopTradeTypeNoPermissionError(qshUser));
+        }
     }
 
     public static DialogInput productBundleSize(final QSHUser owner, final int initial, final int max) {

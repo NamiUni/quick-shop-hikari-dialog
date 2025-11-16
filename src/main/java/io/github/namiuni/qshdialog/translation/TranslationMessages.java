@@ -102,6 +102,11 @@ public final class TranslationMessages {
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
+    public static Component shopTradeTypeNoPermissionError(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.creation.error.create.no_permission");
+        return GlobalTranslator.render(component, qshUser.locale());
+    }
+
     /* Shop Modify Dialog */
 
     public static Component shopModificationTitle(final QSHUser qshUser) {
