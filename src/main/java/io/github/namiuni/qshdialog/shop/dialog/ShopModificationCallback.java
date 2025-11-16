@@ -20,9 +20,10 @@
 package io.github.namiuni.qshdialog.shop.dialog;
 
 import com.ghostchu.quickshop.QuickShop;
+import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.ghostchu.quickshop.api.shop.Shop;
-import com.ghostchu.quickshop.util.ShopUtil;
 import io.github.namiuni.qshdialog.shop.TradeType;
+import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.DialogResponseView;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
@@ -60,10 +62,22 @@ final class ShopModificationCallback implements DialogActionCallback {
                 });
 
         Optional.ofNullable(response.getText("product_price"))
+                .filter(price -> !price.isEmpty())
                 .map(BigDecimal::new)
                 .map(BigDecimal::doubleValue)
                 .filter(Predicate.not(Predicate.isEqual(this.shop.getPrice())))
-                .ifPresent(price -> ShopUtil.setPrice(QuickShop.getInstance(), this.user.quickShopUser(), price, this.shop));
+                .ifPresentOrElse(
+                        this.shop::setPrice,
+                        () -> {
+                            final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
+                                    .check(this.user.quickShopUser(), this.shop.getItem(), this.shop.getCurrency(), this.shop.getPrice());
+                            final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
+                            final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
+
+                            final Component priceLabel = TranslationMessages.productPriceLabel(this.user, minPrice, maxPrice);
+                            final Component message = TranslationMessages.shopModificationErrorEmptyInput(this.user, priceLabel);
+                            this.user.sendMessage(message);
+                        });
 
         Optional.ofNullable(response.getText("trade_type"))
                 .map(TradeType::valueOf)

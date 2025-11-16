@@ -19,8 +19,8 @@
  */
 package io.github.namiuni.qshdialog.user;
 
-import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductSaleDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import java.util.Objects;
@@ -34,19 +34,19 @@ public final class QSHUserService {
 
     private final ShopCreationDialogFactory shopCreationDialogFactory;
     private final ShopModificationDialogFactory shopModificationDialogFactory;
-    private final ItemPurchaseDialogFactory itemPurchaseDialogFactory;
-    private final ItemSaleDialogFactory itemSaleDialogFactory;
+    private final ProductPurchaseDialogFactory productPurchaseDialogFactory;
+    private final ProductSaleDialogFactory productSaleDialogFactory;
 
     public QSHUserService(
             final ShopCreationDialogFactory shopCreationDialogFactory,
             final ShopModificationDialogFactory shopModificationDialogFactory,
-            final ItemPurchaseDialogFactory itemPurchaseDialogFactory,
-            final ItemSaleDialogFactory itemSaleDialogFactory
+            final ProductPurchaseDialogFactory productPurchaseDialogFactory,
+            final ProductSaleDialogFactory productSaleDialogFactory
     ) {
         this.shopCreationDialogFactory = shopCreationDialogFactory;
         this.shopModificationDialogFactory = shopModificationDialogFactory;
-        this.itemPurchaseDialogFactory = itemPurchaseDialogFactory;
-        this.itemSaleDialogFactory = itemSaleDialogFactory;
+        this.productPurchaseDialogFactory = productPurchaseDialogFactory;
+        this.productSaleDialogFactory = productSaleDialogFactory;
     }
 
     public QSHUser getUser(final UUID userID) {
@@ -58,8 +58,8 @@ public final class QSHUserService {
                 player,
                 this.shopCreationDialogFactory,
                 this.shopModificationDialogFactory,
-                this.itemPurchaseDialogFactory,
-                this.itemSaleDialogFactory
+                this.productPurchaseDialogFactory,
+                this.productSaleDialogFactory
         );
     }
 }

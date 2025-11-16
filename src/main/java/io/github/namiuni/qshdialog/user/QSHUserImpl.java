@@ -22,8 +22,8 @@ package io.github.namiuni.qshdialog.user;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.obj.QUserImpl;
-import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductSaleDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
@@ -44,8 +44,8 @@ public record QSHUserImpl(
         Player player,
         ShopCreationDialogFactory shopCreationDialogFactory,
         ShopModificationDialogFactory shopModificationDialogFactory,
-        ItemPurchaseDialogFactory itemPurchaseDialogFactory,
-        ItemSaleDialogFactory itemSaleDialogFactory
+        ProductPurchaseDialogFactory productPurchaseDialogFactory,
+        ProductSaleDialogFactory productSaleDialogFactory
 ) implements QSHUser, ForwardingAudience.Single {
 
     @Override
@@ -81,14 +81,14 @@ public record QSHUserImpl(
     }
 
     @Override
-    public void showItemPurchaseDialog(final Shop shop) {
-        final Dialog dialog = this.itemPurchaseDialogFactory.create(shop, this);
+    public void showProductPurchaseDialog(final Shop shop) {
+        final Dialog dialog = this.productPurchaseDialogFactory.create(this, shop);
         this.showDialog(dialog);
     }
 
     @Override
-    public void showItemSaleDialog(final Shop shop) {
-        final Dialog dialog = this.itemSaleDialogFactory.create(shop, this);
+    public void showProductSaleDialog(final Shop shop) {
+        final Dialog dialog = this.productSaleDialogFactory.create(shop, this);
         this.showDialog(dialog);
     }
 

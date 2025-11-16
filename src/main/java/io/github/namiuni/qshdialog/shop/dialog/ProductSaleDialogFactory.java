@@ -22,6 +22,7 @@ package io.github.namiuni.qshdialog.shop.dialog;
 import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.papermc.paper.dialog.Dialog;
@@ -36,16 +37,16 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-public final class ItemSaleDialogFactory {
+public final class ProductSaleDialogFactory {
 
     private final ConfigurationHolder<PrimaryConfiguration> configHolder;
 
-    public ItemSaleDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
+    public ProductSaleDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
         this.configHolder = configHolder;
     }
 
     public Dialog create(final Shop shop, final QSHUser qshUser) {
-        if (!shop.isBuying()) {
+        if (TradeType.of(shop.shopType()) == TradeType.SELL) {
             throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.shopType().identifier()));
         }
 

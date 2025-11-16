@@ -42,10 +42,10 @@ import org.jspecify.annotations.NullMarked;
 final class ShopCreationCallback implements DialogActionCallback {
 
     private final ShopCreationContext context;
-    private final double minPrice;
-    private final double maxPrice;
+    private final BigDecimal minPrice;
+    private final BigDecimal maxPrice;
 
-    ShopCreationCallback(final ShopCreationContext context, final double minPrice, final double maxPrice) {
+    ShopCreationCallback(final ShopCreationContext context, final BigDecimal minPrice, final BigDecimal maxPrice) {
         this.context = context;
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
@@ -61,6 +61,7 @@ final class ShopCreationCallback implements DialogActionCallback {
                 .ifPresent(bundleSize -> builder.bundleSize(bundleSize.intValue()));
 
         Optional.ofNullable(response.getText("product_price"))
+                .filter(price -> !price.isEmpty())
                 .map(BigDecimal::new)
                 .map(BigDecimal::doubleValue)
                 .ifPresentOrElse(

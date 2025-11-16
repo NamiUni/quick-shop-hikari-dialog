@@ -47,7 +47,7 @@ public interface QSHUser extends Audience {
 
     void showShopModificationDialog(Shop shop);
 
-    void showItemPurchaseDialog(Shop shop);
+    void showProductPurchaseDialog(Shop shop);
 
-    void showItemSaleDialog(Shop shop);
+    void showProductSaleDialog(Shop shop);
 }

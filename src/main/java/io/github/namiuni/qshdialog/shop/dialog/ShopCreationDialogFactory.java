@@ -26,6 +26,7 @@ import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
+import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -35,6 +36,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.body.PlainMessageDialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import net.kyori.adventure.text.Component;
@@ -54,8 +56,8 @@ public final class ShopCreationDialogFactory {
     public Dialog create(final ShopCreationContext context) {
         final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
                 .check(context.owner().quickShopUser(), context.product(), null, 1.0);
-        final double minPrice = priceLimit.getMin();
-        final double maxPrice = priceLimit.getMax();
+        final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
+        final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
 
         final DialogBase dialogBase = DialogBase
                 .builder(this.title(context))
@@ -83,7 +85,7 @@ public final class ShopCreationDialogFactory {
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final ShopCreationContext context, final double minPrice, final double maxPrice) {
+    private List<? extends DialogInput> inputs(final ShopCreationContext context, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
         inputs.add(DialogInputs.tradeType(context.owner(), TradeType.SELL));
@@ -103,7 +105,7 @@ public final class ShopCreationDialogFactory {
             inputs.add(DialogInputs.shopName(context.owner(), ""));
         }
 
-        if (context.owner().hasPermission("quickshop.currency")) {
+        if (context.owner().hasPermission("quickshop.currency") && QuickShopUtil.supportsMultiCurrency()) {
             inputs.add(DialogInputs.shopCurrency(context.owner(), ""));
         }
 
@@ -118,7 +120,7 @@ public final class ShopCreationDialogFactory {
         return inputs;
     }
 
-    private DialogType dialogType(final ShopCreationContext context, final double minPrice, final double maxPrice) {
+    private DialogType dialogType(final ShopCreationContext context, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final DialogActionCallback callback = new ShopCreationCallback(context, minPrice, maxPrice);
 
         final ClickCallback.Options options = ClickCallback.Options.builder()

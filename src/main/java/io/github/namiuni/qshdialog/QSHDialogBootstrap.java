@@ -24,8 +24,8 @@ import io.github.namiuni.qshdialog.command.commands.AdminCommand;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.ConfigurationLoader;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
-import io.github.namiuni.qshdialog.shop.dialog.ItemPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ItemSaleDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductSaleDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.translation.TranslatorHolder;
@@ -84,15 +84,15 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
     }
 
     private QSHUserService createUserService() {
-        final var itemPurchaseDialogFactory = new ItemPurchaseDialogFactory(this.configHolder);
-        final var itemSaleDialogFactory = new ItemSaleDialogFactory(this.configHolder);
+        final var tradeBuyDialogFactory = new ProductPurchaseDialogFactory(this.configHolder);
+        final var tradeSellDialogFactory = new ProductSaleDialogFactory(this.configHolder);
         final var shopCreationDialogFactory = new ShopCreationDialogFactory(this.configHolder);
         final var shopModificationDialogFactory = new ShopModificationDialogFactory(this.configHolder);
         return new QSHUserService(
                 shopCreationDialogFactory,
                 shopModificationDialogFactory,
-                itemPurchaseDialogFactory,
-                itemSaleDialogFactory
+                tradeBuyDialogFactory,
+                tradeSellDialogFactory
         );
     }
 

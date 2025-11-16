@@ -20,12 +20,22 @@
 package io.github.namiuni.qshdialog.utility;
 
 import com.ghostchu.quickshop.QuickShop;
+import com.ghostchu.quickshop.api.economy.EconomyManager;
+import com.ghostchu.quickshop.api.economy.EconomyProvider;
+import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
 import com.ghostchu.quickshop.api.localization.text.Text;
 import com.ghostchu.quickshop.api.obj.QUser;
+import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.api.shop.ShopAction;
 import com.ghostchu.quickshop.economy.transaction.QSEconomyTransaction;
+import com.ghostchu.quickshop.shop.SimpleInfo;
+import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapper;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -67,5 +77,41 @@ public final class QuickShopUtil {
                 message.send();
             }
         }
+    }
+
+    public static void sellItem(final QSHUser seller, final Shop shop, final int quantity) {
+        final Player bukkitSeller = seller.quickShopUser().getBukkitPlayer().orElseThrow();
+        final InventoryWrapper inventory = new BukkitInventoryWrapper(bukkitSeller.getInventory());
+
+        QuickShop.getInstance().getShopManager().actionBuying(
+                bukkitSeller,
+                inventory,
+                Objects.requireNonNull(QuickShop.getInstance().getEconomyManager().provider()),
+                new SimpleInfo(shop.getLocation(), ShopAction.PURCHASE_SELL, null, null, shop, false),
+                shop,
+                quantity
+        );
+    }
+
+    public static void buyItem(final QSHUser buyer, final Shop shop, final int quantity) {
+        final Player bukkitBuyer = buyer.quickShopUser().getBukkitPlayer().orElseThrow();
+        final InventoryWrapper inventory = new BukkitInventoryWrapper(bukkitBuyer.getInventory());
+
+        QuickShop.getInstance().getShopManager().actionSelling(
+                bukkitBuyer,
+                inventory,
+                Objects.requireNonNull(QuickShop.getInstance().getEconomyManager().provider()),
+                new SimpleInfo(shop.getLocation(), ShopAction.PURCHASE_BUY, null, null, shop, false),
+                shop,
+                quantity
+        );
+    }
+
+    public static boolean supportsMultiCurrency() {
+        final EconomyManager economyManager = QuickShop.getInstance().getEconomyManager();
+
+        return Optional.ofNullable(economyManager.provider())
+                .map(EconomyProvider::multiCurrency)
+                .orElse(false);
     }
 }

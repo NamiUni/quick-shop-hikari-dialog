@@ -19,6 +19,7 @@
  */
 package io.github.namiuni.qshdialog.shop.dialog;
 
+import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
@@ -70,11 +71,11 @@ final class DialogInputs {
                 .build();
     }
 
-    public static DialogInput productPrice(final QSHUser qshUser, final double initial, final double minPrice, final double maxPrice) {
+    public static DialogInput productPrice(final QSHUser qshUser, final BigDecimal initial, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final Component productPrice = TranslationMessages.productPriceLabel(qshUser, minPrice, maxPrice);
 
         return DialogInput.text("product_price", productPrice)
-                .initial(BigDecimal.valueOf(initial).toPlainString())
+                .initial(initial.toPlainString())
                 .build();
     }
 
@@ -109,6 +110,21 @@ final class DialogInputs {
 
         return DialogInput.bool("unlimited_stock", label)
                 .initial(initial)
+                .build();
+    }
+
+    public static DialogInput tradeQuantity(final QSHUser qshUser, final Shop shop) {
+        final Component label = TranslationMessages.shopQuantityLabel(qshUser, shop);
+        final float start = 1.0f;
+        final float end = shop.getRemainingStock();
+        if (end < start) {
+            throw new IllegalArgumentException("The shop has no items in stock!");
+        }
+
+        return DialogInput.numberRange("trade_quantity", label, start, end)
+                .step(1.0f)
+                .initial(1.0f)
+                .labelFormat(TranslationMessages.shopQuantityFormat(qshUser, shop))
                 .build();
     }
 }

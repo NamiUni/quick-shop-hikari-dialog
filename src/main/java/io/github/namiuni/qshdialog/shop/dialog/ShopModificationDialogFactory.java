@@ -27,6 +27,7 @@ import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
+import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -35,6 +36,7 @@ import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import net.kyori.adventure.text.Component;
@@ -54,8 +56,8 @@ public final class ShopModificationDialogFactory {
     public Dialog create(final Shop shop, final QSHUser qshUser) {
         final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
                 .check(qshUser.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
-        final double minPrice = priceLimit.getMin();
-        final double maxPrice = priceLimit.getMax();
+        final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
+        final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
 
         final DialogBase dialogBase = DialogBase.builder(this.title(shop, qshUser))
                 .body(this.body(shop, qshUser))
@@ -81,7 +83,7 @@ public final class ShopModificationDialogFactory {
         return List.of(body);
     }
 
-    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser owner, final double minPrice, final double maxPrice) {
+    private List<? extends DialogInput> inputs(final Shop shop, final QSHUser owner, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
         inputs.add(DialogInputs.tradeType(owner, TradeType.of(shop.shopType())));
@@ -91,13 +93,13 @@ public final class ShopModificationDialogFactory {
             inputs.add(input);
         }
 
-        inputs.add(DialogInputs.productPrice(owner, shop.getPrice(), minPrice, maxPrice));
+        inputs.add(DialogInputs.productPrice(owner, BigDecimal.valueOf(shop.getPrice()), minPrice, maxPrice));
 
         if (owner.hasPermission("quickshop.shopnaming")) {
             inputs.add(DialogInputs.shopName(owner, shop.getShopName()));
         }
 
-        if (owner.hasPermission("quickshop.currency")) {
+        if (owner.hasPermission("quickshop.currency") && QuickShopUtil.supportsMultiCurrency()) {
             inputs.add(DialogInputs.shopCurrency(owner, shop.getCurrency()));
         }
 

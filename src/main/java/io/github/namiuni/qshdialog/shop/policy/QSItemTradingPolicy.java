@@ -30,6 +30,7 @@ import com.ghostchu.quickshop.api.shop.type.FrozenType;
 import com.ghostchu.quickshop.api.shop.type.SellingType;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.user.QSHUserService;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jspecify.annotations.NullMarked;
@@ -63,14 +64,25 @@ public final class QSItemTradingPolicy implements InteractionBehavior {
         }
 
         interactEvent.setCancelled(true);
-        shop.setSignText(((QuickShop) quickShopAPI).text().findRelativeLanguages(player));
 
         final QSHUser qshUser = this.userService.getUser(player);
         switch (shop.shopType()) {
-            case SellingType ignored -> qshUser.showItemPurchaseDialog(shop);
-            case BuyingType ignored -> qshUser.showItemSaleDialog(shop);
+            case SellingType ignored when 0 < shop.getRemainingStock() -> qshUser.showProductPurchaseDialog(shop);
+            case SellingType ignored when 0 == shop.getRemainingStock() -> {
+                final Component message = QuickShop.getInstance().text()
+                        .of(player, "purchase-out-of-stock")
+                        .forLocale(player.locale().toString());
+                qshUser.sendActionBar(message);
+            }
+            case BuyingType ignored when 0 < shop.getRemainingSpace() -> qshUser.showProductSaleDialog(shop);
+            case BuyingType ignored when 0 == shop.getRemainingSpace() -> {
+                final Component message = QuickShop.getInstance().text()
+                        .of(player, "purchase-out-of-space")
+                        .forLocale(player.locale().toString());
+                qshUser.sendActionBar(message);
+            }
             case FrozenType ignored -> QuickShop.getInstance().text()
-                    .of(interactEvent.getPlayer(), "shop-cannot-trade-when-freezing")
+                    .of(player, "shop-cannot-trade-when-freezing")
                     .send();
             default -> {
                 // ignored
