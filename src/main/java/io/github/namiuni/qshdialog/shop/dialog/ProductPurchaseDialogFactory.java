@@ -21,6 +21,7 @@ package io.github.namiuni.qshdialog.shop.dialog;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.TradeType;
@@ -52,21 +53,29 @@ public final class ProductPurchaseDialogFactory {
         this.configHolder = configHolder;
     }
 
-    public Dialog create(final QSHUser customer, final Shop shop) {
+    public Result<Dialog, Component> create(final QSHUser customer, final Shop shop) {
         if (TradeType.of(shop.shopType()) == TradeType.BUY) {
             throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.shopType().identifier()));
         }
 
-        final DialogBase dialogBase = DialogBase.builder(this.title(customer, shop))
-                .body(this.body(customer, shop))
-                .inputs(this.inputs(customer, shop))
-                .build();
+        final Result<List<? extends DialogInput>, Component> inputsResult = this.inputs(customer, shop);
+        return switch (inputsResult) {
+            case Result.Success<List<? extends DialogInput>, Component>(List<? extends DialogInput> inputs) -> {
+                final DialogBase dialogBase = DialogBase.builder(this.title(customer, shop))
+                        .body(this.body(customer, shop))
+                        .inputs(inputs)
+                        .build();
 
-        return Dialog.create(builder -> builder
-                .empty()
-                .base(dialogBase)
-                .type(this.dialogType(customer, shop))
-        );
+                final Dialog dialog = Dialog.create(builder -> builder
+                        .empty()
+                        .base(dialogBase)
+                        .type(this.dialogType(customer, shop))
+                );
+
+                yield Result.success(dialog);
+            }
+            case Result.Error<List<? extends DialogInput>, Component>(Component errorMessage) -> Result.error(errorMessage);
+        };
     }
 
     private Component title(final QSHUser customer, final Shop shop) {
@@ -89,9 +98,12 @@ public final class ProductPurchaseDialogFactory {
         return body;
     }
 
-    private List<? extends DialogInput> inputs(final QSHUser customer, final Shop shop) {
-        final DialogInput quantity = DialogInputs.buyQuantity(customer, shop);
-        return List.of(quantity);
+    private Result<List<? extends DialogInput>, Component> inputs(final QSHUser customer, final Shop shop) {
+        final Result<DialogInput, Component> quantity = DialogInputs.purchaseQuantity(customer, shop);
+        return switch (quantity) {
+            case Result.Success<DialogInput, Component>(DialogInput result) -> Result.success(List.of(result));
+            case Result.Error<DialogInput, Component>(Component errorMessage) -> Result.error(errorMessage);
+        };
     }
 
     private DialogType dialogType(final QSHUser customer, final Shop shop) {

@@ -84,8 +84,11 @@ public record QSHUserImpl(
 
     @Override
     public void showProductPurchaseDialog(final Shop shop) {
-        final Dialog dialog = this.productPurchaseDialogFactory.create(this, shop);
-        this.showDialog(dialog);
+        final Result<Dialog, Component> result = this.productPurchaseDialogFactory.create(this, shop);
+        switch (result) {
+            case Result.Success<Dialog, Component>(Dialog dialog) -> this.showDialog(dialog);
+            case Result.Error<Dialog, Component>(Component errorMessage) -> this.sendActionBar(errorMessage);
+        }
     }
 
     @Override

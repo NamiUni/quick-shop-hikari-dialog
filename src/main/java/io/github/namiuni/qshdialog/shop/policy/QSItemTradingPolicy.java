@@ -30,7 +30,6 @@ import com.ghostchu.quickshop.api.shop.type.FrozenType;
 import com.ghostchu.quickshop.api.shop.type.SellingType;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.user.QSHUserService;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jspecify.annotations.NullMarked;
@@ -64,6 +63,7 @@ public final class QSItemTradingPolicy implements InteractionBehavior {
         }
 
         interactEvent.setCancelled(true);
+        shop.setSignText((QuickShop.getInstance().text().findRelativeLanguages(player)));
 
         final QSHUser qshUser = this.userService.getUser(player);
         switch (shop.shopType()) {
@@ -76,7 +76,5 @@ public final class QSItemTradingPolicy implements InteractionBehavior {
                 // ignored
             }
         }
-
-        shop.setSignText((QuickShop.getInstance().text().findRelativeLanguages(player)));
     }
 }

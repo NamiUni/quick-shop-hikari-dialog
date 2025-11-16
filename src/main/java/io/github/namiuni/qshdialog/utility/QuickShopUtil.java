@@ -120,6 +120,44 @@ public final class QuickShopUtil {
         return ECONOMY_PROVIDER.multiCurrency();
     }
 
+    public static Result<Integer, Component> availableQuantityForPurchase(final QSHUser customer, final Shop shop) {
+        final Player bukkitCustomer = customer.quickShopUser().getBukkitPlayer().orElseThrow();
+
+        final int shopHaveItems = shop.getRemainingStock();
+        final int customerHaveSpaces = Util.countSpace(new BukkitInventoryWrapper(bukkitCustomer.getInventory()), shop);
+
+        if (customerHaveSpaces < 1) {
+            final Component errorMessage = TEXT_MANAGER
+                    .of(bukkitCustomer, "not-enough-space", customerHaveSpaces)
+                    .forLocale();
+            return Result.error(errorMessage);
+        }
+
+        final double price = shop.getPrice();
+        final double balance = ECONOMY_PROVIDER.balance(customer.quickShopUser(), shop.getLocation().getWorld().getName(), shop.getCurrency()).doubleValue();
+        final int quantity = shop.isUnlimited()
+                ? Math.min(customerHaveSpaces, (int) Math.floor(balance / price))
+                : Math.min(Math.min(shopHaveItems, customerHaveSpaces), (int) Math.floor(balance / price));
+
+        if (0 < quantity) {
+            return Result.success(quantity);
+        }
+
+        if (!shop.isUnlimited() && shopHaveItems < 1) {
+            final Component errorMessage = TEXT_MANAGER.of(bukkitCustomer, "shop-stock-too-low",
+                            shop.getRemainingStock(),
+                            Util.getItemStackName(shop.getItem()))
+                    .forLocale(customer.locale().toString());
+            return Result.error(errorMessage);
+        } else {
+            final Component errorMessage = TEXT_MANAGER.of(bukkitCustomer, "you-cant-afford-to-buy",
+                            SHOP_MANAGER.format(price, shop.getLocation().getWorld(), shop.getCurrency()),
+                            SHOP_MANAGER.format(balance, shop.getLocation().getWorld(), shop.getCurrency()))
+                    .forLocale(customer.locale().toString());
+            return Result.error(errorMessage);
+        }
+    }
+
     public static Result<Integer, Component> availableQuantityForSale(final QSHUser customer, final Shop shop) {
         final Player bukkitCustomer = customer.quickShopUser().getBukkitPlayer().orElseThrow();
 
@@ -154,21 +192,21 @@ public final class QuickShopUtil {
         final BukkitInventoryWrapper wrappedInventory = new BukkitInventoryWrapper(bukkitCustomer.getInventory());
         final int customerAvailableQuantity = Util.countItems(wrappedInventory, shop);
 
-        final int quantity = calculateAvailableQuantity(shop, customerAvailableQuantity, ownerCanAfford);
-        if (quantity < 1) {
-            final Component message = TEXT_MANAGER.of(
-                    bukkitCustomer,
-                    "you-dont-have-that-many-items",
-                    0,
-                    shop.getItem().effectiveName()
-            ).forLocale(customer.locale().toString());
-            return Result.error(message);
-        } else {
+        final int quantity = calculateAvailableQuantityForSale(shop, customerAvailableQuantity, ownerCanAfford);
+        if (0 < quantity) {
             return Result.success(quantity);
         }
+
+        final Component message = TEXT_MANAGER.of(
+                bukkitCustomer,
+                "you-dont-have-that-many-items",
+                0,
+                shop.getItem().effectiveName()
+        ).forLocale(customer.locale().toString());
+        return Result.error(message);
     }
 
-    private static int calculateAvailableQuantity(
+    private static int calculateAvailableQuantityForSale(
             final Shop shop,
             final int customerAvailableQuantity,
             final int ownerCanAfford
