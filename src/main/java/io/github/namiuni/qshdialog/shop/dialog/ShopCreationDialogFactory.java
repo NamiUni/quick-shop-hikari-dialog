@@ -97,7 +97,7 @@ public final class ShopCreationDialogFactory {
     private Result<List<? extends DialogInput>, Component> inputs(final ShopCreationContext context, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
-        final Result<DialogInput, Component> typeInput = DialogInputs.tradeType(context.owner(), TradeType.SELL);
+        final Result<DialogInput, Component> typeInput = DialogInputs.tradeType(context.owner(), true, TradeType.SELL);
         switch (typeInput) {
             case Result.Success<DialogInput, Component>(DialogInput result) -> inputs.add(result);
             case Result.Error<DialogInput, Component>(Component errorMessage) -> {

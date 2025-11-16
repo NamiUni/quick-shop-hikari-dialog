@@ -42,17 +42,17 @@ final class DialogInputs {
     private DialogInputs() {
     }
 
-    public static Result<DialogInput, Component> tradeType(final QSHUser qshUser, final TradeType initial) {
+    public static Result<DialogInput, Component> tradeType(final QSHUser qshUser, final boolean isOwner, final TradeType initial) {
         final Component label = TranslationMessages.shopTradeTypeLabel(qshUser);
         final List<SingleOptionDialogInput.OptionEntry> types = new ArrayList<>();
 
-        if (qshUser.hasPermission("quickshop.create.sell")) {
+        if (isOwner && qshUser.hasPermission("quickshop.create.sell") || qshUser.hasPermission("quickshop.other.buy")) {
             final Component sell = TranslationMessages.shopTradeTypeSell(qshUser);
             final var option = SingleOptionDialogInput.OptionEntry.create("SELL", sell, initial == TradeType.SELL);
             types.add(option);
         }
 
-        if (qshUser.hasPermission("quickshop.create.buy")) {
+        if (isOwner && qshUser.hasPermission("quickshop.create.buy") || qshUser.hasPermission("quickshop.other.sell")) {
             final Component buy = TranslationMessages.shopTradeTypeBuy(qshUser);
             final var option = SingleOptionDialogInput.OptionEntry.create("BUY", buy, initial == TradeType.BUY);
             types.add(option);

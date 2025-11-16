@@ -22,6 +22,7 @@ package io.github.namiuni.qshdialog.user;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import java.util.Locale;
+import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.permission.PermissionChecker;
@@ -32,6 +33,10 @@ import org.jspecify.annotations.NullMarked;
 public interface QSHUser extends Audience {
 
     QUser quickShopUser();
+
+    default UUID uuid() {
+        return this.get(Identity.UUID).orElseThrow();
+    }
 
     default Locale locale() {
         return this.get(Identity.LOCALE).orElse(Locale.US);
@@ -50,4 +55,5 @@ public interface QSHUser extends Audience {
     void showProductPurchaseDialog(Shop shop);
 
     void showProductSaleDialog(Shop shop);
+
 }

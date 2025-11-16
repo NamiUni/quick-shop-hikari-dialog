@@ -40,6 +40,7 @@ import io.papermc.paper.registry.data.dialog.type.DialogType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import org.jspecify.annotations.NullMarked;
@@ -54,25 +55,29 @@ public final class ShopModificationDialogFactory {
         this.configHolder = configHolder;
     }
 
-    public Result<Dialog, Component> create(final QSHUser owner, final Shop shop) {
+    public Result<Dialog, Component> create(final QSHUser editor, final Shop shop) {
+        if (!editor.hasPermission("quickshop.use")) {
+            return Result.error(Component.empty());
+        }
+
         final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
-                .check(owner.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
+                .check(editor.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
         final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
         final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
 
-        final Result<List<? extends DialogInput>, Component> inputs = this.inputs(owner, shop, minPrice, maxPrice);
+        final Result<List<? extends DialogInput>, Component> inputs = this.inputs(editor, shop, minPrice, maxPrice);
         return switch (inputs) {
             case Result.Success<List<? extends DialogInput>, Component>(List<? extends DialogInput> result) -> {
                 final DialogBase dialogBase = DialogBase
-                        .builder(this.title(owner, shop))
-                        .body(this.body(owner, shop))
+                        .builder(this.title(editor, shop))
+                        .body(this.body(editor, shop))
                         .inputs(result)
                         .build();
 
                 final Dialog dialog = Dialog.create(builder -> builder
                         .empty()
                         .base(dialogBase)
-                        .type(this.dialogType(shop, owner))
+                        .type(this.dialogType(editor, shop))
                 );
 
                 yield Result.success(dialog);
@@ -81,57 +86,68 @@ public final class ShopModificationDialogFactory {
         };
     }
 
-    private Component title(final QSHUser owner, final Shop shop) {
-        return TranslationMessages.shopModificationTitle(owner);
+    private Component title(final QSHUser editor, final Shop shop) {
+        return TranslationMessages.shopModificationTitle(editor);
     }
 
-    private List<? extends DialogBody> body(final QSHUser owner, final Shop shop) {
+    private List<? extends DialogBody> body(final QSHUser editor, final Shop shop) {
         final DialogBody body = DialogBody.item(shop.getItem().asOne())
-                .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription(owner)))
+                .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription(editor)))
                 .build();
 
         return List.of(body);
     }
 
-    private Result<List<? extends DialogInput>, Component> inputs(final QSHUser owner, final Shop shop, final BigDecimal minPrice, final BigDecimal maxPrice) {
+    private Result<List<? extends DialogInput>, Component> inputs(final QSHUser editor, final Shop shop, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
-        final Result<DialogInput, Component> typeInput = DialogInputs.tradeType(owner, TradeType.SELL);
+        final boolean isOwner = Objects.equals(editor.uuid(), shop.getOwner().getUniqueId());
+        final Result<DialogInput, Component> typeInput = DialogInputs.tradeType(editor, isOwner, TradeType.SELL);
         switch (typeInput) {
             case Result.Success<DialogInput, Component>(DialogInput result) -> inputs.add(result);
-            case Result.Error<DialogInput, Component>(Component errorMessage) -> {
-                return Result.error(errorMessage);
+            case Result.Error<DialogInput, Component>(Component ignored) -> {
+                return Result.error(Component.empty());
             }
         }
 
-        if (owner.hasPermission("quickshop.create.stacks") && QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
-            final DialogInput input = DialogInputs.productBundleSize(owner, shop.getItem().getAmount(), shop.getItem().getMaxStackSize());
-            inputs.add(input);
+        if (QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
+            if (isOwner && editor.hasPermission("quickshop.create.stacks") || editor.hasPermission("quickshop.other.amount")) {
+                final DialogInput input = DialogInputs.productBundleSize(editor, shop.getItem().getAmount(), shop.getItem().getMaxStackSize());
+                inputs.add(input);
+            }
         }
 
-        inputs.add(DialogInputs.productPrice(owner, BigDecimal.valueOf(shop.getPrice()), minPrice, maxPrice));
-
-        if (owner.hasPermission("quickshop.shopnaming")) {
-            inputs.add(DialogInputs.shopName(owner, shop.getShopName()));
+        if (isOwner || editor.hasPermission("quickshop.other.price")) {
+            inputs.add(DialogInputs.productPrice(editor, BigDecimal.valueOf(shop.getPrice()), minPrice, maxPrice));
         }
 
-        if (owner.hasPermission("quickshop.currency") && QuickShopUtil.supportsMultiCurrency()) {
-            inputs.add(DialogInputs.shopCurrency(owner, shop.getCurrency()));
+        if (isOwner && editor.hasPermission("quickshop.shopnaming") || editor.hasPermission("quickshop.other.shopnaming")) {
+            inputs.add(DialogInputs.shopName(editor, shop.getShopName()));
         }
 
-        if (owner.hasPermission("quickshop.toggledisplay")) {
-            inputs.add(DialogInputs.shopShowDisplay(owner, !shop.isDisableDisplay()));
+        if (QuickShopUtil.supportsMultiCurrency()) {
+            if (isOwner && editor.hasPermission("quickshop.currency") || editor.hasPermission("quickshop.other.currency")) {
+                inputs.add(DialogInputs.shopCurrency(editor, shop.getCurrency()));
+            }
         }
 
-        if (owner.hasPermission("quickshop.unlimited")) {
-            inputs.add(DialogInputs.shopUnlimitedStock(owner, shop.isUnlimited()));
+        if (isOwner && editor.hasPermission("quickshop.toggledisplay") || editor.hasPermission("quickshop.other.toggledisplay")) {
+            inputs.add(DialogInputs.shopShowDisplay(editor, !shop.isDisableDisplay()));
         }
 
-        return Result.success(inputs);
+        if (editor.hasPermission("quickshop.unlimited")) {
+            inputs.add(DialogInputs.shopUnlimitedStock(editor, shop.isUnlimited()));
+        }
+
+        if (inputs.isEmpty()) {
+            return Result.error(Component.empty());
+        } else {
+            return Result.success(inputs);
+        }
     }
 
-    private DialogType dialogType(final Shop shop, final QSHUser qshUser) {
-        final DialogActionCallback callback = new ShopModificationCallback(shop, qshUser);
+    private DialogType dialogType(final QSHUser editor, final Shop shop) {
+        final DialogActionCallback callback = new ShopModificationCallback(shop, editor);
 
         final ClickCallback.Options options = ClickCallback.Options.builder()
                 .uses(1)
@@ -139,12 +155,12 @@ public final class ShopModificationDialogFactory {
                 .build();
 
         final ActionButton applyBotton = ActionButton
-                .builder(TranslationMessages.shopModificationConfirmationApply(qshUser))
+                .builder(TranslationMessages.shopModificationConfirmationApply(editor))
                 .action(DialogAction.customClick(callback, options))
                 .build();
 
         final ActionButton cancelButton = ActionButton
-                .builder(TranslationMessages.shopModificationConfirmationCancel(qshUser))
+                .builder(TranslationMessages.shopModificationConfirmationCancel(editor))
                 .build();
 
         return DialogType.confirmation(applyBotton, cancelButton);
