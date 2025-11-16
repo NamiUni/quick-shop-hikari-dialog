@@ -90,7 +90,7 @@ public final class ProductPurchaseDialogFactory {
     }
 
     private List<? extends DialogInput> inputs(final QSHUser customer, final Shop shop) {
-        final DialogInput quantity = DialogInputs.tradeQuantity(customer, shop);
+        final DialogInput quantity = DialogInputs.buyQuantity(customer, shop);
         return List.of(quantity);
     }
 

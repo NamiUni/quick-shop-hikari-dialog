@@ -27,6 +27,7 @@ import com.ghostchu.quickshop.shop.ContainerShop;
 import com.ghostchu.quickshop.shop.SimpleShopManager;
 import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapper;
 import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapperManager;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public final class ContainerShopBuilder {
 
     private final long id;
     private final Container container;
-    private double price;
+    private BigDecimal price;
     private @MonotonicNonNull ItemStack product;
     private int bundleSize = 1;
     private @MonotonicNonNull QUser owner;
@@ -59,7 +60,7 @@ public final class ContainerShopBuilder {
         this.container = container;
     }
 
-    public ContainerShopBuilder price(final double price) {
+    public ContainerShopBuilder price(final BigDecimal price) {
         this.price = price;
         return this;
     }
@@ -125,7 +126,7 @@ public final class ContainerShopBuilder {
                 quickShop,
                 this.id,
                 this.container.getLocation(),
-                this.price,
+                this.price.doubleValue(),
                 this.product,
                 this.owner,
                 this.unlimited,

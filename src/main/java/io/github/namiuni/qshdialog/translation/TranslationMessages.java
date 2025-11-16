@@ -76,10 +76,28 @@ public final class TranslationMessages {
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopCreationErrorEmptyInput(final QSHUser qshUser, final Component inputLabel) {
+    public static Component shopCreationErrorPriceEmpty(final QSHUser qshUser, final String input) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.shop.creation.error.empty_input",
-                Argument.component("input_label", inputLabel)
+                "qsh_dialog.shop.creation.error.price.empty",
+                Argument.string("input_label", input)
+        );
+        return GlobalTranslator.render(component, qshUser.locale());
+    }
+
+    public static Component shopCreationErrorPriceInvalid(final QSHUser qshUser, final String input) {
+        final TranslatableComponent component = Component.translatable(
+                "qsh_dialog.shop.creation.error.price.invalid",
+                Argument.string("input", input)
+        );
+        return GlobalTranslator.render(component, qshUser.locale());
+    }
+
+    public static Component shopCreationErrorPriceOutOfRange(final QSHUser qshUser, final String input, final BigDecimal minPrice, final BigDecimal maxPrice) {
+        final TranslatableComponent component = Component.translatable(
+                "qsh_dialog.shop.creation.error.price.out_of_range",
+                Argument.string("input", input),
+                Argument.string("min_price", minPrice.toPlainString()),
+                Argument.string("max_price", maxPrice.toPlainString())
         );
         return GlobalTranslator.render(component, qshUser.locale());
     }
@@ -106,10 +124,25 @@ public final class TranslationMessages {
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component shopModificationErrorEmptyInput(final QSHUser qshUser, final Component inputLabel) {
+    public static Component shopModificationErrorPriceEmpty(final QSHUser qshUser) {
+        final TranslatableComponent component = Component.translatable("qsh_dialog.shop.modification.error.price.empty");
+        return GlobalTranslator.render(component, qshUser.locale());
+    }
+
+    public static Component shopModificationErrorPriceInvalid(final QSHUser qshUser, final String input) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.shop.modification.error.empty_input",
-                Argument.component("input_label", inputLabel)
+                "qsh_dialog.shop.modification.error.price.invalid",
+                Argument.string("input", input)
+        );
+        return GlobalTranslator.render(component, qshUser.locale());
+    }
+
+    public static Component shopModificationErrorPriceOutOfRange(final QSHUser qshUser, final String input, final BigDecimal minPrice, final BigDecimal maxPrice) {
+        final TranslatableComponent component = Component.translatable(
+                "qsh_dialog.shop.modification.error.price.out_of_range",
+                Argument.string("input", input),
+                Argument.string("min_price", minPrice.toPlainString()),
+                Argument.string("max_price", maxPrice.toPlainString())
         );
         return GlobalTranslator.render(component, qshUser.locale());
     }
@@ -133,22 +166,22 @@ public final class TranslationMessages {
 
     /* Product Sale Dialog */
 
-    public static Component itemSaleTitle(final QSHUser qshUser) {
+    public static Component itemSaleTitle(final QSHUser qshUser, final Shop shop) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.title");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemSaleDescription(final QSHUser qshUser) {
+    public static Component productSaleDescription(final QSHUser qshUser, final Shop shop) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.body.sale_description");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemSaleConfirmationConfirm(final QSHUser qshUser) {
+    public static Component productSaleConfirmationSell(final QSHUser qshUser, final Shop shop) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.confirmation.sell");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
-    public static Component itemSaleConfirmationCancel(final QSHUser qshUser) {
+    public static Component productSaleConfirmationCancel(final QSHUser qshUser, final Shop shop) {
         final TranslatableComponent component = Component.translatable("qsh_dialog.shop.sale.confirmation.cancel");
         return GlobalTranslator.render(component, qshUser.locale());
     }

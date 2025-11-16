@@ -20,21 +20,25 @@
 package io.github.namiuni.qshdialog.utility;
 
 import com.ghostchu.quickshop.QuickShop;
-import com.ghostchu.quickshop.api.economy.EconomyManager;
 import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
 import com.ghostchu.quickshop.api.localization.text.Text;
+import com.ghostchu.quickshop.api.localization.text.TextManager;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.ShopAction;
+import com.ghostchu.quickshop.api.shop.ShopManager;
 import com.ghostchu.quickshop.economy.transaction.QSEconomyTransaction;
 import com.ghostchu.quickshop.shop.SimpleInfo;
 import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapper;
+import com.ghostchu.quickshop.util.Util;
+import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.Optional;
+import net.kyori.adventure.text.Component;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -42,38 +46,43 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class QuickShopUtil {
 
+    private static final QuickShop QUICK_SHOP = QuickShop.getInstance();
+    private static final FileConfiguration CONFIG = QUICK_SHOP.getConfig();
+    private static final TextManager TEXT_MANAGER = QUICK_SHOP.text();
+    private static final ShopManager SHOP_MANAGER = QUICK_SHOP.getShopManager();
+    private static final EconomyProvider ECONOMY_PROVIDER = Objects.requireNonNull(QUICK_SHOP.getEconomyManager().provider());
+
     private QuickShopUtil() {
     }
 
     public static double namingCost(final QSHUser user) {
         return user.hasPermission("quickshop.bypass.namefee")
                 ? 0.0
-                : QuickShop.getInstance().getConfig().getDouble("shop.name-fee", 0.0);
+                : CONFIG.getDouble("shop.name-fee", 0.0);
     }
 
     public static int maxNameLength() {
-        return QuickShop.getInstance().getConfig().getInt("shop.name-max-length", 32);
+        return CONFIG.getInt("shop.name-max-length", 32);
     }
 
     public static void withdrawNamingCost(final QSHUser user, final World world, final @Nullable QUser taxAccount) {
-        final QuickShop quickShop = QuickShop.getInstance();
-        final double fee = quickShop.getConfig().getDouble("shop.name-fee", 0);
+        final double fee = CONFIG.getDouble("shop.name-fee", 0);
 
         if (fee > 0 && !user.hasPermission("quickshop.bypass.namefee")) {
             final QSEconomyTransaction transaction = QSEconomyTransaction.builder()
                     .world(world.getName())
                     .from(user.quickShopUser())
                     .to(taxAccount)
-                    .currency(quickShop.getCurrency())
+                    .currency(QUICK_SHOP.getCurrency())
                     .taxer(taxAccount)
                     .tax(BigDecimal.ZERO)
                     .amount(BigDecimal.valueOf(fee))
                     .build();
             if (!transaction.completable()) {
-                final Text message = quickShop.text().of(
+                final Text message = TEXT_MANAGER.of(
                         user.quickShopUser(),
                         "you-cant-afford-shop-naming",
-                        quickShop.getShopManager().format(fee, world, quickShop.getCurrency()));
+                        SHOP_MANAGER.format(fee, world, QUICK_SHOP.getCurrency()));
                 message.send();
             }
         }
@@ -83,10 +92,10 @@ public final class QuickShopUtil {
         final Player bukkitSeller = seller.quickShopUser().getBukkitPlayer().orElseThrow();
         final InventoryWrapper inventory = new BukkitInventoryWrapper(bukkitSeller.getInventory());
 
-        QuickShop.getInstance().getShopManager().actionBuying(
+        SHOP_MANAGER.actionBuying(
                 bukkitSeller,
                 inventory,
-                Objects.requireNonNull(QuickShop.getInstance().getEconomyManager().provider()),
+                ECONOMY_PROVIDER,
                 new SimpleInfo(shop.getLocation(), ShopAction.PURCHASE_SELL, null, null, shop, false),
                 shop,
                 quantity
@@ -97,10 +106,10 @@ public final class QuickShopUtil {
         final Player bukkitBuyer = buyer.quickShopUser().getBukkitPlayer().orElseThrow();
         final InventoryWrapper inventory = new BukkitInventoryWrapper(bukkitBuyer.getInventory());
 
-        QuickShop.getInstance().getShopManager().actionSelling(
+        SHOP_MANAGER.actionSelling(
                 bukkitBuyer,
                 inventory,
-                Objects.requireNonNull(QuickShop.getInstance().getEconomyManager().provider()),
+                ECONOMY_PROVIDER,
                 new SimpleInfo(shop.getLocation(), ShopAction.PURCHASE_BUY, null, null, shop, false),
                 shop,
                 quantity
@@ -108,10 +117,71 @@ public final class QuickShopUtil {
     }
 
     public static boolean supportsMultiCurrency() {
-        final EconomyManager economyManager = QuickShop.getInstance().getEconomyManager();
+        return ECONOMY_PROVIDER.multiCurrency();
+    }
 
-        return Optional.ofNullable(economyManager.provider())
-                .map(EconomyProvider::multiCurrency)
-                .orElse(false);
+    public static Result<Integer, Component> availableQuantityForSale(final QSHUser customer, final Shop shop) {
+        final Player bukkitCustomer = customer.quickShopUser().getBukkitPlayer().orElseThrow();
+
+        if (!shop.isUnlimited() && shop.getRemainingSpace() == 0) {
+            final Component message = TEXT_MANAGER.of(
+                    bukkitCustomer,
+                    "shop-has-no-space",
+                    shop.getRemainingSpace(),
+                    shop.getItem().effectiveName()
+            ).forLocale(customer.locale().toString());
+            return Result.error(message);
+        }
+
+        final boolean payUnlimitedOwners = CONFIG.getBoolean("shop.pay-unlimited-shop-owners");
+        final boolean needsBalanceCheck = !shop.isUnlimited() || payUnlimitedOwners;
+        final double ownerBalance = ECONOMY_PROVIDER
+                .balance(shop.getOwner(), shop.getLocation().getWorld().getName(), shop.getCurrency())
+                .doubleValue();
+        final int ownerCanAfford = (0 < shop.getPrice())
+                ? (int) (ownerBalance / shop.getPrice())
+                : Integer.MAX_VALUE;
+
+        if (needsBalanceCheck && ownerCanAfford == 0) {
+            return Result.error(TEXT_MANAGER.of(
+                    bukkitCustomer,
+                    "the-owner-cant-afford-to-buy-from-you",
+                    SHOP_MANAGER.format(shop.getPrice(), shop.getLocation().getWorld(), shop.getCurrency()),
+                    SHOP_MANAGER.format(ownerBalance, shop.getLocation().getWorld(), shop.getCurrency())
+            ).forLocale(customer.locale().toString()));
+        }
+
+        final BukkitInventoryWrapper wrappedInventory = new BukkitInventoryWrapper(bukkitCustomer.getInventory());
+        final int customerAvailableQuantity = Util.countItems(wrappedInventory, shop);
+
+        final int quantity = calculateAvailableQuantity(shop, customerAvailableQuantity, ownerCanAfford);
+        if (quantity < 1) {
+            final Component message = TEXT_MANAGER.of(
+                    bukkitCustomer,
+                    "you-dont-have-that-many-items",
+                    0,
+                    shop.getItem().effectiveName()
+            ).forLocale(customer.locale().toString());
+            return Result.error(message);
+        } else {
+            return Result.success(quantity);
+        }
+    }
+
+    private static int calculateAvailableQuantity(
+            final Shop shop,
+            final int customerAvailableQuantity,
+            final int ownerCanAfford
+    ) {
+        final boolean payUnlimitedOwners = CONFIG.getBoolean("shop.pay-unlimited-shop-owners");
+        if (shop.isUnlimited() && payUnlimitedOwners) {
+            return Math.min(customerAvailableQuantity, ownerCanAfford);
+        }
+
+        if (shop.isUnlimited()) {
+            return customerAvailableQuantity;
+        }
+
+        return Math.min(customerAvailableQuantity, Math.min(shop.getRemainingSpace(), ownerCanAfford));
     }
 }

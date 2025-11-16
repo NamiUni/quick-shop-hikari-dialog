@@ -21,9 +21,15 @@ public final class DialogBodies {
     }
 
     public static DialogBody buyDescription(final QSHUser customer, final Shop shop) {
-        final Component buyDescription = TranslationMessages.tradeBodyBuyDescription(customer, shop);
+        final Component description = TranslationMessages.tradeBodyBuyDescription(customer, shop);
 
-        return DialogBody.plainMessage(buyDescription);
+        return DialogBody.plainMessage(description);
+    }
+
+    public static DialogBody saleDescription(final QSHUser customer, final Shop shop) {
+        final Component description = TranslationMessages.productSaleDescription(customer, shop);
+
+        return DialogBody.plainMessage(description);
     }
 
     public static DialogBody shopName(final QSHUser customer, final Shop shop) {

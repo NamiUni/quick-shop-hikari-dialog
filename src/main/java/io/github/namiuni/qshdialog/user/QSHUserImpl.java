@@ -22,6 +22,7 @@ package io.github.namiuni.qshdialog.user;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.obj.QUserImpl;
+import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ProductSaleDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
@@ -31,6 +32,7 @@ import io.papermc.paper.dialog.Dialog;
 import java.util.Objects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.BlockFace;
@@ -88,8 +90,11 @@ public record QSHUserImpl(
 
     @Override
     public void showProductSaleDialog(final Shop shop) {
-        final Dialog dialog = this.productSaleDialogFactory.create(shop, this);
-        this.showDialog(dialog);
+        final Result<Dialog, Component> result = this.productSaleDialogFactory.create(this, shop);
+        switch (result) {
+            case Result.Success<Dialog, Component>(Dialog dialog) -> this.showDialog(dialog);
+            case Result.Error<Dialog, Component>(Component errorMessage) -> this.sendActionBar(errorMessage);
+        }
     }
 
     private double getBlockInteractionRange() {

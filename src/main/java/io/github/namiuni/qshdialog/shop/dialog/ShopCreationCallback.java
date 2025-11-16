@@ -30,6 +30,7 @@ import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -60,17 +61,28 @@ final class ShopCreationCallback implements DialogActionCallback {
         Optional.ofNullable(response.getFloat("product_size"))
                 .ifPresent(bundleSize -> builder.bundleSize(bundleSize.intValue()));
 
-        Optional.ofNullable(response.getText("product_price"))
-                .filter(price -> !price.isEmpty())
-                .map(BigDecimal::new)
-                .map(BigDecimal::doubleValue)
-                .ifPresentOrElse(
-                        builder::price,
-                        () -> {
-                            final Component label = TranslationMessages.productPriceLabel(this.context.owner(), this.minPrice, this.maxPrice);
-                            final Component message = TranslationMessages.shopCreationErrorEmptyInput(this.context.owner(), label);
-                            this.context.owner().sendMessage(message);
-                        });
+        final String priceInput = Objects.requireNonNull(response.getText("product_price"));
+        if (priceInput.isEmpty()) {
+            final Component message = TranslationMessages.shopCreationErrorPriceEmpty(this.context.owner(), priceInput);
+            this.context.owner().sendMessage(message);
+        }
+
+        final BigDecimal price;
+        try {
+            price = new BigDecimal(priceInput);
+        } catch (final NumberFormatException exception) {
+            final Component errorMessage = TranslationMessages.shopCreationErrorPriceInvalid(this.context.owner(), priceInput);
+            this.context.owner().sendMessage(errorMessage);
+            return;
+        }
+
+        if (this.minPrice.compareTo(price) <= 0 && price.compareTo(this.maxPrice) <= 0) {
+            builder.price(price);
+        } else {
+            final Component errorMessage = TranslationMessages.shopCreationErrorPriceOutOfRange(this.context.owner(), priceInput, this.minPrice, this.maxPrice);
+            this.context.owner().sendMessage(errorMessage);
+            return;
+        }
 
         Optional.ofNullable(response.getText("trade_type"))
                 .map(TradeType::valueOf)

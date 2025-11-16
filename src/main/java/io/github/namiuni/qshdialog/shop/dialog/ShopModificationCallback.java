@@ -29,6 +29,7 @@ import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.kyori.adventure.audience.Audience;
@@ -61,23 +62,33 @@ final class ShopModificationCallback implements DialogActionCallback {
                     this.shop.setItem(product);
                 });
 
-        Optional.ofNullable(response.getText("product_price"))
-                .filter(price -> !price.isEmpty())
-                .map(BigDecimal::new)
-                .map(BigDecimal::doubleValue)
-                .filter(Predicate.not(Predicate.isEqual(this.shop.getPrice())))
-                .ifPresentOrElse(
-                        this.shop::setPrice,
-                        () -> {
-                            final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
-                                    .check(this.user.quickShopUser(), this.shop.getItem(), this.shop.getCurrency(), this.shop.getPrice());
-                            final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
-                            final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
+        final PriceLimiterCheckResult priceRange = QuickShop.getInstance().getShopManager().getPriceLimiter()
+                .check(this.user.quickShopUser(), this.shop.getItem(), this.shop.getCurrency(), this.shop.getPrice());
+        final BigDecimal minPrice = BigDecimal.valueOf(priceRange.getMin());
+        final BigDecimal maxPrice = BigDecimal.valueOf(priceRange.getMax());
 
-                            final Component priceLabel = TranslationMessages.productPriceLabel(this.user, minPrice, maxPrice);
-                            final Component message = TranslationMessages.shopModificationErrorEmptyInput(this.user, priceLabel);
-                            this.user.sendMessage(message);
-                        });
+        final String priceInput = Objects.requireNonNull(response.getText("product_price"));
+        if (priceInput.isEmpty()) {
+            final Component message = TranslationMessages.shopModificationErrorPriceEmpty(this.user);
+            this.user.sendMessage(message);
+        }
+
+        final BigDecimal price;
+        try {
+            price = new BigDecimal(priceInput);
+        } catch (final NumberFormatException exception) {
+            final Component errorMessage = TranslationMessages.shopModificationErrorPriceInvalid(this.user, priceInput);
+            this.user.sendMessage(errorMessage);
+            return;
+        }
+
+        if (minPrice.compareTo(price) <= 0 && price.compareTo(maxPrice) <= 0) {
+            this.shop.setPrice(price.doubleValue());
+        } else {
+            final Component errorMessage = TranslationMessages.shopModificationErrorPriceOutOfRange(this.user, priceInput, minPrice, maxPrice);
+            this.user.sendMessage(errorMessage);
+            return;
+        }
 
         Optional.ofNullable(response.getText("trade_type"))
                 .map(TradeType::valueOf)
