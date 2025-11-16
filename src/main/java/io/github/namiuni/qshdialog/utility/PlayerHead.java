@@ -21,11 +21,7 @@ public final class PlayerHead {
                 skullMeta.setOwningPlayer(player);
             }
 
-            itemMeta.displayName(
-                    player.name()
-                            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                            .append()
-            );
+            itemMeta.displayName(player.name().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE));
         });
 
         return playerHead;
@@ -33,7 +29,7 @@ public final class PlayerHead {
 
     public static ItemStack steve(final Component name) {
         final ItemStack playerHead = ItemStack.of(Material.PLAYER_HEAD);
-        playerHead.editMeta(itemMeta -> itemMeta.displayName(name));
+        playerHead.editMeta(itemMeta -> itemMeta.displayName(name.decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)));
 
         return playerHead;
     }
