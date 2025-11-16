@@ -86,7 +86,7 @@ public final class ShopModificationDialogFactory {
     }
 
     private List<? extends DialogBody> body(final QSHUser owner, final Shop shop) {
-        final DialogBody body = DialogBody.item(shop.getItem())
+        final DialogBody body = DialogBody.item(shop.getItem().asOne())
                 .description(DialogBody.plainMessage(TranslationMessages.shopModificationDescription(owner)))
                 .build();
 
