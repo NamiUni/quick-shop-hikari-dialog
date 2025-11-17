@@ -23,6 +23,8 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.shop.SimpleShopManager;
+import com.ghostchu.quickshop.util.ShopUtil;
+import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.shop.ShopDisplay;
 import io.github.namiuni.qshdialog.shop.ShopMode;
 import io.github.namiuni.qshdialog.shop.ShopStatus;
@@ -89,7 +91,7 @@ final class ShopModificationCallback implements DialogActionCallback {
         }
 
         if (minPrice.compareTo(price) <= 0 && price.compareTo(maxPrice) <= 0) {
-            this.shop.setPrice(price.doubleValue());
+            ShopUtil.setPrice(QuickShop.getInstance(), this.user.quickShopUser(), price.doubleValue(), this.shop);
         } else {
             final Component errorMessage = TranslationMessages.shopModificationErrorPriceOutOfRange(this.user, this.shopTags, priceInput, minPrice, maxPrice);
             this.user.sendMessage(errorMessage);
@@ -116,10 +118,15 @@ final class ShopModificationCallback implements DialogActionCallback {
         Optional.ofNullable(response.getText("shop_name"))
                 .filter(Predicate.not(Predicate.isEqual(this.shop.getShopName())))
                 .ifPresent(name -> {
-                    this.shop.setShopName(name);
-
                     final World world = this.user.quickShopUser().getBukkitPlayer().orElseThrow().getWorld();
-                    QuickShopUtil.withdrawNamingCost(this.user, world, null);
+                    switch (QuickShopUtil.withdrawNamingCost(this.user, world)) {
+                        case Result.Success<BigDecimal, Component>(BigDecimal result) -> {
+                            this.shop.setShopName(name);
+                            QuickShop.getInstance().text().of(this.user.quickShopUser(), "shop-name-success", name).send();
+                        }
+                        case Result.Error<BigDecimal, Component>(Component errorMessage) ->
+                                this.user.sendMessage(errorMessage);
+                    }
                 });
 
         Optional.ofNullable(response.getText("shop_currency"))

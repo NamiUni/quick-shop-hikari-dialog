@@ -105,7 +105,7 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder name(final @Nullable String shopName) {
+    public ContainerShopBuilder shopName(final @Nullable String shopName) {
         this.name = shopName;
         return this;
     }

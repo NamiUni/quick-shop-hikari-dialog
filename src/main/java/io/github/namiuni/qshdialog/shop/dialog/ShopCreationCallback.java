@@ -21,6 +21,7 @@ package io.github.namiuni.qshdialog.shop.dialog;
 
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.shop.ContainerShopBuilder;
 import io.github.namiuni.qshdialog.shop.ShopDisplay;
 import io.github.namiuni.qshdialog.shop.ShopMode;
@@ -100,10 +101,12 @@ final class ShopCreationCallback implements DialogActionCallback {
 
         Optional.ofNullable(response.getText("shop_name"))
                 .ifPresent(name -> {
-                    builder.name(name);
-
                     final World world = this.context.owner().quickShopUser().getBukkitPlayer().orElseThrow().getWorld();
-                    QuickShopUtil.withdrawNamingCost(this.context.owner(), world, null);
+                    switch (QuickShopUtil.withdrawNamingCost(this.context.owner(), world)) {
+                        case Result.Success<BigDecimal, Component>(BigDecimal result) -> builder.shopName(name);
+                        case Result.Error<BigDecimal, Component>(Component errorMessage) ->
+                            this.context.owner().sendMessage(errorMessage);
+                    }
                 });
 
         Optional.ofNullable(response.getText("shop_currency"))

@@ -63,27 +63,19 @@ public final class QuickShopUtil {
         return QUICK_SHOP.getConfig().getInt("shop.name-max-length", 32);
     }
 
-    public static void withdrawNamingCost(final QSHUser user, final World world, final @Nullable QUser taxAccount) {
+    public static Result<BigDecimal, Component> withdrawNamingCost(final QSHUser user, final World world) {
         final double fee = QUICK_SHOP.getConfig().getDouble("shop.name-fee", 0);
 
         if (0 < fee && !user.hasPermission("quickshop.bypass.namefee")) {
-            final QSEconomyTransaction transaction = QSEconomyTransaction.builder()
-                    .world(world.getName())
-                    .from(user.quickShopUser())
-                    .to(taxAccount)
-                    .currency(QUICK_SHOP.getCurrency())
-                    .taxer(taxAccount)
-                    .tax(BigDecimal.ZERO)
-                    .amount(BigDecimal.valueOf(fee))
-                    .build();
-            if (!transaction.completable()) {
-                final Text message = TEXT_MANAGER.of(
-                        user.quickShopUser(),
-                        "you-cant-afford-shop-naming",
-                        SHOP_MANAGER.format(fee, world, QUICK_SHOP.getCurrency()));
-                message.send();
+            final boolean withdraw = ECONOMY_PROVIDER.withdraw(user.quickShopUser(), world.getName(), QUICK_SHOP.getCurrency(), BigDecimal.valueOf(fee));
+            if (!withdraw) {
+                final Component errorMessage = TEXT_MANAGER.of(user.quickShopUser(), "you-cant-afford-shop-naming", SHOP_MANAGER.format(fee, world, QUICK_SHOP.getCurrency()))
+                        .forLocale(user.locale().toString());
+                return Result.error(errorMessage);
             }
         }
+
+        return Result.success(BigDecimal.valueOf(fee));
     }
 
     public static void sellItem(final QSHUser seller, final Shop shop, final int quantity) {
