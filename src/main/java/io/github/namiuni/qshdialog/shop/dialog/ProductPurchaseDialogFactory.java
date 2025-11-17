@@ -25,10 +25,10 @@ import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.ShopMode;
+import io.github.namiuni.qshdialog.shop.Shops;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
-import io.github.namiuni.qshdialog.utility.TagResolvers;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -59,7 +59,7 @@ public final class ProductPurchaseDialogFactory {
             throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.shopType().identifier()));
         }
 
-        final TagResolver shopTags = TagResolvers.shop(shop);
+        final TagResolver shopTags = Shops.tagResolver(shop);
 
         final Result<List<? extends DialogInput>, Component> inputsResult = this.inputs(customer, shop, shopTags);
         return switch (inputsResult) {

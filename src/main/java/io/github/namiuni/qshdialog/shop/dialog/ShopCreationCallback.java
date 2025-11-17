@@ -57,7 +57,7 @@ final class ShopCreationCallback implements DialogActionCallback {
 
     @Override
     public void accept(final DialogResponseView response, final Audience audience) {
-        final ContainerShopBuilder builder = Shops.container(this.context.shopContainer())
+        final ContainerShopBuilder builder = Shops.builder(this.context.shopContainer())
                 .owner(this.context.owner().quickShopUser())
                 .product(this.context.product());
 
