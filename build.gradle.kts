@@ -43,6 +43,9 @@ dependencies {
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
     compileOnly("com.ghostchu:quickshop-api:6.2.0.11-SNAPSHOT-9")
     compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11-SNAPSHOT-9")
+
+    // Integrations
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
 }
 
 val mainPackage = "${group}.qshdialog"
@@ -65,6 +68,7 @@ paperPluginYaml {
 
     dependencies {
         server("QuickShop-Hikari", Load.BEFORE, true)
+        server("MiniPlaceholders", Load.BEFORE, true)
     }
 }
 
@@ -73,6 +77,7 @@ tasks {
         minecraftVersion("1.21.10")
         downloadPlugins {
             modrinth("luckperms", "v5.5.17-bukkit")
+            modrinth("miniplaceholders", "4zOT6txC")
             modrinth("packetevents", "2.10.1")
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
             url("https://ci.minebench.de/job/FakeEconomy/lastSuccessfulBuild/artifact/target/FakeEconomy.jar")

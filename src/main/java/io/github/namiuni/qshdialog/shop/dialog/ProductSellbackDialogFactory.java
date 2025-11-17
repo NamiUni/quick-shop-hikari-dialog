@@ -24,10 +24,11 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
-import io.github.namiuni.qshdialog.shop.TradeType;
+import io.github.namiuni.qshdialog.shop.ShopMode;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
+import io.github.namiuni.qshdialog.utility.TagResolvers;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -41,35 +42,38 @@ import java.util.List;
 import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-public final class ProductSaleDialogFactory {
+public final class ProductSellbackDialogFactory {
 
     private final ConfigurationHolder<PrimaryConfiguration> configHolder;
 
-    public ProductSaleDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
+    public ProductSellbackDialogFactory(final ConfigurationHolder<PrimaryConfiguration> configHolder) {
         this.configHolder = configHolder;
     }
 
     public Result<Dialog, Component> create(final QSHUser customer, final Shop shop) {
-        if (TradeType.of(shop.shopType()) == TradeType.SELL) {
+        if (ShopMode.of(shop.shopType()) == ShopMode.SELLING) {
             throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.shopType().identifier()));
         }
 
-        final Result<List<? extends DialogInput>, Component> inputsResult = this.inputs(customer, shop);
+        final TagResolver shopTags = TagResolvers.shop(shop);
+
+        final Result<List<? extends DialogInput>, Component> inputsResult = this.inputs(customer, shop, shopTags);
         return switch (inputsResult) {
             case Result.Success<List<? extends DialogInput>, Component>(List<? extends DialogInput> inputs) -> {
-                final DialogBase dialogBase = DialogBase.builder(this.title(customer, shop))
-                        .body(this.body(customer, shop))
+                final DialogBase dialogBase = DialogBase.builder(this.title(customer, shopTags))
+                        .body(this.body(customer, shop, shopTags))
                         .inputs(inputs)
                         .build();
 
                 final Dialog dialog = Dialog.create(builder -> builder
                         .empty()
                         .base(dialogBase)
-                        .type(this.dialogType(customer, shop))
+                        .type(this.dialogType(customer, shop, shopTags))
                 );
 
                 yield Result.success(dialog);
@@ -78,47 +82,49 @@ public final class ProductSaleDialogFactory {
         };
     }
 
-    private Component title(final QSHUser customer, final Shop shop) {
-        return TranslationMessages.itemSaleTitle(customer, shop);
+    private Component title(final QSHUser customer, final TagResolver shopTags) {
+        return TranslationMessages.itemSaleTitle(customer, shopTags);
     }
 
-    private List<? extends DialogBody> body(final QSHUser customer, final Shop shop) {
+    private List<? extends DialogBody> body(final QSHUser customer, final Shop shop, final TagResolver shopTags) {
         final List<DialogBody> body = new ArrayList<>();
 
-        body.add(DialogBodies.saleDescription(customer, shop));
-        body.add(DialogBodies.shopName(customer, shop));
+        body.add(DialogBodies.shopName(customer, shop, shopTags));
 
         if (QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
-            final DialogBody bundleSize = DialogBodies.bundleSize(customer, shop);
+            final DialogBody bundleSize = DialogBodies.productSize(customer, shop, shopTags);
             body.add(bundleSize);
         }
 
-        body.add(DialogBodies.price(customer, shop));
+        body.add(DialogBodies.price(customer, shopTags));
+
+        final Component description = TranslationMessages.productSaleDescription(customer, shopTags);
+        body.add(DialogBody.plainMessage(description));
 
         return body;
     }
 
-    private Result<List<? extends DialogInput>, Component> inputs(final QSHUser customer, final Shop shop) {
-        final Result<DialogInput, Component> quantity = DialogInputs.saleQuantity(customer, shop);
+    private Result<List<? extends DialogInput>, Component> inputs(final QSHUser customer, final Shop shop, final TagResolver shopTags) {
+        final Result<DialogInput, Component> quantity = DialogInputs.saleQuantity(customer, shop, shopTags);
         return switch (quantity) {
             case Result.Success<DialogInput, Component>(DialogInput result) -> Result.success(List.of(result));
             case Result.Error<DialogInput, Component>(Component errorMessage) -> Result.error(errorMessage);
         };
     }
 
-    private DialogType dialogType(final QSHUser customer, final Shop shop) {
+    private DialogType dialogType(final QSHUser customer, final Shop shop, final TagResolver shopTags) {
         final ClickCallback.Options options = ClickCallback.Options.builder()
                 .uses(1)
                 .lifetime(ClickCallback.DEFAULT_LIFETIME)
                 .build();
 
         final ActionButton buyButton = ActionButton
-                .builder(TranslationMessages.productSaleConfirmationSell(customer, shop))
+                .builder(TranslationMessages.productSaleConfirmationSell(customer, shopTags))
                 .action(DialogAction.customClick(this.saleCallback(customer, shop), options))
                 .build();
 
         final ActionButton cancelButton = ActionButton
-                .builder(TranslationMessages.productSaleConfirmationCancel(customer, shop))
+                .builder(TranslationMessages.productSaleConfirmationCancel(customer, shopTags))
                 .build();
 
         return DialogType.confirmation(buyButton, cancelButton);

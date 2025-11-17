@@ -43,15 +43,15 @@ public final class ContainerShopBuilder {
 
     private final long id;
     private final Container container;
-    private BigDecimal price;
+    private @MonotonicNonNull BigDecimal price;
     private @MonotonicNonNull ItemStack product;
     private int bundleSize = 1;
     private @MonotonicNonNull QUser owner;
     private boolean unlimited = false;
-    private TradeType type = TradeType.SELL;
-    private boolean suspend = false;
+    private ShopMode type = ShopMode.SELLING;
+    private ShopStatus status = ShopStatus.AVAILABLE;
     private @Nullable String currency = null;
-    private boolean showDisplay = true;
+    private ShopDisplay display = ShopDisplay.SHOW;
     private @Nullable String name = null;
     private Map<UUID, String> playerGroup = Map.of();
 
@@ -85,8 +85,13 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder type(final TradeType type) {
-        this.type = type;
+    public ContainerShopBuilder mode(final ShopMode mode) {
+        this.type = mode;
+        return this;
+    }
+
+    public ContainerShopBuilder status(final ShopStatus status) {
+        this.status = status;
         return this;
     }
 
@@ -95,8 +100,8 @@ public final class ContainerShopBuilder {
         return this;
     }
 
-    public ContainerShopBuilder showDisplay(final boolean showDisplay) {
-        this.showDisplay = showDisplay;
+    public ContainerShopBuilder display(final ShopDisplay display) {
+        this.display = display;
         return this;
     }
 
@@ -130,10 +135,10 @@ public final class ContainerShopBuilder {
                 this.product,
                 this.owner,
                 this.unlimited,
-                this.suspend ? SimpleShopManager.FROZEN_TYPE : this.type.shopType(),
+                this.status == ShopStatus.AVAILABLE ? this.type.shopType() : SimpleShopManager.FROZEN_TYPE,
                 new YamlConfiguration(),
                 this.currency,
-                !this.showDisplay,
+                this.display == ShopDisplay.HIDE,
                 null,
                 quickShop.getJavaPlugin().getName(),
                 symbolLink,

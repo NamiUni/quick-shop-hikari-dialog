@@ -20,32 +20,30 @@
 package io.github.namiuni.qshdialog.shop;
 
 import com.ghostchu.quickshop.api.shop.IShopType;
-import com.ghostchu.quickshop.api.shop.type.BuyingType;
-import com.ghostchu.quickshop.api.shop.type.SellingType;
-import com.ghostchu.quickshop.shop.SimpleShopManager;
+import com.ghostchu.quickshop.api.shop.type.FrozenType;
+import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public enum TradeType {
+public enum ShopStatus {
+    AVAILABLE(Component.translatable("qsh_dialog.shop.status.available")),
+    UNAVAILABLE(Component.translatable("qsh_dialog.shop.status.unavailable"));
 
-    BUY(SimpleShopManager.BUYING_TYPE),
-    SELL(SimpleShopManager.SELLING_TYPE);
+    private final Component displayName;
 
-    private final IShopType shopType;
-
-    TradeType(final IShopType buyingType) {
-        this.shopType = buyingType;
+    ShopStatus(final Component displayName) {
+        this.displayName = displayName;
     }
 
-    public static TradeType of(final IShopType shopType) {
-        return switch (shopType) {
-            case BuyingType ignored -> BUY;
-            case SellingType ignored -> SELL;
-            default -> throw new IllegalArgumentException();
-        };
+    public static ShopStatus of(final IShopType shopType) {
+        if (shopType instanceof FrozenType) {
+            return UNAVAILABLE;
+        }
+
+        return AVAILABLE;
     }
 
-    public IShopType shopType() {
-        return this.shopType;
+    public Component displayName() {
+        return this.displayName;
     }
 }

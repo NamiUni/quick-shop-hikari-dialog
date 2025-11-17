@@ -22,8 +22,10 @@ package io.github.namiuni.qshdialog.shop.dialog;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
 import io.github.namiuni.qshdialog.shop.ContainerShopBuilder;
+import io.github.namiuni.qshdialog.shop.ShopDisplay;
+import io.github.namiuni.qshdialog.shop.ShopMode;
+import io.github.namiuni.qshdialog.shop.ShopStatus;
 import io.github.namiuni.qshdialog.shop.Shops;
-import io.github.namiuni.qshdialog.shop.TradeType;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
@@ -84,9 +86,17 @@ final class ShopCreationCallback implements DialogActionCallback {
             return;
         }
 
-        Optional.ofNullable(response.getText("trade_type"))
-                .map(TradeType::valueOf)
-                .ifPresent(builder::type);
+        Optional.ofNullable(response.getText("shop_mode"))
+                .map(ShopMode::valueOf)
+                .ifPresent(builder::mode);
+
+        Optional.ofNullable(response.getText("shop_status"))
+                .map(ShopStatus::valueOf)
+                .ifPresent(builder::status);
+
+        Optional.ofNullable(response.getText("shop_display"))
+                .map(ShopDisplay::valueOf)
+                .ifPresent(builder::display);
 
         Optional.ofNullable(response.getText("shop_name"))
                 .ifPresent(name -> {
@@ -98,9 +108,6 @@ final class ShopCreationCallback implements DialogActionCallback {
 
         Optional.ofNullable(response.getText("shop_currency"))
                 .ifPresent(builder::currency);
-
-        Optional.ofNullable(response.getBoolean("show_display"))
-                .ifPresent(builder::showDisplay);
 
         Optional.ofNullable(response.getBoolean("unlimited_stock"))
                 .ifPresent(builder::unlimited);

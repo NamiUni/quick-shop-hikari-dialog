@@ -38,7 +38,6 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -47,7 +46,6 @@ import org.jspecify.annotations.Nullable;
 public final class QuickShopUtil {
 
     private static final QuickShop QUICK_SHOP = QuickShop.getInstance();
-    private static final FileConfiguration CONFIG = QUICK_SHOP.getConfig();
     private static final TextManager TEXT_MANAGER = QUICK_SHOP.text();
     private static final ShopManager SHOP_MANAGER = QUICK_SHOP.getShopManager();
     private static final EconomyProvider ECONOMY_PROVIDER = Objects.requireNonNull(QUICK_SHOP.getEconomyManager().provider());
@@ -58,17 +56,17 @@ public final class QuickShopUtil {
     public static double namingCost(final QSHUser user) {
         return user.hasPermission("quickshop.bypass.namefee")
                 ? 0.0
-                : CONFIG.getDouble("shop.name-fee", 0.0);
+                : QUICK_SHOP.getConfig().getDouble("shop.name-fee", 0.0);
     }
 
     public static int maxNameLength() {
-        return CONFIG.getInt("shop.name-max-length", 32);
+        return QUICK_SHOP.getConfig().getInt("shop.name-max-length", 32);
     }
 
     public static void withdrawNamingCost(final QSHUser user, final World world, final @Nullable QUser taxAccount) {
-        final double fee = CONFIG.getDouble("shop.name-fee", 0);
+        final double fee = QUICK_SHOP.getConfig().getDouble("shop.name-fee", 0);
 
-        if (fee > 0 && !user.hasPermission("quickshop.bypass.namefee")) {
+        if (0 < fee && !user.hasPermission("quickshop.bypass.namefee")) {
             final QSEconomyTransaction transaction = QSEconomyTransaction.builder()
                     .world(world.getName())
                     .from(user.quickShopUser())
@@ -171,7 +169,7 @@ public final class QuickShopUtil {
             return Result.error(message);
         }
 
-        final boolean payUnlimitedOwners = CONFIG.getBoolean("shop.pay-unlimited-shop-owners");
+        final boolean payUnlimitedOwners = QUICK_SHOP.getConfig().getBoolean("shop.pay-unlimited-shop-owners");
         final boolean needsBalanceCheck = !shop.isUnlimited() || payUnlimitedOwners;
         final double ownerBalance = ECONOMY_PROVIDER
                 .balance(shop.getOwner(), shop.getLocation().getWorld().getName(), shop.getCurrency())
@@ -211,7 +209,7 @@ public final class QuickShopUtil {
             final int customerAvailableQuantity,
             final int ownerCanAfford
     ) {
-        final boolean payUnlimitedOwners = CONFIG.getBoolean("shop.pay-unlimited-shop-owners");
+        final boolean payUnlimitedOwners = QUICK_SHOP.getConfig().getBoolean("shop.pay-unlimited-shop-owners");
         if (shop.isUnlimited() && payUnlimitedOwners) {
             return Math.min(customerAvailableQuantity, ownerCanAfford);
         }

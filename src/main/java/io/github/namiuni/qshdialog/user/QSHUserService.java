@@ -20,7 +20,7 @@
 package io.github.namiuni.qshdialog.user;
 
 import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ProductSaleDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductSellbackDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import java.util.Objects;
@@ -35,18 +35,18 @@ public final class QSHUserService {
     private final ShopCreationDialogFactory shopCreationDialogFactory;
     private final ShopModificationDialogFactory shopModificationDialogFactory;
     private final ProductPurchaseDialogFactory productPurchaseDialogFactory;
-    private final ProductSaleDialogFactory productSaleDialogFactory;
+    private final ProductSellbackDialogFactory productSellbackDialogFactory;
 
     public QSHUserService(
             final ShopCreationDialogFactory shopCreationDialogFactory,
             final ShopModificationDialogFactory shopModificationDialogFactory,
             final ProductPurchaseDialogFactory productPurchaseDialogFactory,
-            final ProductSaleDialogFactory productSaleDialogFactory
+            final ProductSellbackDialogFactory productSellbackDialogFactory
     ) {
         this.shopCreationDialogFactory = shopCreationDialogFactory;
         this.shopModificationDialogFactory = shopModificationDialogFactory;
         this.productPurchaseDialogFactory = productPurchaseDialogFactory;
-        this.productSaleDialogFactory = productSaleDialogFactory;
+        this.productSellbackDialogFactory = productSellbackDialogFactory;
     }
 
     public QSHUser getUser(final UUID userID) {
@@ -59,7 +59,7 @@ public final class QSHUserService {
                 this.shopCreationDialogFactory,
                 this.shopModificationDialogFactory,
                 this.productPurchaseDialogFactory,
-                this.productSaleDialogFactory
+                this.productSellbackDialogFactory
         );
     }
 }

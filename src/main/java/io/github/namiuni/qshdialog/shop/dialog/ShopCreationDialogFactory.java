@@ -24,7 +24,9 @@ import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
-import io.github.namiuni.qshdialog.shop.TradeType;
+import io.github.namiuni.qshdialog.shop.ShopDisplay;
+import io.github.namiuni.qshdialog.shop.ShopMode;
+import io.github.namiuni.qshdialog.shop.ShopStatus;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -97,7 +100,7 @@ public final class ShopCreationDialogFactory {
     private Result<List<? extends DialogInput>, Component> inputs(final ShopCreationContext context, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final List<DialogInput> inputs = new ArrayList<>();
 
-        final Result<DialogInput, Component> typeInput = DialogInputs.tradeType(context.owner(), true, TradeType.SELL);
+        final Result<DialogInput, Component> typeInput = DialogInputs.shopMode(context.owner(), TagResolver.empty(), true, ShopMode.SELLING);
         switch (typeInput) {
             case Result.Success<DialogInput, Component>(DialogInput result) -> inputs.add(result);
             case Result.Error<DialogInput, Component>(Component errorMessage) -> {
@@ -105,31 +108,37 @@ public final class ShopCreationDialogFactory {
             }
         }
 
+        if (context.owner().hasPermission("quickshop.togglefreeze")) {
+            final DialogInput input = DialogInputs.shopStatus(context.owner(), TagResolver.empty(), ShopStatus.AVAILABLE);
+            inputs.add(input);
+        }
+
+        if (context.owner().hasPermission("quickshop.toggledisplay")) {
+            inputs.add(DialogInputs.shopDisplay(context.owner(), TagResolver.empty(), ShopDisplay.SHOW));
+        }
+
         if (context.owner().hasPermission("quickshop.create.stacks") && QuickShop.getInstance().getConfig().getBoolean("shop.allow-stacks")) {
             final DialogInput input = DialogInputs.productBundleSize(
                     context.owner(),
+                    TagResolver.empty(),
                     context.product().getAmount(),
                     context.product().getMaxStackSize()
             );
             inputs.add(input);
         }
 
-        inputs.add(DialogInputs.productPrice(context.owner(), minPrice, minPrice, maxPrice));
+        inputs.add(DialogInputs.productPrice(context.owner(), TagResolver.empty(), minPrice, minPrice, maxPrice));
 
         if (context.owner().hasPermission("quickshop.shopnaming")) {
-            inputs.add(DialogInputs.shopName(context.owner(), ""));
+            inputs.add(DialogInputs.shopName(context.owner(), TagResolver.empty(), ""));
         }
 
         if (context.owner().hasPermission("quickshop.currency") && QuickShopUtil.supportsMultiCurrency()) {
-            inputs.add(DialogInputs.shopCurrency(context.owner(), ""));
-        }
-
-        if (context.owner().hasPermission("quickshop.toggledisplay")) {
-            inputs.add(DialogInputs.shopShowDisplay(context.owner(), true));
+            inputs.add(DialogInputs.shopCurrency(context.owner(), TagResolver.empty(), ""));
         }
 
         if (context.owner().hasPermission("quickshop.unlimited")) {
-            inputs.add(DialogInputs.shopUnlimitedStock(context.owner(), false));
+            inputs.add(DialogInputs.shopUnlimitedStock(context.owner(), TagResolver.empty(), false));
         }
 
         return Result.success(inputs);

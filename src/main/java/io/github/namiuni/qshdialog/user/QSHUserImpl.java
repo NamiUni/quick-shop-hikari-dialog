@@ -24,7 +24,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.obj.QUserImpl;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ProductSaleDialogFactory;
+import io.github.namiuni.qshdialog.shop.dialog.ProductSellbackDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.shop.policy.ShopCreationContext;
@@ -47,7 +47,7 @@ public record QSHUserImpl(
         ShopCreationDialogFactory shopCreationDialogFactory,
         ShopModificationDialogFactory shopModificationDialogFactory,
         ProductPurchaseDialogFactory productPurchaseDialogFactory,
-        ProductSaleDialogFactory productSaleDialogFactory
+        ProductSellbackDialogFactory productSellbackDialogFactory
 ) implements QSHUser, ForwardingAudience.Single {
 
     @Override
@@ -99,7 +99,7 @@ public record QSHUserImpl(
 
     @Override
     public void showProductSaleDialog(final Shop shop) {
-        final Result<Dialog, Component> result = this.productSaleDialogFactory.create(this, shop);
+        final Result<Dialog, Component> result = this.productSellbackDialogFactory.create(this, shop);
         switch (result) {
             case Result.Success<Dialog, Component>(Dialog dialog) -> this.showDialog(dialog);
             case Result.Error<Dialog, Component>(Component errorMessage) -> this.sendActionBar(errorMessage);

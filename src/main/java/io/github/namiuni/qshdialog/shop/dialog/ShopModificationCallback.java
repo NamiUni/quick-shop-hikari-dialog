@@ -22,7 +22,10 @@ package io.github.namiuni.qshdialog.shop.dialog;
 import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.ghostchu.quickshop.api.shop.Shop;
-import io.github.namiuni.qshdialog.shop.TradeType;
+import com.ghostchu.quickshop.shop.SimpleShopManager;
+import io.github.namiuni.qshdialog.shop.ShopDisplay;
+import io.github.namiuni.qshdialog.shop.ShopMode;
+import io.github.namiuni.qshdialog.shop.ShopStatus;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
@@ -34,6 +37,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
@@ -42,12 +46,14 @@ import org.jspecify.annotations.NullMarked;
 @SuppressWarnings("UnstableApiUsage")
 final class ShopModificationCallback implements DialogActionCallback {
 
-    private final Shop shop;
     private final QSHUser user;
+    private final Shop shop;
+    private final TagResolver shopTags;
 
-    ShopModificationCallback(final Shop shop, final QSHUser user) {
-        this.shop = shop;
+    ShopModificationCallback(final QSHUser user, final Shop shop, final TagResolver shopTags) {
         this.user = user;
+        this.shop = shop;
+        this.shopTags = shopTags;
     }
 
     @Override
@@ -69,7 +75,7 @@ final class ShopModificationCallback implements DialogActionCallback {
 
         final String priceInput = Objects.requireNonNull(response.getText("product_price"));
         if (priceInput.isEmpty()) {
-            final Component message = TranslationMessages.shopModificationErrorPriceEmpty(this.user);
+            final Component message = TranslationMessages.shopModificationErrorPriceEmpty(this.user, this.shopTags);
             this.user.sendMessage(message);
         }
 
@@ -77,7 +83,7 @@ final class ShopModificationCallback implements DialogActionCallback {
         try {
             price = new BigDecimal(priceInput);
         } catch (final NumberFormatException exception) {
-            final Component errorMessage = TranslationMessages.shopModificationErrorPriceInvalid(this.user, priceInput);
+            final Component errorMessage = TranslationMessages.shopModificationErrorPriceInvalid(this.user, this.shopTags, priceInput);
             this.user.sendMessage(errorMessage);
             return;
         }
@@ -85,16 +91,27 @@ final class ShopModificationCallback implements DialogActionCallback {
         if (minPrice.compareTo(price) <= 0 && price.compareTo(maxPrice) <= 0) {
             this.shop.setPrice(price.doubleValue());
         } else {
-            final Component errorMessage = TranslationMessages.shopModificationErrorPriceOutOfRange(this.user, priceInput, minPrice, maxPrice);
+            final Component errorMessage = TranslationMessages.shopModificationErrorPriceOutOfRange(this.user, this.shopTags, priceInput, minPrice, maxPrice);
             this.user.sendMessage(errorMessage);
             return;
         }
 
-        Optional.ofNullable(response.getText("trade_type"))
-                .map(TradeType::valueOf)
-                .map(TradeType::shopType)
-                .filter(Predicate.not(Predicate.isEqual(this.shop.shopType())))
-                .ifPresent(this.shop::shopType);
+        Optional.ofNullable(response.getText("shop_status"))
+                .map(ShopStatus::valueOf)
+                .filter(Predicate.isEqual(ShopStatus.UNAVAILABLE))
+                .ifPresentOrElse(
+                        ignored -> this.shop.shopType(SimpleShopManager.FROZEN_TYPE),
+                        () -> {
+                            final ShopMode mode = Optional.ofNullable(response.getText("shop_mode"))
+                                    .map(ShopMode::valueOf)
+                                    .orElseThrow();
+                            this.shop.shopType(mode.shopType());
+                        }
+                );
+
+        Optional.ofNullable(response.getText("shop_display"))
+                .map(ShopDisplay::valueOf)
+                .ifPresent(display -> this.shop.setDisableDisplay(display == ShopDisplay.HIDE));
 
         Optional.ofNullable(response.getText("shop_name"))
                 .filter(Predicate.not(Predicate.isEqual(this.shop.getShopName())))
@@ -108,11 +125,6 @@ final class ShopModificationCallback implements DialogActionCallback {
         Optional.ofNullable(response.getText("shop_currency"))
                 .filter(Predicate.not(Predicate.isEqual(this.shop.getCurrency())))
                 .ifPresent(this.shop::setCurrency);
-
-        Optional.ofNullable(response.getBoolean("show_display"))
-                .map(showDisplay -> !showDisplay)
-                .filter(Predicate.not(Predicate.isEqual(this.shop.isDisableDisplay())))
-                .ifPresent(this.shop::setDisableDisplay);
 
         Optional.ofNullable(response.getBoolean("unlimited_stock"))
                 .filter(Predicate.not(Predicate.isEqual(this.shop.isUnlimited())))
