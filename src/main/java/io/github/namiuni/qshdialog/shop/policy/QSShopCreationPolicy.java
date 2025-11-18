@@ -57,6 +57,10 @@ public final class QSShopCreationPolicy implements InteractionBehavior {
             final InteractionClick interactionClick,
             final @Nullable InteractionType interactionType
     ) {
+        if (!player.hasPermission("quickshop.use")) {
+            return;
+        }
+
         final ItemStack usingItem = interactEvent.getItem();
         final Block clickedBlock = interactEvent.getClickedBlock();
         if (usingItem != null && clickedBlock != null && clickedBlock.getState() instanceof Container container) {

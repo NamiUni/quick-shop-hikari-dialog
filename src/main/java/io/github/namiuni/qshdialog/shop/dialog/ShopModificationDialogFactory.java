@@ -60,9 +60,6 @@ public final class ShopModificationDialogFactory {
     }
 
     public Result<Dialog, Component> create(final QSHUser editor, final Shop shop) {
-        if (!editor.hasPermission("quickshop.use")) {
-            return Result.error(Component.empty());
-        }
 
         final TagResolver shopTags = Shops.tagResolver(shop);
 

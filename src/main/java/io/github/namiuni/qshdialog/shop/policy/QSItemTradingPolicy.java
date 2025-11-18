@@ -62,6 +62,10 @@ public final class QSItemTradingPolicy implements InteractionBehavior {
             return;
         }
 
+        if (!player.hasPermission("quickshop.use")) {
+            return;
+        }
+
         interactEvent.setCancelled(true);
         shop.setSignText((QuickShop.getInstance().text().findRelativeLanguages(player)));
 
