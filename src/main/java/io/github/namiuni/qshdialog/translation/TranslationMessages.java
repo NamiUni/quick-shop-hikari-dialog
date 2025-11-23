@@ -56,28 +56,28 @@ public final class TranslationMessages {
     /* Shop Creation Dialog */
 
     public static Component shopCreationTitle(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.shop_creation.title");
+        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.title.shop.creation");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
     public static Component shopCreationDescription(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.shop_creation.description");
+        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.description.shop.creation");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
     public static Component shopCreationConfirmationCreate(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.shop_creation.confirmation.confirm");
+        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.label.create");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
     public static Component shopCreationConfirmationCancel(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.shop_creation.confirmation.cancel");
+        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.label.cancel");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
     public static Component shopCreationErrorPriceEmpty(final QSHUser qshUser, final String input) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_creation.error.price.empty",
+                "qsh_dialog.dialog.error.creation.price.empty",
                 Argument.string("input_label", input)
         );
         return GlobalTranslator.render(component, qshUser.locale());
@@ -85,7 +85,7 @@ public final class TranslationMessages {
 
     public static Component shopCreationErrorPriceInvalid(final QSHUser qshUser, final String input) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_creation.error.price.invalid",
+                "qsh_dialog.dialog.error.creation.price.invalid",
                 Argument.string("input", input)
         );
         return GlobalTranslator.render(component, qshUser.locale());
@@ -93,7 +93,7 @@ public final class TranslationMessages {
 
     public static Component shopCreationErrorPriceOutOfRange(final QSHUser qshUser, final String input, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_creation.error.price.out_of_range",
+                "qsh_dialog.dialog.error.creation.price.out_of_range",
                 Argument.string("input", input),
                 Argument.string("min_price", minPrice.toPlainString()),
                 Argument.string("max_price", maxPrice.toPlainString())
@@ -102,7 +102,7 @@ public final class TranslationMessages {
     }
 
     public static Component shopTradeTypeNoPermissionError(final QSHUser qshUser) {
-        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.shop_creation.error.create.no_permission");
+        final TranslatableComponent component = Component.translatable("qsh_dialog.dialog.error.creation.no_permission");
         return GlobalTranslator.render(component, qshUser.locale());
     }
 
@@ -110,7 +110,7 @@ public final class TranslationMessages {
 
     public static Component shopModificationTitle(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_modification.title",
+                "qsh_dialog.dialog.title.modification",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -119,7 +119,7 @@ public final class TranslationMessages {
 
     public static Component shopModificationDescription(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_modification.description",
+                "qsh_dialog.dialog.description.shop.modification",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -128,7 +128,7 @@ public final class TranslationMessages {
 
     public static Component shopModificationConfirmationApply(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_modification.confirmation.confirm",
+                "qsh_dialog.dialog.label.apply",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -146,7 +146,7 @@ public final class TranslationMessages {
 
     public static Component shopModificationErrorPriceEmpty(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_modification.error.price.empty",
+                "qsh_dialog.dialog.error.modification.price.empty",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -155,7 +155,7 @@ public final class TranslationMessages {
 
     public static Component shopModificationErrorPriceInvalid(final QSHUser qshUser, final TagResolver shopTags, final String input) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_modification.error.price.invalid",
+                "qsh_dialog.dialog.error.modification.price.invalid",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.string("input", input),
                 Argument.target(qshUser)
@@ -165,7 +165,7 @@ public final class TranslationMessages {
 
     public static Component shopModificationErrorPriceOutOfRange(final QSHUser qshUser, final TagResolver shopTags, final String input, final BigDecimal minPrice, final BigDecimal maxPrice) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.shop_modification.error.price.out_of_range",
+                "qsh_dialog.dialog.error.modification.price.out_of_range",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.string("input", input),
                 Argument.string("min_price", minPrice.toPlainString()),
@@ -179,7 +179,7 @@ public final class TranslationMessages {
 
     public static Component tradeBuyTitle(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.product_purchase.title",
+                "qsh_dialog.dialog.title.purchase",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -188,7 +188,7 @@ public final class TranslationMessages {
 
     public static Component tradeBodyBuyDescription(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.product_purchase.description",
+                "qsh_dialog.dialog.description.shopping.purchase",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -217,7 +217,7 @@ public final class TranslationMessages {
 
     public static Component itemSaleTitle(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.product_sellback.title",
+                "qsh_dialog.dialog.title.sellback",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -226,7 +226,7 @@ public final class TranslationMessages {
 
     public static Component productSaleDescription(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.product_sellback.description",
+                "qsh_dialog.dialog.description.shopping.sellback",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -347,7 +347,7 @@ public final class TranslationMessages {
 
     public static Component shopQuantityLabel(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.label.trade.quantity",
+                "qsh_dialog.dialog.label.quantity",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );

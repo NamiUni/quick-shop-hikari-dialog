@@ -67,7 +67,7 @@ public final class QSShopCreationPolicy implements InteractionBehavior {
             interactEvent.setCancelled(true);
 
             final QSHUser qshUser = this.userService.getUser(player);
-            qshUser.showShopCreationDialog(container);
+//            qshUser.showShopCreationDialog(container);
         }
     }
 }

@@ -20,22 +20,31 @@
 package io.github.namiuni.qshdialog.user;
 
 import com.ghostchu.quickshop.api.obj.QUser;
-import com.ghostchu.quickshop.api.shop.Shop;
 import java.util.Locale;
 import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.permission.PermissionChecker;
-import org.bukkit.block.Container;
+import org.intellij.lang.annotations.Pattern;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public interface QSHUser extends Audience {
+public interface QSHUser extends Audience, Identified {
+
+    static QSHUser empty() {
+        return QSHUserImpl.EMPTY;
+    }
 
     QUser quickShopUser();
 
     default UUID uuid() {
         return this.get(Identity.UUID).orElseThrow();
+    }
+
+    @SuppressWarnings("PatternValidation")
+    default @Pattern("^[!-~]{0,16}$") String name() {
+        return this.get(Identity.NAME).orElseThrow();
     }
 
     default Locale locale() {
@@ -48,12 +57,8 @@ public interface QSHUser extends Audience {
                 .orElseThrow();
     }
 
-    void showShopCreationDialog(Container container);
-
-    void showShopModificationDialog(Shop shop);
-
-    void showProductPurchaseDialog(Shop shop);
-
-    void showProductSaleDialog(Shop shop);
-
+    @Override
+    default Identity identity() {
+        return Identity.identity(this.uuid());
+    }
 }

@@ -23,7 +23,7 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.ShopMode;
 import io.github.namiuni.qshdialog.shop.Shops;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
@@ -57,7 +57,7 @@ public final class ProductSellbackDialogFactory {
 
     public Result<Dialog, Component> create(final QSHUser customer, final Shop shop) {
         if (ShopMode.of(shop.shopType()) == ShopMode.SELLING) {
-            throw new IllegalArgumentException("Invalid shop type: %s".formatted(shop.shopType().identifier()));
+            throw new IllegalArgumentException("Invalid shop componentType: %s".formatted(shop.shopType().identifier()));
         }
 
         final TagResolver shopTags = Shops.tagResolver(shop);

@@ -24,7 +24,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.namiuni.qshdialog.QSHPermissions;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.translation.TranslatorHolder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -80,7 +80,7 @@ public final class AdminCommand implements QSHCommand {
                                 case Result.Error<Translator, IOException>(IOException exception) -> {
                                     final Component message = TranslationMessages.translationReloadError();
                                     commandSender.sendMessage(message);
-                                    throw new UncheckedIOException("Failed to reload translation", exception);
+                                    throw new UncheckedIOException("Failed to reload translation!!", exception);
                                 }
                             }
 

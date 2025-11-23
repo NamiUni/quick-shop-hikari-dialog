@@ -19,10 +19,6 @@
  */
 package io.github.namiuni.qshdialog.user;
 
-import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ProductSellbackDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -32,34 +28,14 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class QSHUserService {
 
-    private final ShopCreationDialogFactory shopCreationDialogFactory;
-    private final ShopModificationDialogFactory shopModificationDialogFactory;
-    private final ProductPurchaseDialogFactory productPurchaseDialogFactory;
-    private final ProductSellbackDialogFactory productSellbackDialogFactory;
-
-    public QSHUserService(
-            final ShopCreationDialogFactory shopCreationDialogFactory,
-            final ShopModificationDialogFactory shopModificationDialogFactory,
-            final ProductPurchaseDialogFactory productPurchaseDialogFactory,
-            final ProductSellbackDialogFactory productSellbackDialogFactory
-    ) {
-        this.shopCreationDialogFactory = shopCreationDialogFactory;
-        this.shopModificationDialogFactory = shopModificationDialogFactory;
-        this.productPurchaseDialogFactory = productPurchaseDialogFactory;
-        this.productSellbackDialogFactory = productSellbackDialogFactory;
+    public QSHUserService() {
     }
 
-    public QSHUser getUser(final UUID userID) {
-        return this.getUser(Objects.requireNonNull(Bukkit.getPlayer(userID)));
+    public QSHUser getUser(final UUID uuid) {
+        return this.getUser(Objects.requireNonNull(Bukkit.getPlayer(uuid)));
     }
 
     public QSHUser getUser(final Player player) {
-        return new QSHUserImpl(
-                player,
-                this.shopCreationDialogFactory,
-                this.shopModificationDialogFactory,
-                this.productPurchaseDialogFactory,
-                this.productSellbackDialogFactory
-        );
+        return new QSHUserImpl(player);
     }
 }

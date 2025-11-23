@@ -20,52 +20,72 @@
 package io.github.namiuni.qshdialog.configuration;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.configuration.annotations.ConfigHeader;
-import io.github.namiuni.qshdialog.configuration.annotations.ConfigName;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.DialogConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.DataComponentMapSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.DataComponentTypeSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogActionSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogAfterActionSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogBodySettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogInputSettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.ItemSettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.ItemTypeSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.QSHDialogSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.serializer.TextDialogInputMultilineOptionsSerializer;
+import io.github.namiuni.qshdialog.utility.QSHDialogLogger;
+import io.leangen.geantyref.TypeToken;
+import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import java.nio.file.Path;
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.yaml.NodeStyle;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 
 @NullMarked
-public final class ConfigurationLoader<T> {
+final class ConfigurationLoader<T> {
 
     private final Class<T> configClass;
     private final T defaultConfig;
-    private final Path configDirectory;
-    private final ComponentLogger logger;
+    private final Path configPath;
+    private final String configHeader;
 
-    public ConfigurationLoader(
+    ConfigurationLoader(
             final Class<T> configClass,
             final T defaultConfig,
-            final Path configDirectory,
-            final ComponentLogger logger
+            final Path configPath,
+            final String configHeader
     ) {
         this.configClass = configClass;
         this.defaultConfig = defaultConfig;
-        this.configDirectory = configDirectory;
-        this.logger = logger;
+        this.configPath = configPath;
+        this.configHeader = configHeader;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public Result<T, ConfigurateException> load() {
-        // Config path
-        final String configName = this.configClass.getAnnotation(ConfigName.class).value();
-        final Path configPath = this.configDirectory.resolve(configName);
-
-        // Config header
-        final String configHeader = this.configClass.getAnnotation(ConfigHeader.class).value();
-
-        final YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
-                .nodeStyle(NodeStyle.BLOCK)
+        final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
                 .defaultOptions(options -> options
                         .shouldCopyDefaults(true)
-                        .header(configHeader)
-                        .serializers(ConfigurateComponentSerializer.configurate().serializers()))
-                .path(configPath)
+                        .header(this.configHeader)
+                        .serializers(builder -> builder
+                                .registerAll(ConfigurateComponentSerializer.builder().scalarSerializer(MiniMessage.miniMessage()).build().serializers())
+                                .register(ItemType.class, ItemTypeSerializer.INSTANCE)
+                                .register(DataComponentTypeSerializer.INSTANCE)
+                                .register(new TypeToken<>() { }, DataComponentMapSerializer.INSTANCE)
+                                .register(new TypeToken<>() { }, ItemSettingsSerializer.INSTANCE)
+                                .register(TextDialogInput.MultilineOptions.class, TextDialogInputMultilineOptionsSerializer.INSTANCE)
+                                .register(DialogAction.class, DialogActionSerializer.INSTANCE)
+                                .register(DialogBase.DialogAfterAction.class, DialogAfterActionSerializer.INSTANCE)
+                                .register(new TypeToken<>() { }, DialogBodySettingsSerializer.INSTANCE)
+                                .register(new TypeToken<>() { }, DialogInputSettingsSerializer.INSTANCE)
+                                .register(DialogConfiguration.class, QSHDialogSerializer.INSTANCE)
+                        )
+                )
+                .path(this.configPath)
                 .build();
 
         try {
@@ -74,7 +94,7 @@ public final class ConfigurationLoader<T> {
             final T config = node.get(this.configClass, this.defaultConfig);
             loader.save(node);
 
-            this.logger.info("Loaded configuration: {}", configName);
+            QSHDialogLogger.logger().info("Loaded configuration: {}", this.configPath.getFileName());
 
             return Result.success(config);
         } catch (final ConfigurateException exception) {

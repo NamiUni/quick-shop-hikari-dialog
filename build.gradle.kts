@@ -35,9 +35,8 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
-    compileOnly("org.spongepowered:configurate-yaml:4.2.0")
+    implementation("org.spongepowered:configurate-hocon:4.2.0")
     implementation("net.kyori:adventure-serializer-configurate4:4.25.0")
-    implementation("com.github.sviperll:result4j:1.2.0")
 
     // Quick Shop
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
@@ -46,6 +45,9 @@ dependencies {
 
     // Integrations
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
+
+    // Misc
+    implementation("com.github.sviperll:result4j:1.2.0")
 }
 
 val mainPackage = "${group}.qshdialog"

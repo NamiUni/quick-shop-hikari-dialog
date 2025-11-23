@@ -23,7 +23,7 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.ShopDisplay;
 import io.github.namiuni.qshdialog.shop.ShopMode;
 import io.github.namiuni.qshdialog.shop.ShopStatus;

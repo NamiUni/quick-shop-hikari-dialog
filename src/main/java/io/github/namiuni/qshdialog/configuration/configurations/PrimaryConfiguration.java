@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.configuration;
+package io.github.namiuni.qshdialog.configuration.configurations;
 
 import io.github.namiuni.qshdialog.configuration.annotations.ConfigHeader;
 import io.github.namiuni.qshdialog.configuration.annotations.ConfigName;
@@ -26,7 +26,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @NullMarked
 @ConfigSerializable
-@ConfigName("config.yml")
+@ConfigName("config.conf")
 @ConfigHeader("""
         QuickShop-Hikari Dialog Addon Configuration
         
@@ -42,5 +42,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
           STANDING_RIGHT_CLICK_SIGN: SHOP_MODIFICATION_DIALOG
           STANDING_LEFT_CLICK_SHOPBLOCK: TRADE_DIALOG
         """)
-public final class PrimaryConfiguration {
+public record PrimaryConfiguration() {
+
+    public static final PrimaryConfiguration DEFAULT = new PrimaryConfiguration();
 }

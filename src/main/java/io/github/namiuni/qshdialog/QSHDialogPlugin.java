@@ -24,24 +24,23 @@ import io.github.namiuni.qshdialog.shop.policy.QSItemTradingPolicy;
 import io.github.namiuni.qshdialog.shop.policy.QSShopCreationPolicy;
 import io.github.namiuni.qshdialog.shop.policy.QSShopModificationPolicy;
 import io.github.namiuni.qshdialog.user.QSHUserService;
-import java.util.function.Supplier;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class QSHDialogPlugin extends JavaPlugin {
 
-    private final Supplier<QSHUserService> userService;
+    private final QSHUserService userService;
 
-    public QSHDialogPlugin(final Supplier<QSHUserService> userService) {
+    public QSHDialogPlugin(final QSHUserService userService) {
         this.userService = userService;
     }
 
     @Override
     public void onEnable() {
-        final var creationPolicy = new QSShopCreationPolicy(this.userService.get());
-        final var modificationPolicy = new QSShopModificationPolicy(this.userService.get());
-        final var tradingPolicy = new QSItemTradingPolicy(this.userService.get());
+        final var creationPolicy = new QSShopCreationPolicy(this.userService);
+        final var modificationPolicy = new QSShopModificationPolicy(this.userService);
+        final var tradingPolicy = new QSItemTradingPolicy(this.userService);
 
         QuickShop.getInstance().getInteractionManager().behavior(creationPolicy);
         QuickShop.getInstance().getInteractionManager().behavior(modificationPolicy);

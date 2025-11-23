@@ -19,11 +19,11 @@
  */
 package io.github.namiuni.qshdialog;
 
-import com.google.common.base.Suppliers;
 import io.github.namiuni.qshdialog.command.commands.AdminCommand;
+import io.github.namiuni.qshdialog.command.commands.ShopCommand;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.configuration.ConfigurationLoader;
-import io.github.namiuni.qshdialog.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.DialogConfiguration;
 import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ProductSellbackDialogFactory;
 import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
@@ -35,8 +35,9 @@ import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import io.papermc.paper.registry.event.RegistryEvents;
 import java.nio.file.Path;
-import java.util.function.Supplier;
+import java.util.List;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -46,34 +47,26 @@ import org.jspecify.annotations.NullMarked;
 @SuppressWarnings("UnstableApiUsage")
 public final class QSHDialogBootstrap implements PluginBootstrap {
 
-    private @MonotonicNonNull ConfigurationHolder<PrimaryConfiguration> configHolder;
+    private @MonotonicNonNull ConfigurationHolder<PrimaryConfiguration> primaryConfig;
+    private @MonotonicNonNull ConfigurationHolder<DialogConfiguration> shopCreationConfig;
     private @MonotonicNonNull TranslatorHolder translatorHolder;
-    private @MonotonicNonNull Supplier<QSHUserService> userService;
+    private @MonotonicNonNull QSHUserService userService;
 
     @Override
     public void bootstrap(final BootstrapContext context) {
-        this.configHolder = this.createConfigHolder(context);
+        this.primaryConfig = ConfigurationHolder.primary(context.getDataDirectory());
         this.translatorHolder = this.createTranslatorHolder(context);
-        this.userService = Suppliers.memoize(this::createUserService);
+        this.userService = new QSHUserService();
 
+        context.getLifecycleManager().registerEventHandler(RegistryEvents.DIALOG.compose(), event -> {
+            this.shopCreationConfig = ConfigurationHolder.shopCreationDialog(context.getDataDirectory());
+        });
         this.registerCommands(context);
     }
 
     @Override
     public JavaPlugin createPlugin(final PluginProviderContext context) {
         return new QSHDialogPlugin(this.userService);
-    }
-
-    private ConfigurationHolder<PrimaryConfiguration> createConfigHolder(final BootstrapContext context) {
-        final Path dataDirectory = context.getDataDirectory();
-        final ComponentLogger logger = context.getLogger();
-        final ConfigurationLoader<PrimaryConfiguration> configLoader = new ConfigurationLoader<>(
-                PrimaryConfiguration.class,
-                new PrimaryConfiguration(),
-                dataDirectory,
-                logger
-        );
-        return new ConfigurationHolder<>(configLoader);
     }
 
     private TranslatorHolder createTranslatorHolder(final BootstrapContext context) {
@@ -84,22 +77,21 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
     }
 
     private QSHUserService createUserService() {
-        final var tradeBuyDialogFactory = new ProductPurchaseDialogFactory(this.configHolder);
-        final var tradeSellDialogFactory = new ProductSellbackDialogFactory(this.configHolder);
-        final var shopCreationDialogFactory = new ShopCreationDialogFactory(this.configHolder);
-        final var shopModificationDialogFactory = new ShopModificationDialogFactory(this.configHolder);
-        return new QSHUserService(
-                shopCreationDialogFactory,
-                shopModificationDialogFactory,
-                tradeBuyDialogFactory,
-                tradeSellDialogFactory
-        );
+        final var tradeBuyDialogFactory = new ProductPurchaseDialogFactory(this.primaryConfig);
+        final var tradeSellDialogFactory = new ProductSellbackDialogFactory(this.primaryConfig);
+        final var shopCreationDialogFactory = new ShopCreationDialogFactory(this.primaryConfig);
+        final var shopModificationDialogFactory = new ShopModificationDialogFactory(this.primaryConfig);
+        return new QSHUserService();
     }
 
     private void registerCommands(final BootstrapContext context) {
         context.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            final AdminCommand command = new AdminCommand(this.configHolder, this.translatorHolder);
-            event.registrar().register(command.node(), command.description(), command.aliases());
+            final AdminCommand adminCommand = new AdminCommand(this.primaryConfig, this.translatorHolder);
+            final ShopCommand shopCommand = new ShopCommand(this.shopCreationConfig, null, this.userService);
+
+            List.of(adminCommand, shopCommand).forEach(command -> {
+                event.registrar().register(command.node(), command.description(), command.aliases());
+            });
         });
     }
 }

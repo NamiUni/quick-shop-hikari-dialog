@@ -27,6 +27,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public interface QSHCommand {
 
+    int SINGLE_FAILED = 0;
+
     LiteralCommandNode<CommandSourceStack> node();
 
     default List<String> aliases() {

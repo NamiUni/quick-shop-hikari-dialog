@@ -20,8 +20,14 @@
 package io.github.namiuni.qshdialog.configuration;
 
 import com.github.sviperll.result4j.Result;
+import io.github.namiuni.qshdialog.configuration.annotations.ConfigHeader;
+import io.github.namiuni.qshdialog.configuration.annotations.ConfigName;
+import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.DialogConfiguration;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.DialogConfigurations;
 import io.github.namiuni.qshdialog.utility.Reloadable;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.ConfigurateException;
@@ -32,11 +38,39 @@ public final class ConfigurationHolder<T> implements Reloadable<T, ConfigurateEx
     private final ConfigurationLoader<T> configLoader;
     private final AtomicReference<T> config;
 
-    public ConfigurationHolder(final ConfigurationLoader<T> configLoader) {
+    ConfigurationHolder(final ConfigurationLoader<T> configLoader) {
         this.configLoader = configLoader;
 
         final T loadedConfig = this.configLoader.load().orOnErrorThrow(UncheckedIOException::new);
         this.config = new AtomicReference<>(loadedConfig);
+    }
+
+    public static ConfigurationHolder<PrimaryConfiguration> primary(final Path dataDirectory) {
+        final String configName = PrimaryConfiguration.class.getAnnotation(ConfigName.class).value();
+        final Path configPath = dataDirectory.resolve(configName);
+        final String configHeader = PrimaryConfiguration.class.getAnnotation(ConfigHeader.class).value();
+
+        final ConfigurationLoader<PrimaryConfiguration> loader = new ConfigurationLoader<>(
+                PrimaryConfiguration.class,
+                PrimaryConfiguration.DEFAULT,
+                configPath,
+                configHeader
+        );
+        return new ConfigurationHolder<>(loader);
+    }
+
+    public static ConfigurationHolder<DialogConfiguration> shopCreationDialog(final Path dataDirectory) {
+        final String configName = "shop-creation.conf";
+        final Path configPath = dataDirectory.resolve(configName);
+        final String configHeader = ""; // TODO
+
+        final ConfigurationLoader<DialogConfiguration> loader = new ConfigurationLoader<>(
+                DialogConfiguration.class,
+                DialogConfigurations.CREATION_DEFAULT,
+                configPath,
+                configHeader
+        );
+        return new ConfigurationHolder<>(loader);
     }
 
     public T getConfig() {

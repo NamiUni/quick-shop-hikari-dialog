@@ -25,9 +25,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import com.ghostchu.quickshop.api.shop.type.BuyingType;
 import com.ghostchu.quickshop.api.shop.type.FrozenType;
-import com.ghostchu.quickshop.api.shop.type.SellingType;
 import io.github.namiuni.qshdialog.user.QSHUser;
 import io.github.namiuni.qshdialog.user.QSHUserService;
 import org.bukkit.entity.Player;
@@ -71,8 +69,8 @@ public final class QSItemTradingPolicy implements InteractionBehavior {
 
         final QSHUser qshUser = this.userService.getUser(player);
         switch (shop.shopType()) {
-            case SellingType ignored -> qshUser.showProductPurchaseDialog(shop);
-            case BuyingType ignored -> qshUser.showProductSaleDialog(shop);
+//            case SellingType ignored -> qshUser.showProductPurchaseDialog(shop);
+//            case BuyingType ignored -> qshUser.showProductSaleDialog(shop);
             case FrozenType ignored -> QuickShop.getInstance().text()
                     .of(player, "shop-cannot-trade-when-freezing")
                     .send();

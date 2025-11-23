@@ -59,7 +59,7 @@ public final class QSShopModificationPolicy implements InteractionBehavior {
             playerInteractEvent.setCancelled(true);
 
             final QSHUser qshUser = this.userService.getUser(player);
-            qshUser.showShopModificationDialog(shop);
+//            qshUser.showShopModificationDialog(shop);
             shop.setSignText((QuickShop.getInstance().text().findRelativeLanguages(player)));
         }
     }
