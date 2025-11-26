@@ -116,8 +116,8 @@ public final class ContainerShopBuilder {
     }
 
     public ContainerShop build() {
-        Objects.requireNonNull(this.product, "product");
-        Objects.requireNonNull(this.owner, "owner");
+        Objects.requireNonNull(this.product, "itemStack");
+        Objects.requireNonNull(this.owner, "user");
         this.product.setAmount(this.bundleSize);
 
         final QuickShop quickShop = QuickShop.getInstance();
@@ -135,7 +135,9 @@ public final class ContainerShopBuilder {
                 this.product,
                 this.owner,
                 this.unlimited,
-                this.status == ShopStatus.AVAILABLE ? this.type.shopType() : SimpleShopManager.FROZEN_TYPE,
+                this.status == ShopStatus.AVAILABLE
+                        ? this.type == ShopMode.BUYING ? SimpleShopManager.BUYING_TYPE : SimpleShopManager.SELLING_TYPE
+                        : SimpleShopManager.FROZEN_TYPE,
                 new YamlConfiguration(),
                 this.currency,
                 this.display == ShopDisplay.HIDE,

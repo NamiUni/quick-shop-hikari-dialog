@@ -1,4 +1,4 @@
-package io.github.namiuni.qshdialog.configuration.configurations.serializer;
+package io.github.namiuni.qshdialog.configuration.serializer;
 
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.registry.RegistryAccess;

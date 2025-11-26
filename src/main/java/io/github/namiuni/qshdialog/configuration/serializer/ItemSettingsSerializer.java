@@ -1,16 +1,14 @@
-package io.github.namiuni.qshdialog.configuration.configurations.serializer;
+package io.github.namiuni.qshdialog.configuration.serializer;
 
 import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.DynamicItemSettings;
 import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.ItemSettings;
-import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.ItemTypes;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.QSHDialogItemType;
 import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.StaticItemSettings;
 import io.leangen.geantyref.TypeToken;
 import io.papermc.paper.datacomponent.DataComponentType;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
-import net.kyori.adventure.key.Key;
-import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -34,12 +32,12 @@ public final class ItemSettingsSerializer implements TypeSerializer<ItemSettings
         final Map<DataComponentType, ?> dataComponents = source.node(COMPONENTS).get(new TypeToken<>() { }, Map.of());
         final Integer count = source.node(COUNT).get(Integer.class);
 
-        final Key key = Objects.requireNonNull(idNode.get(Key.class));
-        if (Objects.equals(ItemTypes.PRODUCT, key)) {
+        final QSHDialogItemType key = Objects.requireNonNull(idNode.get(QSHDialogItemType.class));
+        if (QSHDialogItemType.PRODUCT == key) {
             return new DynamicItemSettings(key, dataComponents, count);
         }
 
-        final ItemType staticId = Objects.requireNonNull(idNode.get(ItemType.class));
+        final org.bukkit.inventory.ItemType staticId = Objects.requireNonNull(idNode.get(org.bukkit.inventory.ItemType.class));
         return new StaticItemSettings(staticId, dataComponents, count);
     }
 
@@ -51,8 +49,7 @@ public final class ItemSettingsSerializer implements TypeSerializer<ItemSettings
                 for (final Map.Entry<DataComponentType, ?> entry : item.components().entrySet()) {
                     final DataComponentType dataComponentType = entry.getKey();
                     switch (dataComponentType) {
-                        case DataComponentType.Valued<?> valued ->
-                                source.node(COMPONENTS).node(valued.key()).set(entry.getValue());
+                        case DataComponentType.Valued<?> valued -> source.node(COMPONENTS).node(valued.key()).set(entry.getValue());
                         case DataComponentType.NonValued nonValued -> source.node(COMPONENTS).set(nonValued);
                         default -> throw new IllegalStateException("Unexpected value: " + dataComponentType);
                     }

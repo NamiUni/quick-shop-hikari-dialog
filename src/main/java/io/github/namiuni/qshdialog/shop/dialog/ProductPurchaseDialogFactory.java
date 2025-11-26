@@ -25,9 +25,9 @@ import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.shop.ShopMode;
-import io.github.namiuni.qshdialog.shop.Shops;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
+import io.github.namiuni.qshdialog.utility.QSHDialogPlaceholders;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
@@ -55,25 +55,24 @@ public final class ProductPurchaseDialogFactory {
     }
 
     public Result<Dialog, Component> create(final QSHUser customer, final Shop shop) {
-        if (ShopMode.of(shop.shopType()) == ShopMode.BUYING) {
+        if (ShopMode.valueOf(shop.shopType().identifier()) == ShopMode.BUYING) {
             throw new IllegalArgumentException("Invalid shop componentType: %s".formatted(shop.shopType().identifier()));
         }
 
-        final TagResolver shopTags = Shops.tagResolver(shop);
-
-        final Result<List<? extends DialogInput>, Component> inputsResult = this.inputs(customer, shop, shopTags);
+        final TagResolver shopPlaceholders = QSHDialogPlaceholders.shopPlaceholders(shop);
+        final Result<List<? extends DialogInput>, Component> inputsResult = this.inputs(customer, shop, shopPlaceholders);
         return switch (inputsResult) {
             case Result.Success<List<? extends DialogInput>, Component>(List<? extends DialogInput> inputs) -> {
-                final Component title = this.title(customer, shopTags);
+                final Component title = this.title(customer, shopPlaceholders);
                 final DialogBase dialogBase = DialogBase.builder(title)
-                        .body(this.body(customer, shop, shopTags))
+                        .body(this.body(customer, shop, shopPlaceholders))
                         .inputs(inputs)
                         .build();
 
                 final Dialog dialog = Dialog.create(builder -> builder
                         .empty()
                         .base(dialogBase)
-                        .type(this.dialogType(customer, shop, shopTags))
+                        .type(this.dialogType(customer, shop, shopPlaceholders))
                 );
 
                 yield Result.success(dialog);

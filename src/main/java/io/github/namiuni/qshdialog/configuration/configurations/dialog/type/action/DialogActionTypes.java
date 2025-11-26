@@ -1,4 +1,4 @@
-package io.github.namiuni.qshdialog.configuration.configurations.dialog.action;
+package io.github.namiuni.qshdialog.configuration.configurations.dialog.type.action;
 
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.NullMarked;

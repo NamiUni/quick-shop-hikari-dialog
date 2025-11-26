@@ -255,7 +255,7 @@ public final class TranslationMessages {
 
     public static Component shopProductBundleSize(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.label.product.bundle_size",
+                "qsh_dialog.dialog.label.product.size",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -264,7 +264,7 @@ public final class TranslationMessages {
 
     public static String shopProductBundleFormat(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent format = Component.translatable(
-                "qsh_dialog.dialog.label.product.bundle_size.format",
+                "qsh_dialog.dialog.label.product.size.format",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -320,7 +320,7 @@ public final class TranslationMessages {
 
     public static Component shopCurrencyLabel(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.label.currency",
+                "qsh_dialog.dialog.label.shop.currency",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -329,7 +329,7 @@ public final class TranslationMessages {
 
     public static Component shopShowDisplayLabel(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.label.display_item",
+                "qsh_dialog.dialog.label.shop.display_item",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );
@@ -338,7 +338,7 @@ public final class TranslationMessages {
 
     public static Component shopUnlimitedStockLabel(final QSHUser qshUser, final TagResolver shopTags) {
         final TranslatableComponent component = Component.translatable(
-                "qsh_dialog.dialog.label.unlimited",
+                "qsh_dialog.dialog.label.shop.unlimited",
                 Argument.tagResolver(shopTags, MiniPlaceholders.audienceGlobalPlaceholders()),
                 Argument.target(qshUser)
         );

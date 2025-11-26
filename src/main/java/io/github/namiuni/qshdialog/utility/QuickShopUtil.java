@@ -23,6 +23,8 @@ import com.ghostchu.quickshop.QuickShop;
 import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapper;
 import com.ghostchu.quickshop.api.localization.text.TextManager;
+import com.ghostchu.quickshop.api.obj.QUser;
+import com.ghostchu.quickshop.api.shop.PriceLimiterCheckResult;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.ShopAction;
 import com.ghostchu.quickshop.api.shop.ShopManager;
@@ -36,6 +38,7 @@ import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -49,7 +52,12 @@ public final class QuickShopUtil {
     private QuickShopUtil() {
     }
 
-    public static double namingCost(final QSHUser user) {
+    public static PriceLimiterCheckResult getPriceInfo(final QUser qUser, final ItemStack product) {
+     return QuickShop.getInstance().getShopManager().getPriceLimiter()
+             .check(qUser, product, null, 1.0);
+    }
+
+    public static double getNamingCost(final QSHUser user) {
         return user.hasPermission("quickshop.bypass.namefee")
                 ? 0.0
                 : QUICK_SHOP.getConfig().getDouble("shop.name-fee", 0.0);
@@ -169,7 +177,7 @@ public final class QuickShopUtil {
         if (needsBalanceCheck && ownerCanAfford == 0) {
             return Result.error(TEXT_MANAGER.of(
                     bukkitCustomer,
-                    "the-owner-cant-afford-to-buy-from-you",
+                    "the-user-cant-afford-to-buy-from-you",
                     SHOP_MANAGER.format(shop.getPrice(), shop.getLocation().getWorld(), shop.getCurrency()),
                     SHOP_MANAGER.format(ownerBalance, shop.getLocation().getWorld(), shop.getCurrency())
             ).forLocale(customer.locale().toString()));

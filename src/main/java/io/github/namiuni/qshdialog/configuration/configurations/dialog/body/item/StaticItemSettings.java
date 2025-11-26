@@ -7,16 +7,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ItemType;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @NullMarked
-@ConfigSerializable
 @SuppressWarnings("UnstableApiUsage")
 public record StaticItemSettings(
         ItemType id,
         Map<DataComponentType, ?> components,
         @Nullable Integer count
-        ) implements ItemSettings<ItemType> {
+) implements ItemSettings<ItemType> {
 
     @Override
     public ItemStack createItem(final DialogProviderContext context) {

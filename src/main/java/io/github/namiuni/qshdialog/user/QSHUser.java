@@ -26,6 +26,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.permission.PermissionChecker;
+import net.kyori.adventure.text.ComponentLike;
 import org.intellij.lang.annotations.Pattern;
 import org.jspecify.annotations.NullMarked;
 
@@ -45,6 +46,10 @@ public interface QSHUser extends Audience, Identified {
     @SuppressWarnings("PatternValidation")
     default @Pattern("^[!-~]{0,16}$") String name() {
         return this.get(Identity.NAME).orElseThrow();
+    }
+
+    default ComponentLike displayName() {
+        return this.get(Identity.DISPLAY_NAME).orElseThrow();
     }
 
     default Locale locale() {

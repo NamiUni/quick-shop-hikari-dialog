@@ -20,17 +20,21 @@
 package io.github.namiuni.qshdialog.configuration;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.configuration.configurations.dialog.DialogConfiguration;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.DataComponentMapSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.DataComponentTypeSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogActionSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogAfterActionSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogBodySettingsSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.DialogInputSettingsSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.ItemSettingsSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.ItemTypeSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.QSHDialogSerializer;
-import io.github.namiuni.qshdialog.configuration.configurations.serializer.TextDialogInputMultilineOptionsSerializer;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.DialogBodySettings;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.QSHDialogItemType;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.input.DialogInputSettings;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.type.DialogTypeSettings;
+import io.github.namiuni.qshdialog.configuration.serializer.DataComponentMapSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.DataComponentTypeSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.DialogActionSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.DialogAfterActionSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.DialogBodySettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.DialogInputSettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.DialogTypeSettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.ItemSettingsSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.ItemTypeSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.QSHDialogItemTypeSerializer;
+import io.github.namiuni.qshdialog.configuration.serializer.TextDialogInputMultilineOptionsSerializer;
 import io.github.namiuni.qshdialog.utility.QSHDialogLogger;
 import io.leangen.geantyref.TypeToken;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -74,15 +78,16 @@ final class ConfigurationLoader<T> {
                         .serializers(builder -> builder
                                 .registerAll(ConfigurateComponentSerializer.builder().scalarSerializer(MiniMessage.miniMessage()).build().serializers())
                                 .register(ItemType.class, ItemTypeSerializer.INSTANCE)
+                                .register(QSHDialogItemType.class, QSHDialogItemTypeSerializer.INSTANCE)
                                 .register(DataComponentTypeSerializer.INSTANCE)
                                 .register(new TypeToken<>() { }, DataComponentMapSerializer.INSTANCE)
                                 .register(new TypeToken<>() { }, ItemSettingsSerializer.INSTANCE)
                                 .register(TextDialogInput.MultilineOptions.class, TextDialogInputMultilineOptionsSerializer.INSTANCE)
                                 .register(DialogAction.class, DialogActionSerializer.INSTANCE)
                                 .register(DialogBase.DialogAfterAction.class, DialogAfterActionSerializer.INSTANCE)
-                                .register(new TypeToken<>() { }, DialogBodySettingsSerializer.INSTANCE)
-                                .register(new TypeToken<>() { }, DialogInputSettingsSerializer.INSTANCE)
-                                .register(DialogConfiguration.class, QSHDialogSerializer.INSTANCE)
+                                .register(DialogBodySettings.class, DialogBodySettingsSerializer.INSTANCE)
+                                .register(DialogInputSettings.class, DialogInputSettingsSerializer.INSTANCE)
+                                .register(DialogTypeSettings.class, DialogTypeSettingsSerializer.INSTANCE)
                         )
                 )
                 .path(this.configPath)

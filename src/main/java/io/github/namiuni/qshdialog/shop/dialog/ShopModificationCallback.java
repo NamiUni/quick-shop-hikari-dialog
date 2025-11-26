@@ -107,7 +107,7 @@ final class ShopModificationCallback implements DialogActionCallback {
                             final ShopMode mode = Optional.ofNullable(response.getText("shop_mode"))
                                     .map(ShopMode::valueOf)
                                     .orElseThrow();
-                            this.shop.shopType(mode.shopType());
+                            this.shop.shopType(mode == ShopMode.BUYING ? SimpleShopManager.BUYING_TYPE : SimpleShopManager.SELLING_TYPE);
                         }
                 );
 

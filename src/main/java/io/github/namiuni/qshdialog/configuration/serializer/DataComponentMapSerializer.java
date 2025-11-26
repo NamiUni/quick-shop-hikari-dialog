@@ -1,4 +1,4 @@
-package io.github.namiuni.qshdialog.configuration.configurations.serializer;
+package io.github.namiuni.qshdialog.configuration.serializer;
 
 import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item.ResolvableProfileSettings;
 import io.leangen.geantyref.TypeToken;

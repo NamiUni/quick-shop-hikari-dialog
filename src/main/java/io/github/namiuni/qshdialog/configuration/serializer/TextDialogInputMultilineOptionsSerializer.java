@@ -1,4 +1,4 @@
-package io.github.namiuni.qshdialog.configuration.configurations.serializer;
+package io.github.namiuni.qshdialog.configuration.serializer;
 
 import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import java.lang.reflect.Type;

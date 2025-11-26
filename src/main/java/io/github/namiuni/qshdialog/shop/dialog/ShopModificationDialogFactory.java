@@ -28,9 +28,9 @@ import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfigura
 import io.github.namiuni.qshdialog.shop.ShopDisplay;
 import io.github.namiuni.qshdialog.shop.ShopMode;
 import io.github.namiuni.qshdialog.shop.ShopStatus;
-import io.github.namiuni.qshdialog.shop.Shops;
 import io.github.namiuni.qshdialog.translation.TranslationMessages;
 import io.github.namiuni.qshdialog.user.QSHUser;
+import io.github.namiuni.qshdialog.utility.QSHDialogPlaceholders;
 import io.github.namiuni.qshdialog.utility.QuickShopUtil;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
@@ -61,26 +61,26 @@ public final class ShopModificationDialogFactory {
 
     public Result<Dialog, Component> create(final QSHUser editor, final Shop shop) {
 
-        final TagResolver shopTags = Shops.tagResolver(shop);
+        final TagResolver shopPlaceholders = QSHDialogPlaceholders.shopPlaceholders(shop);
 
         final PriceLimiterCheckResult priceLimit = QuickShop.getInstance().getShopManager().getPriceLimiter()
                 .check(editor.quickShopUser(), shop.getItem(), shop.getCurrency(), shop.getPrice());
         final BigDecimal minPrice = BigDecimal.valueOf(priceLimit.getMin());
         final BigDecimal maxPrice = BigDecimal.valueOf(priceLimit.getMax());
 
-        final Result<List<? extends DialogInput>, Component> inputs = this.inputs(editor, shop, shopTags, minPrice, maxPrice);
+        final Result<List<? extends DialogInput>, Component> inputs = this.inputs(editor, shop, shopPlaceholders, minPrice, maxPrice);
         return switch (inputs) {
             case Result.Success<List<? extends DialogInput>, Component>(List<? extends DialogInput> result) -> {
                 final DialogBase dialogBase = DialogBase
-                        .builder(this.title(editor, shopTags))
-                        .body(this.body(editor, shop, shopTags))
+                        .builder(this.title(editor, shopPlaceholders))
+                        .body(this.body(editor, shop, shopPlaceholders))
                         .inputs(result)
                         .build();
 
                 final Dialog dialog = Dialog.create(builder -> builder
                         .empty()
                         .base(dialogBase)
-                        .type(this.dialogType(editor, shop, shopTags))
+                        .type(this.dialogType(editor, shop, shopPlaceholders))
                 );
 
                 yield Result.success(dialog);
@@ -105,7 +105,7 @@ public final class ShopModificationDialogFactory {
         final List<DialogInput> inputs = new ArrayList<>();
 
         final boolean isOwner = Objects.equals(editor.uuid(), shop.getOwner().getUniqueId());
-        final Result<DialogInput, Component> typeInput = DialogInputs.shopMode(editor, shopTags, isOwner, ShopMode.of(shop.shopType()));
+        final Result<DialogInput, Component> typeInput = DialogInputs.shopMode(editor, shopTags, isOwner, ShopMode.valueOf(shop.shopType().identifier()));
         switch (typeInput) {
             case Result.Success<DialogInput, Component>(DialogInput result) -> inputs.add(result);
             case Result.Error<DialogInput, Component>(Component ignored) -> {

@@ -4,6 +4,8 @@ import io.github.namiuni.qshdialog.configuration.configurations.dialog.body.item
 import io.github.namiuni.qshdialog.shop.dialog.DialogProviderContext;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.body.ItemDialogBody;
+import java.util.Optional;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -13,23 +15,26 @@ import org.jspecify.annotations.Nullable;
 public record ItemDialogBodySettings(
         ItemSettings<?> item,
         @Nullable PlainMessageDialogBodySettings description,
-        boolean showDecoration,
-        boolean showTooltip,
-        @Range(from = 1, to = 256)
-        int width,
-        @Range(from = 1, to = 256)
-        int height
-) implements DialogBodySettings<ItemDialogBody> {
+        @Nullable Boolean showDecoration,
+        @Nullable Boolean showTooltip,
+        @Nullable @Range(from = 1, to = 256) Integer width,
+        @Nullable @Range(from = 1, to = 256) Integer height
+) implements DialogBodySettings {
+
+    @Override
+    public Key type() {
+        return DialogBodyTypes.ITEM;
+    }
 
     @Override
     public ItemDialogBody createDialogBody(final DialogProviderContext context) {
         return DialogBody.item(
                 this.item.createItem(context),
                 this.description == null ? null : this.description.createDialogBody(context),
-                this.showDecoration,
-                this.showTooltip,
-                this.width,
-                this.height
+                Optional.ofNullable(this.showDecoration).orElse(true),
+                Optional.ofNullable(this.showTooltip).orElse(true),
+                Optional.ofNullable(this.width).orElse(16),
+                Optional.ofNullable(this.height).orElse(16)
         );
     }
 
@@ -37,10 +42,10 @@ public record ItemDialogBodySettings(
 
         private final ItemSettings<?> item;
         private @Nullable PlainMessageDialogBodySettings description;
-        private boolean showDecoration;
-        private boolean showTooltip;
-        private @Range(from = 1, to = 256) int width = 16;
-        private @Range(from = 1, to = 256) int height = 16;
+        private @Nullable Boolean showDecoration;
+        private @Nullable Boolean showTooltip;
+        private @Nullable @Range(from = 1, to = 256) Integer width;
+        private @Nullable @Range(from = 1, to = 256) Integer height;
 
         Builder(final ItemSettings<?> item) {
             this.item = item;
@@ -51,22 +56,22 @@ public record ItemDialogBodySettings(
             return this;
         }
 
-        public Builder showDecoration(final boolean showDecoration) {
+        public Builder showDecoration(final @Nullable Boolean showDecoration) {
             this.showDecoration = showDecoration;
             return this;
         }
 
-        public Builder showTooltip(final boolean showTooltip) {
+        public Builder showTooltip(final @Nullable Boolean showTooltip) {
             this.showTooltip = showTooltip;
             return this;
         }
 
-        public Builder width(final @Range(from = 1, to = 256) int width) {
+        public Builder width(final @Range(from = 1, to = 256) Integer width) {
             this.width = width;
             return this;
         }
 
-        public Builder height(final @Range(from = 1, to = 256) int height) {
+        public Builder height(final @Range(from = 1, to = 256) Integer height) {
             this.height = height;
             return this;
         }

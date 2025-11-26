@@ -3,8 +3,10 @@ package io.github.namiuni.qshdialog.configuration.configurations.dialog.input;
 import io.github.namiuni.qshdialog.shop.dialog.DialogProviderContext;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
+import java.util.Optional;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.checkerframework.checker.index.qual.Positive;
 import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
@@ -14,39 +16,52 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("UnstableApiUsage")
 public record TextDialogInputSettings(
         String key,
-        @Range(from = 1, to = 1024) int width,
-        Component label,
-        boolean labelVisible,
-        String initial,
-        @Positive int maxLength,
+        @Nullable @Range(from = 1, to = 1024) Integer width,
+        String label,
+        @Nullable Boolean labelVisible,
+        @Nullable String initial,
+        @Nullable @Positive Integer maxLength,
         TextDialogInput.@Nullable MultilineOptions multilineOptions
-) implements DialogInputSettings<TextDialogInput> {
+) implements DialogInputSettings {
+
+    @Override
+    public Key type() {
+        return DialogInputTypes.TEXT;
+    }
 
     @Override
     public TextDialogInput createDialogInput(final DialogProviderContext context) {
-        final Component renderedLabel = GlobalTranslator.render(this.label, context.owner().locale());
-        return DialogInput.text(
-                this.key,
-                this.width,
-                renderedLabel,
-                this.labelVisible,
-                this.initial,
-                this.maxLength,
-                this.multilineOptions
-        );
+        final Component renderedLabel = MiniMessage.miniMessage().deserialize(this.label, context.user());
+        final TextDialogInput.Builder builder = DialogInput.text(this.key, renderedLabel);
+
+        Optional.ofNullable(this.width)
+                .ifPresent(builder::width);
+
+        Optional.ofNullable(this.labelVisible)
+                .ifPresent(builder::labelVisible);
+
+        Optional.ofNullable(this.initial)
+                .ifPresent(builder::initial);
+
+        Optional.ofNullable(this.maxLength)
+                .ifPresent(builder::maxLength);
+
+        builder.multiline(this.multilineOptions);
+
+        return builder.build();
     }
 
     public static final class Builder {
 
         private final String key;
-        private @Range(from = 1, to = 1024) int width = 200;
-        private final Component label;
-        private boolean labelVisible = true;
-        private String initial = "";
-        private @Positive int maxLength = 32;
+        private @Nullable @Range(from = 1, to = 1024) Integer width = null;
+        private final String label;
+        private @Nullable Boolean labelVisible = null;
+        private @Nullable String initial = null;
+        private @Nullable @Positive Integer maxLength = null;
         private TextDialogInput.@Nullable MultilineOptions multilineOptions;
 
-        Builder(final String key, final Component label) {
+        Builder(final String key, final String label) {
             this.key = key;
             this.label = label;
         }

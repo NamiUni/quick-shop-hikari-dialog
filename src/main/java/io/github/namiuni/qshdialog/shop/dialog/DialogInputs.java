@@ -114,7 +114,7 @@ final class DialogInputs {
     }
 
     public static DialogInput shopName(final QSHUser qshUser, final TagResolver shopTags, final @Nullable String initial) {
-        final double namingCost = QuickShopUtil.namingCost(qshUser);
+        final double namingCost = QuickShopUtil.getNamingCost(qshUser);
         final Component label = TranslationMessages.shopNameLabel(qshUser, shopTags, namingCost);
 
         return DialogInput.text("shop_name", label)

@@ -1,6 +1,6 @@
-package io.github.namiuni.qshdialog.configuration.configurations.serializer;
+package io.github.namiuni.qshdialog.configuration.serializer;
 
-import io.github.namiuni.qshdialog.configuration.configurations.dialog.action.DialogActionTypes;
+import io.github.namiuni.qshdialog.configuration.configurations.dialog.type.action.DialogActionTypes;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;

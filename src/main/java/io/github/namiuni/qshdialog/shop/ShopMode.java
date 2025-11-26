@@ -19,35 +19,19 @@
  */
 package io.github.namiuni.qshdialog.shop;
 
-import com.ghostchu.quickshop.api.shop.IShopType;
-import com.ghostchu.quickshop.api.shop.type.BuyingType;
-import com.ghostchu.quickshop.shop.SimpleShopManager;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public enum ShopMode {
 
-    BUYING(SimpleShopManager.BUYING_TYPE, Component.translatable("qsh_dialog.shop.mode.buying")),
-    SELLING(SimpleShopManager.SELLING_TYPE, Component.translatable("qsh_dialog.shop.mode.selling"));
+    BUYING(Component.translatable("qsh_dialog.shop.mode.buying")),
+    SELLING(Component.translatable("qsh_dialog.shop.mode.selling"));
 
-    private final IShopType shopType;
     private final Component displayName;
 
-    ShopMode(final IShopType buyingType, final Component displayName) {
-        this.shopType = buyingType;
+    ShopMode(final Component displayName) {
         this.displayName = displayName;
-    }
-
-    public static ShopMode of(final IShopType shopType) {
-        return switch (shopType) {
-            case BuyingType ignored -> BUYING;
-            default -> SELLING;
-        };
-    }
-
-    public IShopType shopType() {
-        return this.shopType;
     }
 
     public Component displayName() {

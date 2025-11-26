@@ -6,8 +6,8 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public enum ShopDisplay {
-    SHOW(Component.translatable("qsh_dialog.shop.display_item.show")),
-    HIDE(Component.translatable("qsh_dialog.shop.display_item.hide"));
+    SHOW(Component.translatable("qsh_dialog.dialog.option.shop.display_item.show")),
+    HIDE(Component.translatable("qsh_dialog.dialog.option.shop.display_item.hide"));
 
     private final Component displayName;
 

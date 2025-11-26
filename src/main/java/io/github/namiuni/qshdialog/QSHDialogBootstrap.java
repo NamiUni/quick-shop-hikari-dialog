@@ -24,10 +24,6 @@ import io.github.namiuni.qshdialog.command.commands.ShopCommand;
 import io.github.namiuni.qshdialog.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.configuration.configurations.dialog.DialogConfiguration;
-import io.github.namiuni.qshdialog.shop.dialog.ProductPurchaseDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ProductSellbackDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopCreationDialogFactory;
-import io.github.namiuni.qshdialog.shop.dialog.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.translation.TranslatorHolder;
 import io.github.namiuni.qshdialog.translation.TranslatorLoader;
 import io.github.namiuni.qshdialog.user.QSHUserService;
@@ -58,9 +54,8 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
         this.translatorHolder = this.createTranslatorHolder(context);
         this.userService = new QSHUserService();
 
-        context.getLifecycleManager().registerEventHandler(RegistryEvents.DIALOG.compose(), event -> {
-            this.shopCreationConfig = ConfigurationHolder.shopCreationDialog(context.getDataDirectory());
-        });
+        context.getLifecycleManager().registerEventHandler(RegistryEvents.DIALOG.compose(), event ->
+                this.shopCreationConfig = ConfigurationHolder.shopCreationDialog(context.getDataDirectory()));
         this.registerCommands(context);
     }
 
@@ -74,14 +69,6 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
         final ComponentLogger logger = context.getLogger();
         final TranslatorLoader translatorLoader = new TranslatorLoader(dataDirectory, logger);
         return new TranslatorHolder(translatorLoader);
-    }
-
-    private QSHUserService createUserService() {
-        final var tradeBuyDialogFactory = new ProductPurchaseDialogFactory(this.primaryConfig);
-        final var tradeSellDialogFactory = new ProductSellbackDialogFactory(this.primaryConfig);
-        final var shopCreationDialogFactory = new ShopCreationDialogFactory(this.primaryConfig);
-        final var shopModificationDialogFactory = new ShopModificationDialogFactory(this.primaryConfig);
-        return new QSHUserService();
     }
 
     private void registerCommands(final BootstrapContext context) {
