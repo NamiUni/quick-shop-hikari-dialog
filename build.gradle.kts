@@ -34,14 +34,15 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("org.spongepowered:configurate-hocon:4.2.0")
     implementation("net.kyori:adventure-serializer-configurate4:4.25.0")
 
     // Quick Shop
+    compileOnly("dev.dejvokep:boosted-yaml:1.3.6")
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
-    compileOnly("com.ghostchu:quickshop-api:6.2.0.11-SNAPSHOT-9")
-    compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11-SNAPSHOT-9")
+    compileOnly("com.ghostchu:quickshop-api:6.2.0.11")
+    compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11")
 
     // Integrations
     compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
@@ -50,9 +51,9 @@ dependencies {
     implementation("com.github.sviperll:result4j:1.2.0")
 }
 
-val mainPackage = "${group}.qshdialog"
+val mainPackage = "${group}.qshdialog.minecraft.paper"
 paperPluginYaml {
-    name = "QuickShop-Hikari-Dialog"
+    name = "QSH-Dialog"
     author = "Namiu (うにたろう)"
     website = "https://github.com/NamiUni"
     apiVersion = "1.21.10"
@@ -69,6 +70,7 @@ paperPluginYaml {
     }
 
     dependencies {
+        server("Vault", Load.BEFORE, true)
         server("QuickShop-Hikari", Load.BEFORE, true)
         server("MiniPlaceholders", Load.BEFORE, true)
     }
@@ -76,14 +78,14 @@ paperPluginYaml {
 
 tasks {
     runServer {
-        minecraftVersion("1.21.10")
+        minecraftVersion("1.21.11")
         downloadPlugins {
             modrinth("luckperms", "v5.5.17-bukkit")
             modrinth("miniplaceholders", "4zOT6txC")
-            modrinth("packetevents", "2.10.1")
+            modrinth("quickshop-hikari", "6.2.0.11")
+            url("https://github.com/dmulloy2/ProtocolLib/releases/download/dev-build/ProtocolLib.jar")
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
             url("https://ci.minebench.de/job/FakeEconomy/lastSuccessfulBuild/artifact/target/FakeEconomy.jar")
-            url("https://ci.codemc.io/job/Ghost-chu/job/QuickShop-Hikari-SNAPSHOT/3614/com.ghostchu\$quickshop-bukkit/artifact/com.ghostchu/quickshop-bukkit/6.2.0.11-SNAPSHOT-9/quickshop-bukkit-6.2.0.11-SNAPSHOT-9-shaded.jar")
         }
     }
 }
