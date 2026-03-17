@@ -93,7 +93,7 @@ public final class TradePurchaseDialog {
         final int maxQuantity = ((Result.Success<Integer, TradeQuantityFailure>) quantityResult).result();
 
         final DialogBase base = DialogBase.builder(this.translations.tradePurchaseTitle(user, placeholders))
-                .body(List.of(DialogBody.item(shop.component().product().asOne())
+                .body(List.of(DialogBody.item(shop.component().product())
                         .description(DialogBody.plainMessage(this.translations.tradePurchaseDescription(user, placeholders)))
                         .build()))
                 .inputs(List.of(this.tradeInputs.tradeQuantity(maxQuantity, 1, user, placeholders))) // TODO スタック

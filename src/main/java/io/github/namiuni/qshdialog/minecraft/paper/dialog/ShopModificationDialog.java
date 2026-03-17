@@ -4,6 +4,7 @@ import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.ShopInputType;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.ShopInputs;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;

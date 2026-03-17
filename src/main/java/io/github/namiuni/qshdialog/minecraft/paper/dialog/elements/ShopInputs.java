@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper.dialog;
+package io.github.namiuni.qshdialog.minecraft.paper.dialog.elements;
 
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.ShopInputType;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.DialogInputKeys;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.TradeType;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
