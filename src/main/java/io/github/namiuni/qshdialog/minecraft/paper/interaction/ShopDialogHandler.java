@@ -98,6 +98,11 @@ public final class ShopDialogHandler implements InteractionBehavior {
         }
 
         final ShopComponent shopComponent = ShopConverter.toShopComponent(qsShop);
+
+        if (!canModify(user, shopComponent)) {
+            return;
+        }
+
         final Sign shopSign = qsShop.getSigns().getFirst();
         final ShopBlock shop = new ShopBlock(container, shopSign.getBlock(), shopComponent);
         final DialogLike dialog = this.shopModificationDialog.createDialog(user, shop);
@@ -182,5 +187,21 @@ public final class ShopDialogHandler implements InteractionBehavior {
                 .product(handItem)
                 .price(PriceAnalytics.getPriceLimit(user, handItem).min())
                 .build();
+    }
+
+    private static boolean canModify(final UserSession user, final ShopComponent shopComponent) {
+        return shopComponent.isStaff(user.uuid())
+                || hasAnyModificationOtherPermission(user)
+                || user.hasPermission(QSPermissions.SHOP_INFINITE_STOCK);
+    }
+
+    private static boolean hasAnyModificationOtherPermission(final UserSession user) {
+        return user.hasPermission(QSPermissions.SHOP_NAMING_OTHER)
+                || user.hasPermission(QSPermissions.SHOP_PRICE_OTHER)
+                || user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_SELLING_OTHER)
+                || user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_BUYING_OTHER)
+                || user.hasPermission(QSPermissions.SHOP_TOGGLE_STATUS_OTHER)
+                || user.hasPermission(QSPermissions.SHOP_TOGGLE_DISPLAY_OTHER)
+                || user.hasPermission(QSPermissions.SHOP_CURRENCY_OTHER);
     }
 }
