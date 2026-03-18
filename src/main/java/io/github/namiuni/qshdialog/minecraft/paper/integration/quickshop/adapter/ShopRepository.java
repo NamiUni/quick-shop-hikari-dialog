@@ -9,6 +9,7 @@ import com.ghostchu.quickshop.shop.inventory.BukkitInventoryWrapper;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -89,16 +90,12 @@ public final class ShopRepository {
             throw new ShopNotFoundException("The shop does not exist!");
         }
 
-        if (shopComponent.product().getAmount() != qsShop.getItem().getAmount()) {
-            qsShop.setItem(shopComponent.product());
+        if (!Objects.equals(shopComponent.name(), qsShop.getShopName())) {
+            qsShop.setShopName(shopComponent.name());
         }
 
         if (!shopComponent.owner().qsUser().equals(qsShop.getOwner())) {
             qsShop.setOwner(shopComponent.owner().qsUser());
-        }
-
-        if (shopComponent.infiniteStock() != qsShop.isUnlimited()) {
-            qsShop.setUnlimited(shopComponent.infiniteStock());
         }
 
         final IShopType shopType = ShopConverter.toQSShopType(shopComponent);
@@ -110,12 +107,20 @@ public final class ShopRepository {
             qsShop.setCurrency(shopComponent.currency());
         }
 
+        if (shopComponent.product().getAmount() != qsShop.getItem().getAmount()) {
+            qsShop.setItem(shopComponent.product());
+        }
+
+        if (shopComponent.price().compareTo(BigDecimal.valueOf(qsShop.getPrice())) != 0) {
+            qsShop.setPrice(shopComponent.price().doubleValue());
+        }
+
         if (shopComponent.displayVisible() == qsShop.isDisableDisplay()) {
             qsShop.setDisableDisplay(!shopComponent.displayVisible());
         }
 
-        if (!Objects.equals(shopComponent.name(), qsShop.getShopName())) {
-            qsShop.setShopName(shopComponent.name());
+        if (shopComponent.infiniteStock() != qsShop.isUnlimited()) {
+            qsShop.setUnlimited(shopComponent.infiniteStock());
         }
 
         shopComponent.accessLevels().forEach(
