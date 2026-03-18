@@ -154,8 +154,14 @@ public final class ShopCreationDialog {
 
         // TODO: ラベルにエラー理由を追記したダイアログの再生成
         final DialogActionCallback callback = ((response, audience) -> {
-            // TODO: 不正な価格エラー
-            final ShopComponent inputComponent = DialogResponseParser.parse(response, shop.component());
+            final ShopComponent inputComponent;
+            try {
+                inputComponent = DialogResponseParser.parse(response, shop.component());
+            } catch (final InvalidPriceException e) {
+                final Component message = this.translations.shopCreationFailedPriceInvalid(user, placeholders, e.rawInput());
+                user.sendMessage(message);
+                return;
+            }
 
             final Result<ShopSuccess, Set<ShopFailure>> result = this.shopService.createShop(user, shop.withComponent(inputComponent));
             switch (result) {

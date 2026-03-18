@@ -242,6 +242,15 @@ public final class Translations {
         return this.translate("qsh_dialog.shop.creation.failure.container_not_found", user, placeholders);
     }
 
+    public Component shopCreationFailedPriceInvalid(final UserSession user, final TagResolver placeholders, final String input) {
+        final TagResolver resolver = TagResolver.builder()
+                .resolver(placeholders)
+                .resolver(TagResolver.resolver("input", (argumentQueue, context) ->
+                        Tag.inserting(Component.text(input))))
+                .build();
+        return this.translate("qsh_dialog.shop.creation.failure.price_invalid", user, resolver);
+    }
+
     // -------------------------------------------------------------------------
     // Shop modification - result
     // -------------------------------------------------------------------------
@@ -272,6 +281,15 @@ public final class Translations {
 
     public Component shopModificationFailedShopNotFound(final UserSession user, final TagResolver placeholders, final ShopFailure.ShopNotFound failure) {
         return this.translate("qsh_dialog.shop.modification.failure.shop_not_found", user, placeholders);
+    }
+
+    public Component shopModificationFailedPriceInvalid(final UserSession user, final TagResolver placeholders, final String input) {
+        final TagResolver resolver = TagResolver.builder()
+                .resolver(placeholders)
+                .resolver(TagResolver.resolver("input", (argumentQueue, context) ->
+                        Tag.inserting(Component.text(input))))
+                .build();
+        return this.translate("qsh_dialog.shop.modification.failure.price_invalid", user, resolver);
     }
 
     // -------------------------------------------------------------------------

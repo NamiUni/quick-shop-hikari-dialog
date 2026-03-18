@@ -14,14 +14,14 @@ public final class DialogResponseParser {
     private DialogResponseParser() {
     }
 
-    public static ShopComponent parse(final DialogResponseView response, final ShopComponent current) {
+    public static ShopComponent parse(final DialogResponseView response, final ShopComponent current) throws InvalidPriceException {
         final ShopComponent.Builder builder = current.toBuilder();
         final String rawPrice = response.getText(DialogInputKeys.SHOP_PRICE);
         if (rawPrice != null) {
             try {
                 builder.price(new BigDecimal(rawPrice));
             } catch (final NumberFormatException e) {
-                // TODO: throw 検査例外
+                throw new InvalidPriceException(rawPrice, e);
             }
         }
 
