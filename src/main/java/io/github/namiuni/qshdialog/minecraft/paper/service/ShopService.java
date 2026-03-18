@@ -13,6 +13,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.S
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.bukkit.Location;
@@ -69,8 +70,17 @@ public final class ShopService {
         validatePriceRange(user, shopComponent, failures);
 
         final String world = shopComponent.location().getWorld().getName();
-        // 更新時は名前が入力されている場合のみ命名コストを計上する
-        final BigDecimal totalCost = QSConfigurations.shopPriceChangeCost()
+
+        final Optional<ShopBlock> existing = ShopRepository.find(shopComponent.id());
+        final BigDecimal priceChangeCost = existing
+                .filter(e -> shopComponent.price().compareTo(e.component().price()) == 0)
+                .map(e -> BigDecimal.ZERO).orElse(QSConfigurations.shopPriceChangeCost());
+
+        final BigDecimal namingCost = existing
+                .filter(e -> Objects.equals(shopComponent.name(), e.component().name()))
+                .map(e -> BigDecimal.ZERO).orElse(namingCost(user));
+
+        final BigDecimal totalCost = priceChangeCost.add(namingCost)
                 .add(shopComponent.name() != null ? namingCost(user) : BigDecimal.ZERO);
         validateBalance(user, world, totalCost, failures);
 
@@ -81,7 +91,9 @@ public final class ShopService {
         // update を先に試みて、成功した場合のみ課金する（失敗時の課金を防ぐ）
         try {
             ShopRepository.update(shop);
-            user.withdrawMoney(totalCost, world);
+            if (totalCost.compareTo(BigDecimal.ZERO) != 0) {
+                user.withdrawMoney(totalCost, world);
+            }
         } catch (final ShopNotFoundException exception) {
             failures.add(new ShopFailure.ShopNotFound());
             return Result.error(failures);
