@@ -32,6 +32,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
+import java.util.List;
 import net.kyori.adventure.dialog.DialogLike;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
@@ -86,7 +87,11 @@ public final class TradeDialogHandler implements InteractionBehavior {
             return;
         }
 
-        final Sign shopSign = qsShop.getSigns().getFirst();
+        final List<Sign> signs = qsShop.getSigns();
+        if (signs.isEmpty()) {
+            return;
+        }
+        final Sign shopSign = signs.getFirst();
         final ShopBlock shop = new ShopBlock(container, shopSign.getBlock(), shopComponent);
 
         final DialogLike dialog = switch (shopComponent.tradeType()) {

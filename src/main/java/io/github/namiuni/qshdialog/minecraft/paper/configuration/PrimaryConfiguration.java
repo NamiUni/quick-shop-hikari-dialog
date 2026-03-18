@@ -37,12 +37,12 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
         set the following behavior identifiers in QuickShop-Hikari's `interaction.yml`:
         
         Available Behaviors:
-          ITEM_TRADING_DIALOG         - Shop creation dialog or item trading dialog
-          SHOP_MODIFICATION_DIALOG  - Shop modification dialog
+          TRADE_DIALOG    - Item trade dialog
+          CONTROL_DIALOG  - Shop control dialog
         
         Example configuration:
-          STANDING_LEFT_CLICK_SIGN: ITEM_TRADING_DIALOG
-          STANDING_RIGHT_CLICK_SIGN: SHOP_MODIFICATION_DIALOG
+          STANDING_LEFT_CLICK_SIGN: TRADE_DIALOG
+          STANDING_RIGHT_CLICK_SIGN: CONTROL_DIALOG
           STANDING_LEFT_CLICK_SHOPBLOCK: TRADE_DIALOG
         """)
 public record PrimaryConfiguration(

@@ -74,7 +74,7 @@ public final class ShopCreationDialog {
         final ShopComponent shopComponent = shop.component();
         final ShopInputs.Builder inputBuilder = this.shopInputs.target(user, placeholders);
 
-        for (final ShopInputType inputType : this.configHolder.getConfig().modificationDialogInputs()) {
+        for (final ShopInputType inputType : this.configHolder.getConfig().creationDialogInputs()) {
             switch (inputType) {
                 case NAME -> {
                     if (user.hasPermission(QSPermissions.SHOP_NAMING)) {
