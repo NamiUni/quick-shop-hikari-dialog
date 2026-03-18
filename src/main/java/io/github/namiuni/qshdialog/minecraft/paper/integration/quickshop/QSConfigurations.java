@@ -1,6 +1,10 @@
 package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop;
 
 import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.bukkit.Material;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -43,5 +47,12 @@ public final class QSConfigurations {
 
     public static boolean requiresUnlimitedOwnerPayment() {
         return QuickShops.configuration().getBoolean("shopBlock.pay-isInfiniteStock-shopBlock-owners");
+    }
+
+    public static Set<Material> shopBlocks() {
+        return QuickShops.configuration().getStringList("shop-blocks").stream()
+                .map(Material::matchMaterial)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
     }
 }

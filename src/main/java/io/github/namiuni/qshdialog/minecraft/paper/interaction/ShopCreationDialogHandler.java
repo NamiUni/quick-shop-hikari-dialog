@@ -25,14 +25,17 @@ import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.PriceAnalytics;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import java.util.Optional;
+import java.util.Set;
 import net.kyori.adventure.dialog.DialogLike;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
@@ -100,12 +103,16 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final Block clickedBlock,
             final ItemStack handItem
     ) {
-        if (clickedObject == InteractionClick.CONTAINER && clickedBlock.getState() instanceof Container container) {
+        final Set<Material> allowedBlocks = QSConfigurations.shopBlocks();
+
+        if (clickedObject == InteractionClick.CONTAINER
+                && allowedBlocks.contains(clickedBlock.getType())
+                && clickedBlock.getState() instanceof Container container) {
             return Optional.of(resolveFromContainer(user, clickedBlock, container, handItem));
         }
 
         if (clickedObject == InteractionClick.SIGN && clickedBlock.getState() instanceof Sign sign) {
-            return resolveFromSign(user, clickedBlock, sign, handItem);
+            return resolveFromSign(user, clickedBlock, sign, handItem, allowedBlocks);
         }
 
         return Optional.empty();
@@ -129,19 +136,20 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final UserSession user,
             final Block clickedBlock,
             final Sign sign,
-            final ItemStack handItem
+            final ItemStack handItem,
+            final Set<Material> allowedBlocks     // ← 引数追加
     ) {
         if (!(sign.getBlockData() instanceof WallSign wallSign)) {
             return Optional.empty();
         }
 
         final Block wallBlock = clickedBlock.getRelative(wallSign.getFacing().getOppositeFace());
-        if (!(wallBlock.getState() instanceof Container container)) {
+        if (allowedBlocks.contains(wallBlock.getType()) && wallBlock.getState() instanceof Container container) {
+            final ShopComponent shopComponent = createShopComponent(user, wallBlock.getLocation(), handItem);
+            return Optional.of(new ShopBlock(container, sign.getBlock(), shopComponent));
+        } else {
             return Optional.empty();
         }
-
-        final ShopComponent shopComponent = createShopComponent(user, wallBlock.getLocation(), handItem);
-        return Optional.of(new ShopBlock(container, sign.getBlock(), shopComponent));
     }
 
     private static ShopComponent createShopComponent(
