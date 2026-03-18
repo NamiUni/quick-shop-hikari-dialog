@@ -24,7 +24,8 @@ import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
-import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopCreationDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopModificationDialogHandler;
 import io.github.namiuni.qshdialog.minecraft.paper.interaction.TradeDialogHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
@@ -51,10 +52,12 @@ public final class QSHDialogPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        final var shopDialogHandler = new ShopDialogHandler(this.shopCreationDialog, this.shopModificationDialog);
+        final var shopModificationDialogHandler = new ShopModificationDialogHandler(this.shopModificationDialog);
+        final var shopCreationDialogHandler = new ShopCreationDialogHandler(this.shopCreationDialog);
         final var tradeDialogHandler = new TradeDialogHandler(this.tradePurchaseDialog, this.tradeSellDialog);
 
-        QuickShops.interactionManager().behavior(shopDialogHandler);
+        QuickShops.interactionManager().behavior(shopModificationDialogHandler);
+        QuickShops.interactionManager().behavior(shopCreationDialogHandler);
         QuickShops.interactionManager().behavior(tradeDialogHandler);
     }
 

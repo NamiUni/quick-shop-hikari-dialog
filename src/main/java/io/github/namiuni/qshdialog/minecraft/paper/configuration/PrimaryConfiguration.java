@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @NullMarked
 @ConfigSerializable
@@ -33,22 +34,44 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 @ConfigHeader("""
         QuickShop-Hikari Dialog Addon Configuration
         
-        To use the shop operation dialogs provided by this addon,
-        set the following behavior identifiers in QuickShop-Hikari's `interaction.yml`:
+        To use the dialogs provided by this addon, set the behavior identifiers below
+        in QuickShop-Hikari's "interaction.yml".
         
         Available Behaviors:
-          TRADE_DIALOG    - Item trade dialog
-          CONTROL_DIALOG  - Shop control dialog
+          TRADE_DIALOG        - Dialog for buying/selling items at a shop
+          CREATION_DIALOG     - Dialog for creating a new shop
+          MODIFICATION_DIALOG - Dialog for modifying an existing shop
         
         Example configuration:
           STANDING_LEFT_CLICK_SIGN: TRADE_DIALOG
-          STANDING_RIGHT_CLICK_SIGN: CONTROL_DIALOG
+          STANDING_RIGHT_CLICK_SIGN: MODIFICATION_DIALOG
           STANDING_LEFT_CLICK_SHOPBLOCK: TRADE_DIALOG
+          STANDING_RIGHT_CLICK_SHOPBLOCK: NONE # Reserved for opening chest
+          STANDING_LEFT_CLICK_CONTAINER: CREATION_DIALOG
+          STANDING_RIGHT_CLICK_CONTAINER:  NONE
         """)
 public record PrimaryConfiguration(
+        @Comment("""
+                Fallback locale used for translation rendering when the player's locale cannot be determined.
+                Only effective when translation-source is PLUGIN.
+                Example: en_US, ja_JP""")
         Locale defaultLocale,
+
+        @Comment("""
+                Controls how translations are delivered to players.
+                  PLUGIN       - Rendered server-side using the plugin's translation files.
+                                 The player's locale is resolved server-side, falling back to default-locale.
+                  RESOURCE_PACK - Sent as translatable components and resolved client-side via resource pack.""")
         TranslationSource translationSource,
+
+        @Comment("""
+                Input fields displayed in the shop creation dialog (CREATION_DIALOG).
+                Available values: name, trade_type, currency, product_quantity, price, status, display, stock""")
         List<ShopInputType> creationDialogInputs,
+
+        @Comment("""
+                Input fields displayed in the shop modification dialog (MODIFICATION_DIALOG).
+                Available values: name, trade_type, currency, product_quantity, price, status, display, stock""")
         List<ShopInputType> modificationDialogInputs
 ) {
 

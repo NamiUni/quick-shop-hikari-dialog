@@ -25,14 +25,11 @@ import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.PriceAnalytics;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.ShopConverter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
-import java.util.List;
 import java.util.Optional;
 import net.kyori.adventure.dialog.DialogLike;
 import org.bukkit.Location;
@@ -48,19 +45,14 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public final class ShopDialogHandler implements InteractionBehavior {
+public final class ShopCreationDialogHandler implements InteractionBehavior {
 
-    private static final String IDENTIFIER = "CONTROL_DIALOG";
+    private static final String IDENTIFIER = "CREATION_DIALOG";
 
     private final ShopCreationDialog shopCreationDialog;
-    private final ShopModificationDialog shopModificationDialog;
 
-    public ShopDialogHandler(
-            final ShopCreationDialog shopCreationDialog,
-            final ShopModificationDialog shopModificationDialog
-    ) {
+    public ShopCreationDialogHandler(final ShopCreationDialog shopCreationDialog) {
         this.shopCreationDialog = shopCreationDialog;
-        this.shopModificationDialog = shopModificationDialog;
     }
 
     @Override
@@ -77,6 +69,10 @@ public final class ShopDialogHandler implements InteractionBehavior {
             final InteractionClick clickedObject,
             final @Nullable InteractionType interactionType
     ) {
+        if (shop != null) {
+            return;
+        }
+
         final UserSession user = UserSession.of(player);
         if (!user.hasPermission(QSPermissions.USE)) {
             return;
@@ -84,51 +80,16 @@ public final class ShopDialogHandler implements InteractionBehavior {
 
         interactEvent.setCancelled(true);
 
-        if (shop != null) {
-            this.handleModification(shop, user);
-        } else {
-            final ItemStack handItem = interactEvent.getItem();
-            final Block clickedBlock = interactEvent.getClickedBlock();
-            this.handleCreation(user, handItem, clickedBlock, clickedObject);
-        }
-    }
-
-    private void handleModification(final Shop qsShop, final UserSession user) {
-        if (!(qsShop.getLocation().getBlock().getState() instanceof Container container)) {
-            return;
-        }
-
-        final ShopComponent shopComponent = ShopConverter.toShopComponent(qsShop);
-
-        if (!canModify(user, shopComponent)) {
-            return;
-        }
-
-        final List<Sign> signs = qsShop.getSigns();
-        if (signs.isEmpty()) {
-            return;
-        }
-        final Sign shopSign = signs.getFirst();
-        final ShopBlock shop = new ShopBlock(container, shopSign.getBlock(), shopComponent);
-        final DialogLike dialog = this.shopModificationDialog.createDialog(user, shop);
-
-        user.showDialog(dialog);
-    }
-
-    private void handleCreation(
-            final UserSession user,
-            final @Nullable ItemStack handItem,
-            final @Nullable Block clickedBlock,
-            final InteractionClick clickedObject
-    ) {
+        final ItemStack handItem = interactEvent.getItem();
+        final Block clickedBlock = interactEvent.getClickedBlock();
 
         if (handItem == null || clickedBlock == null) {
             return;
         }
 
         resolveShopBlock(user, clickedObject, clickedBlock, handItem)
-                .ifPresent(shop -> {
-                    final DialogLike dialog = this.shopCreationDialog.createDialog(user, shop);
+                .ifPresent(resolvedShop -> {
+                    final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShop);
                     user.showDialog(dialog);
                 });
     }
@@ -180,11 +141,14 @@ public final class ShopDialogHandler implements InteractionBehavior {
         }
 
         final ShopComponent shopComponent = createShopComponent(user, wallBlock.getLocation(), handItem);
-        final ShopBlock shop = new ShopBlock(container, sign.getBlock(), shopComponent);
-        return Optional.of(shop);
+        return Optional.of(new ShopBlock(container, sign.getBlock(), shopComponent));
     }
 
-    private static ShopComponent createShopComponent(final UserSession user, final Location location, final ItemStack handItem) {
+    private static ShopComponent createShopComponent(
+            final UserSession user,
+            final Location location,
+            final ItemStack handItem
+    ) {
         return ShopComponent.builder()
                 .id(ShopComponent.NEW_ID)
                 .location(location)
@@ -192,21 +156,5 @@ public final class ShopDialogHandler implements InteractionBehavior {
                 .product(handItem)
                 .price(PriceAnalytics.getPriceLimit(user, handItem).min())
                 .build();
-    }
-
-    private static boolean canModify(final UserSession user, final ShopComponent shopComponent) {
-        return shopComponent.isStaff(user.uuid())
-                || hasAnyModificationOtherPermission(user)
-                || user.hasPermission(QSPermissions.SHOP_INFINITE_STOCK);
-    }
-
-    private static boolean hasAnyModificationOtherPermission(final UserSession user) {
-        return user.hasPermission(QSPermissions.SHOP_NAMING_OTHER)
-                || user.hasPermission(QSPermissions.SHOP_PRICE_OTHER)
-                || user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_SELLING_OTHER)
-                || user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_BUYING_OTHER)
-                || user.hasPermission(QSPermissions.SHOP_TOGGLE_STATUS_OTHER)
-                || user.hasPermission(QSPermissions.SHOP_TOGGLE_DISPLAY_OTHER)
-                || user.hasPermission(QSPermissions.SHOP_CURRENCY_OTHER);
     }
 }
