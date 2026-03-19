@@ -1,6 +1,7 @@
 package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,5 +55,21 @@ public final class QSConfigurations {
                 .map(Material::matchMaterial)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public static List<String> whitelistWorlds() {
+        return QuickShops.configuration().getStringList("shop.whitelist-world");
+    }
+
+    public static List<String> blacklistWorlds() {
+        return QuickShops.configuration().getStringList("shop.blacklist-world");
+    }
+
+    public static List<String> blacklistItems() {
+        return QuickShops.configuration().getStringList("blacklist");
+    }
+
+    public static List<String> blacklistLores() {
+        return QuickShops.configuration().getStringList("shop.blacklist-lores");
     }
 }
