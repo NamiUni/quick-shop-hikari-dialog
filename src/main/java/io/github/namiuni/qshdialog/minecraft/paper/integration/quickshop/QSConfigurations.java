@@ -31,7 +31,7 @@ public final class QSConfigurations {
     }
 
     public static BigDecimal shopCreateCost() {
-        return BigDecimal.valueOf(QuickShops.configuration().getDouble("shop.paid", 10.0));
+        return BigDecimal.valueOf(QuickShops.configuration().getDouble("shop.cost", 10.0));
     }
 
     public static BigDecimal shopPriceChangeCost() {
@@ -42,11 +42,11 @@ public final class QSConfigurations {
     }
 
     public static @Nullable String getCurrency() {
-        return QuickShops.configuration().getString("acceptedCurrency");
+        return QuickShops.configuration().getString("currency");
     }
 
     public static boolean requiresUnlimitedOwnerPayment() {
-        return QuickShops.configuration().getBoolean("shopBlock.pay-isInfiniteStock-shopBlock-owners");
+        return QuickShops.configuration().getBoolean("shop.pay-unlimited-shop-owners");
     }
 
     public static Set<Material> shopBlocks() {
