@@ -65,11 +65,14 @@ public final class QSConfigurations {
         return QuickShops.configuration().getStringList("shop.blacklist-world");
     }
 
-    public static List<String> blacklistItems() {
-        return QuickShops.configuration().getStringList("blacklist");
+    public static List<Material> blacklistItems() {
+        return QuickShops.configuration().getStringList("blacklist").stream()
+                .map(Material::matchMaterial)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
-    public static List<String> blacklistLores() {
+    public static List<String> blacklistLore() {
         return QuickShops.configuration().getStringList("shop.blacklist-lores");
     }
 }
