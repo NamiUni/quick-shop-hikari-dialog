@@ -88,6 +88,11 @@ paperPluginYaml {
 }
 
 tasks {
+    shadowJar {
+        archiveBaseName = paperPluginYaml.name
+        archiveClassifier = null as String?
+    }
+
     runServer {
         minecraftVersion("1.21.11")
         downloadPlugins {
