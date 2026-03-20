@@ -81,8 +81,7 @@ public final class ShopService {
                 .filter(e -> Objects.equals(shopComponent.name(), e.component().name()))
                 .map(e -> BigDecimal.ZERO).orElse(namingCost(user));
 
-        final BigDecimal totalCost = priceChangeCost.add(namingCost)
-                .add(shopComponent.name() != null ? namingCost(user) : BigDecimal.ZERO);
+        final BigDecimal totalCost = priceChangeCost.add(namingCost);
         validateBalance(user, world, totalCost, failures);
 
         if (!failures.isEmpty()) {
