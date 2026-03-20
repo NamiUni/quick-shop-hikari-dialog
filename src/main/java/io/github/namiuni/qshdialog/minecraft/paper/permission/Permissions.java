@@ -24,9 +24,10 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class Permissions {
 
-    public static final String COMMAND_RELOAD = "qshdialog.command.reload";
-    public static final String COMMAND_CREATE = "qshdialog.command.create";
-    public static final String COMMAND_MODIFY = "qshdialog.command.modify";
+    public static final String COMMAND_RELOAD = "qshdialog.command.admin.reload";
+    public static final String COMMAND_CREATE = "qshdialog.command.shopdialog.create";
+    public static final String COMMAND_MODIFY = "qshdialog.command.shopdialog.modify";
+    public static final String COMMAND_TRADE = "qshdialog.command.shopdialog.trade";
 
     private Permissions() {
     }

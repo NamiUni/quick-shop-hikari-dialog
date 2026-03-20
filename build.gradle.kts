@@ -63,12 +63,20 @@ paperPluginYaml {
 //    loader = "$mainPackage."
 
     permissions {
-        register("qshdialog.command.reload") {
+        register("qshdialog.command.admin.reload") {
             description = "Reloads QuickShop-Hikari-Dialog's config and translations."
             default = Default.OP
         }
-        register("qshdialog.command.shopdialog") {
-            description = "Use the dialog to control the shop."
+        register("qshdialog.command.shopdialog.create") {
+            description = "Use the dialog to create a new shop."
+            default = Default.TRUE
+        }
+        register("qshdialog.command.shopdialog.modify") {
+            description = "Use the dialog to modify an existing shop."
+            default = Default.TRUE
+        }
+        register("qshdialog.command.shopdialog.trade") {
+            description = "Use the dialog to trade at a shop."
             default = Default.TRUE
         }
     }
