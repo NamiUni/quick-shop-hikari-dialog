@@ -11,6 +11,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.S
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.permission.Permissions;
+import io.github.namiuni.qshdialog.minecraft.paper.service.ShopCreationFilter;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopService;
 import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -83,7 +84,12 @@ public final class ShopCommand implements QSHCommand {
                         return SINGLE_FAILED;
                     }
 
-                    final ShopBlock shop = resolveShopEntityForCreation(user, target);
+                    final ItemStack handItem = user.inventory().getItemInMainHand();
+                    if (!ShopCreationFilter.isCreationAllowed(target.getWorld(), handItem)) {
+                        return SINGLE_FAILED;
+                    }
+
+                    final ShopBlock shop = resolveShopBlockForCreation(user, target);
                     if (shop == null) {
                         user.sendMessage(this.translations.shopCommandInvalidBlock(user));
                         return SINGLE_FAILED;
@@ -139,17 +145,17 @@ public final class ShopCommand implements QSHCommand {
     // Block resolution helpers
     // -------------------------------------------------------------------------
 
-    private static @Nullable ShopBlock resolveShopEntityForCreation(final UserSession user, final Block target) {
+    private static @Nullable ShopBlock resolveShopBlockForCreation(final UserSession user, final Block target) {
         if (target.getState() instanceof Container container) {
-            return buildShopEntityFromContainer(user, container, target);
+            return buildShopBlockFromContainer(user, container, target);
         }
         if (target.getState() instanceof Sign sign) {
-            return buildShopEntityFromSign(user, sign, target);
+            return createShopBlockFromSign(user, sign, target);
         }
         return null;
     }
 
-    private static ShopBlock buildShopEntityFromContainer(
+    private static ShopBlock buildShopBlockFromContainer(
             final UserSession user,
             final Container container,
             final Block containerBlock
@@ -166,7 +172,7 @@ public final class ShopCommand implements QSHCommand {
         return new ShopBlock(container, frontBlock, shopComponent);
     }
 
-    private static @Nullable ShopBlock buildShopEntityFromSign(
+    private static @Nullable ShopBlock createShopBlockFromSign(
             final UserSession user,
             final Sign sign,
             final Block signBlock

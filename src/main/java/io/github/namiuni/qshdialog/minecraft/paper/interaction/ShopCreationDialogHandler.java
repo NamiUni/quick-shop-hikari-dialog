@@ -31,12 +31,10 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
-import java.util.List;
+import io.github.namiuni.qshdialog.minecraft.paper.service.ShopCreationFilter;
 import java.util.Optional;
 import java.util.Set;
 import net.kyori.adventure.dialog.DialogLike;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -94,7 +92,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
-        if (!isCreationAllowed(clickedBlock.getWorld(), handItem)) {
+        if (!ShopCreationFilter.isCreationAllowed(clickedBlock.getWorld(), handItem)) {
             return;
         }
 
@@ -172,43 +170,5 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
                 .product(handItem)
                 .price(PriceAnalytics.getPriceLimit(user, handItem).min())
                 .build();
-    }
-
-    private static boolean isCreationAllowed(final World world, final ItemStack handItem) {
-        return isWorldAllowed(world) && isItemAllowed(handItem);
-    }
-
-    private static boolean isWorldAllowed(final World world) {
-        final List<String> whitelist = QSConfigurations.whitelistWorlds();
-        if (!whitelist.isEmpty()) {
-            // whitelist が設定されている場合は優先。未掲載ワールドは全拒否
-            return whitelist.contains(world.getName());
-        }
-        // whitelist が空の場合のみ blacklist を参照
-        return !QSConfigurations.blacklistWorlds().contains(world.getName());
-    }
-
-    private static boolean isItemAllowed(final ItemStack handItem) {
-        final Material type = handItem.getType();
-
-        final boolean itemBlacklisted = QSConfigurations.blacklistItems().stream()
-                .anyMatch(type::equals);
-        if (itemBlacklisted) {
-            return false;
-        }
-
-        final List<String> blacklistLore = QSConfigurations.blacklistLore();
-        if (blacklistLore.isEmpty()) {
-            return true;
-        }
-        final List<Component> lore = handItem.lore();
-        if (lore == null || lore.isEmpty()) {
-            return true;
-        }
-
-        final PlainTextComponentSerializer serializer = PlainTextComponentSerializer.plainText();
-        return lore.stream()
-                .map(serializer::serialize)
-                .noneMatch(line -> blacklistLore.stream().anyMatch(line::contains));
     }
 }
