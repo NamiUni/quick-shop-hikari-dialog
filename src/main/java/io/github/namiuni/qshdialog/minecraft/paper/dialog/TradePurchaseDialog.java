@@ -42,6 +42,7 @@ import java.util.Objects;
 import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -72,6 +73,7 @@ public final class TradePurchaseDialog {
                 .resolver(this.shopTagMapper.shopPlaceholders(shop))
                 .resolver(this.shopTagMapper.itemPlaceholders(shop.component().product()))
                 .resolver(ShopTagMapper.quickshopPlaceholders())
+                .resolver(Placeholder.parsed("balance", user.balance(shop.container().getWorld().getName(), shop.component().currency()).toPlainString()))
                 .build();
 
         final Result<Integer, TradeQuantityFailure> quantityResult =

@@ -26,6 +26,7 @@ import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.ShopConverter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
@@ -74,7 +75,7 @@ public final class TradeDialogHandler implements InteractionBehavior {
             final InteractionClick clickedObject,
             final @Nullable InteractionType interactionType
     ) {
-        if (qsShop == null || !player.hasPermission("quickshop.use")) {
+        if (qsShop == null || !player.hasPermission(QSPermissions.USE)) {
             return;
         }
 
