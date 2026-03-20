@@ -63,16 +63,19 @@ paperPluginYaml {
 //    loader = "$mainPackage."
 
     permissions {
-        register("qshdialog.reload") {
+        register("qshdialog.command.reload") {
             description = "Reloads QuickShop-Hikari-Dialog's config and translations."
             default = Default.OP
+        }
+        register("qshdialog.command.shopdialog") {
+            description = "Use the dialog to control the shop."
+            default = Default.TRUE
         }
     }
 
     dependencies {
-        server("Vault", Load.BEFORE, true)
         server("QuickShop-Hikari", Load.BEFORE, true)
-        server("MiniPlaceholders", Load.BEFORE, true)
+        server("MiniPlaceholders", Load.BEFORE, false)
     }
 }
 

@@ -121,7 +121,7 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
     private void registerCommands(final BootstrapContext context) {
         context.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final AdminCommand adminCommand = new AdminCommand(this.primaryConfig, this.translatorHolder, this.translations);
-            final ShopCommand shopCommand = new ShopCommand(this.shopService, this.shopCreationDialog, this.shopModificationDialog);
+            final ShopCommand shopCommand = new ShopCommand(this.translations, this.shopService, this.shopCreationDialog, this.shopModificationDialog);
 
             Stream.of(adminCommand, shopCommand)
                     .forEach(command -> event.registrar().register(command.node(), command.description(), command.aliases()));

@@ -49,7 +49,7 @@ public final class ShopCommand implements QSHCommand {
 
     @Override
     public LiteralCommandNode<CommandSourceStack> node() {
-        return Commands.literal("dialogshop")
+        return Commands.literal("shopdialog")
                 .then(this.createNode())
                 .then(this.modificationNode())
                 .build();

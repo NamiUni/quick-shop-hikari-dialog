@@ -59,7 +59,7 @@ public final class AdminCommand implements QSHCommand {
     public LiteralCommandNode<CommandSourceStack> node() {
         return Commands.literal("qshdialog")
                 .then(Commands.literal("reload")
-                        .requires(Commands.restricted(source -> source.getSender().hasPermission(Permissions.RELOAD)))
+                        .requires(Commands.restricted(source -> source.getSender().hasPermission(Permissions.COMMAND_RELOAD)))
                         .executes(context -> {
                             final CommandSender commandSender = context.getSource().getSender();
 
