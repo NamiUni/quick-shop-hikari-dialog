@@ -19,7 +19,6 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.service;
 
-import com.ghostchu.quickshop.api.shop.Shop;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.common.utilities.NumberRange;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
