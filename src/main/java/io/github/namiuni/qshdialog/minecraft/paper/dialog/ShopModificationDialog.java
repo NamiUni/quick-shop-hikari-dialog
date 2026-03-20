@@ -26,6 +26,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.ShopInputType
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.ShopInputs;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.EconomyFormatter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.TradeType;
@@ -43,6 +44,7 @@ import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -50,6 +52,7 @@ import java.util.Set;
 import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jspecify.annotations.NullMarked;
@@ -79,11 +82,13 @@ public final class ShopModificationDialog {
     }
 
     public DialogLike createDialog(final UserSession user, final ShopBlock shop) {
+        final BigDecimal userBalance = user.balance(shop.container().getWorld().getName(), shop.component().currency());
         final TagResolver placeholders = TagResolver.builder()
-                .resolver(this.shopTagMapper.shopPlaceholders(shop))
-                .resolver(this.shopTagMapper.itemPlaceholders(shop.component().product()))
+                .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
+                .resolver(ShopTagMapper.pricePlaceholders())
                 .resolver(ShopTagMapper.quickshopPlaceholders())
-                .resolver(Placeholder.parsed("balance", user.balance(shop.container().getWorld().getName(), shop.component().currency()).toPlainString()))
+                .resolver(Formatter.number("user_balance", userBalance))
+                .resolver(Placeholder.parsed("user_balance_formatted", EconomyFormatter.format(userBalance, shop.container().getWorld().getName())))
                 .build();
 
         return Dialog.create(db -> db.empty()

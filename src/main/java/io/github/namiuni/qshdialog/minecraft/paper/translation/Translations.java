@@ -22,6 +22,7 @@ package io.github.namiuni.qshdialog.minecraft.paper.translation;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.MiniPlaceholdersExtension;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.EconomyFormatter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.TradeType;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopFailure;
@@ -32,11 +33,14 @@ import java.util.Locale;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
+import org.bukkit.entity.Entity;
+import org.bukkit.generator.WorldInfo;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -169,7 +173,21 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component inputLabelShopName(final Pointered target, final TagResolver placeholders, final BigDecimal namingCost) {
-        return this.translate("qsh_dialog.dialog.input.shop.name", target, placeholders, Placeholder.parsed("naming_cost", namingCost.toPlainString()));
+        final String world;
+        if (target instanceof UserSession user) {
+            world = user.bukkit()
+                    .map(Entity::getWorld)
+                    .map(WorldInfo::getName)
+                    .orElse("world");
+        } else {
+            world = "world";
+        }
+        return this.translate(
+                "qsh_dialog.dialog.input.shop.name",
+                target, placeholders,
+                Formatter.number("naming_cost", namingCost),
+                Placeholder.parsed("naming_cost_formatted", EconomyFormatter.format(namingCost, world))
+        );
     }
 
     public Component inputLabelShopTradeType(final Pointered target, final TagResolver placeholders) {
@@ -224,13 +242,28 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopCreationSuccess(final UserSession user, final TagResolver placeholders, final ShopSuccess success) {
-        return this.translate("qsh_dialog.shop.creation.success", user, placeholders, Placeholder.parsed("total_cost", success.paid().toPlainString()));
+        final String world = user.bukkit()
+                .map(Entity::getWorld)
+                .map(WorldInfo::getName)
+                .orElse("world");
+        return this.translate(
+                "qsh_dialog.shop.creation.success",
+                user,
+                placeholders,
+                Formatter.number("total_cost", success.paid()),
+                Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(success.paid(), world))
+        );
     }
 
     public Component shopCreationFailedInsufficientFunds(final UserSession user, final TagResolver placeholders, final ShopFailure.OperatorInsufficientFunds failure) {
+        final String world = user.bukkit()
+                .map(Entity::getWorld)
+                .map(WorldInfo::getName)
+                .orElse("world");
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(Placeholder.parsed("total_cost", failure.totalCost().toPlainString()))
+                .resolver(Formatter.number("total_cost", failure.totalCost()))
+                .resolver(Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(failure.totalCost(), world)))
                 .build();
         return this.translate("qsh_dialog.shop.creation.failure.insufficient_funds", user, resolver);
     }
@@ -259,13 +292,28 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopModificationSuccess(final UserSession user, final TagResolver placeholders, final ShopSuccess success) {
-        return this.translate("qsh_dialog.shop.modification.success", user, placeholders, Placeholder.parsed("total_cost", success.paid().toPlainString()));
+        final String world = user.bukkit()
+                .map(Entity::getWorld)
+                .map(WorldInfo::getName)
+                .orElse("world");
+        return this.translate(
+                "qsh_dialog.shop.modification.success",
+                user,
+                placeholders,
+                Formatter.number("total_cost", success.paid()),
+                Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(success.paid(), world))
+        );
     }
 
     public Component shopModificationFailedInsufficientFunds(final UserSession user, final TagResolver placeholders, final ShopFailure.OperatorInsufficientFunds failure) {
+        final String world = user.bukkit()
+                .map(Entity::getWorld)
+                .map(WorldInfo::getName)
+                .orElse("world");
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(Placeholder.parsed("total_cost", failure.totalCost().toPlainString()))
+                .resolver(Formatter.number("total_cost", failure.totalCost()))
+                .resolver(Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(failure.totalCost(), world)))
                 .build();
         return this.translate("qsh_dialog.shop.modification.failure.insufficient_funds", user, resolver);
     }
