@@ -5,14 +5,18 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.PriceAnalytics;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
+import io.github.namiuni.qshdialog.minecraft.paper.permission.Permissions;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopService;
+import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -26,15 +30,18 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public final class ShopCommand implements QSHCommand {
 
+    private final Translations translations;
     private final ShopService shopService;
     private final ShopCreationDialog creationDialog;
     private final ShopModificationDialog modificationDialog;
 
     public ShopCommand(
+            final Translations translations,
             final ShopService shopService,
             final ShopCreationDialog creationDialog,
             final ShopModificationDialog modificationDialog
     ) {
+        this.translations = translations;
         this.shopService = shopService;
         this.creationDialog = creationDialog;
         this.modificationDialog = modificationDialog;
@@ -62,26 +69,29 @@ public final class ShopCommand implements QSHCommand {
 
     private CommandNode<CommandSourceStack> createNode() {
         return Commands.literal("create")
+                .requires(source -> source.getExecutor() instanceof Player player
+                        && player.hasPermission(QSPermissions.USE)
+                        && player.hasPermission(Permissions.COMMAND_CREATE)
+                )
                 .executes(context -> {
-                    if (!(context.getSource().getExecutor() instanceof Player player)) {
-                        return SINGLE_FAILED;
-                    }
+                    final Player player = (Player) Objects.requireNonNull(context.getSource().getExecutor());
                     final UserSession user = UserSession.of(player);
+
                     final Block target = user.targetBlock();
                     if (target == null) {
-                        // TODO: エラーメッセージ送信（見ているブロックがない）
+                        user.sendMessage(this.translations.shopCommandNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final ShopBlock shop = resolveShopEntityForCreation(user, target);
                     if (shop == null) {
-                        // TODO: エラーメッセージ送信（コンテナでも看板でもない）
+                        user.sendMessage(this.translations.shopCommandInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> existing = this.shopService.findShop(shop.container().getLocation());
                     if (existing.isPresent()) {
-                        // TODO: エラーメッセージ送信（すでにショップが存在する）
+                        user.sendMessage(this.translations.shopCreationCommandAlreadyExists(user));
                         return SINGLE_FAILED;
                     }
 
@@ -93,27 +103,29 @@ public final class ShopCommand implements QSHCommand {
 
     private CommandNode<CommandSourceStack> modificationNode() {
         return Commands.literal("modify")
+                .requires(source -> source.getExecutor() instanceof Player player
+                        && player.hasPermission(QSPermissions.USE)
+                        && player.hasPermission(Permissions.COMMAND_MODIFY)
+                )
                 .executes(context -> {
-                    if (!(context.getSource().getExecutor() instanceof Player player)) {
-                        return SINGLE_FAILED;
-                    }
-
+                    final Player player = (Player) Objects.requireNonNull(context.getSource().getExecutor());
                     final UserSession user = UserSession.of(player);
+
                     final Block target = user.targetBlock();
                     if (target == null) {
-                        // TODO: エラーメッセージ送信（見ているブロックがない）
+                        user.sendMessage(this.translations.shopCommandNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Container container = resolveContainer(target);
                     if (container == null) {
-                        // TODO: エラーメッセージ送信（コンテナでも看板でもない）
+                        user.sendMessage(this.translations.shopCommandInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> existing = this.shopService.findShop(container.getLocation());
                     if (existing.isEmpty()) {
-                        // TODO: エラーメッセージ送信（ショップが存在しない）
+                        user.sendMessage(this.translations.shopModificationCommandShopNotFound(user));
                         return SINGLE_FAILED;
                     }
 

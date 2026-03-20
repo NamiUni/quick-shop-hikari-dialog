@@ -24,7 +24,9 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class Permissions {
 
-    public static final String RELOAD = "qshdialog.reload";
+    public static final String RELOAD = "qshdialog.command.reload";
+    public static final String COMMAND_CREATE = "qshdialog.command.create";
+    public static final String COMMAND_MODIFY = "qshdialog.command.modify";
 
     private Permissions() {
     }

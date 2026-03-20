@@ -69,6 +69,26 @@ public final class Translations {
     }
 
     // -------------------------------------------------------------------------
+    // Shop command - errors
+    // -------------------------------------------------------------------------
+
+    public Component shopCommandNoTargetBlock(final Pointered target) {
+        return this.translate("qsh_dialog.shop.command.failure.no_target_block", target, TagResolver.empty());
+    }
+
+    public Component shopCommandInvalidBlock(final Pointered target) {
+        return this.translate("qsh_dialog.shop.command.failure.invalid_block", target, TagResolver.empty());
+    }
+
+    public Component shopCreationCommandAlreadyExists(final Pointered target) {
+        return this.translate("qsh_dialog.shop.command.creation.failure.already_exists", target, TagResolver.empty());
+    }
+
+    public Component shopModificationCommandShopNotFound(final Pointered target) {
+        return this.translate("qsh_dialog.shop.command.modification.failure.shop_not_found", target, TagResolver.empty());
+    }
+
+    // -------------------------------------------------------------------------
     // Shop creation dialog
     // -------------------------------------------------------------------------
 
