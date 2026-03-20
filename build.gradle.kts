@@ -53,7 +53,7 @@ dependencies {
 
 val mainPackage = "${group}.qshdialog.minecraft.paper"
 paperPluginYaml {
-    name = "QSH-Dialog"
+    name = "QuickShop-Hikari-Dialog"
     author = "Namiu (うにたろう)"
     website = "https://github.com/NamiUni"
     apiVersion = "1.21.10"

@@ -25,7 +25,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class QSHDialogLogger {
 
-    private static final ComponentLogger LOGGER = ComponentLogger.logger("QSH-Dialog");
+    private static final ComponentLogger LOGGER = ComponentLogger.logger("QuickShop-Hikari-Dialog");
 
     private QSHDialogLogger() {
     }

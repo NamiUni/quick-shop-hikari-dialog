@@ -40,7 +40,6 @@ import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.nio.file.Path;
 import java.util.stream.Stream;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.NullMarked;
@@ -114,8 +113,7 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
 
     private TranslatorHolder createTranslatorHolder(final BootstrapContext context) {
         final Path dataDirectory = context.getDataDirectory();
-        final ComponentLogger logger = context.getLogger();
-        final TranslatorLoader translatorLoader = new TranslatorLoader(dataDirectory, logger);
+        final TranslatorLoader translatorLoader = new TranslatorLoader(dataDirectory);
         return new TranslatorHolder(translatorLoader);
     }
 

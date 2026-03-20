@@ -22,6 +22,7 @@ package io.github.namiuni.qshdialog.minecraft.paper.translation;
 import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.common.utilities.JisSafetyColors;
 import io.github.namiuni.qshdialog.common.utilities.MoreFiles;
+import io.github.namiuni.qshdialog.common.utilities.QSHDialogLogger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +35,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
@@ -54,11 +54,9 @@ public final class TranslatorLoader {
             .build();
 
     private final Path dataDirectory;
-    private final ComponentLogger logger;
 
-    public TranslatorLoader(final Path dataDirectory, final ComponentLogger logger) {
+    public TranslatorLoader(final Path dataDirectory) {
         this.dataDirectory = dataDirectory;
-        this.logger = logger;
     }
 
     public Result<Translator, IOException> load() {
@@ -93,7 +91,7 @@ public final class TranslatorLoader {
                 });
 
         final String localeTags = installedLocales.stream().map(Locale::toString).collect(Collectors.joining(", "));
-        this.logger.info("Loaded {} translations: [{}]", installedLocales.size(), localeTags);
+        QSHDialogLogger.logger().info("Loaded {} translations: [{}]", installedLocales.size(), localeTags);
 
         return Result.success(store);
     }
