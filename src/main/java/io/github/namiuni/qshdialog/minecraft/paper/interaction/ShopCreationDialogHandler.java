@@ -37,7 +37,6 @@ import java.util.Set;
 import net.kyori.adventure.dialog.DialogLike;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
