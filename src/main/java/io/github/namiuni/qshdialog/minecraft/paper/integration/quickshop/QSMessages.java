@@ -5,7 +5,6 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
-import java.math.BigDecimal;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.NullMarked;
 
@@ -72,17 +71,6 @@ public final class QSMessages {
                 .of(customer.qsUser(), "you-dont-have-that-many-items",
                         0,
                         shop.component().product().effectiveName())
-                .forLocale(customer.locale().toString());
-    }
-
-    public static Component errorCustomerInsufficientFundsForNaming(
-            final UserSession customer,
-            final String world,
-            final BigDecimal namingCost
-    ) {
-        final String formattedCost = EconomyFormatter.format(namingCost, world, QSConfigurations.getCurrency());
-        return QuickShops.textManager()
-                .of(customer.qsUser(), "you-cant-afford-shop-naming", formattedCost)
                 .forLocale(customer.locale().toString());
     }
 }

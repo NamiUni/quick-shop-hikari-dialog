@@ -1,13 +1,17 @@
 package io.github.namiuni.qshdialog.minecraft.paper.utilities;
 
 import io.github.namiuni.qshdialog.common.utilities.NumberRange;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.PriceAnalytics;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.ShopInventory;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,6 +20,7 @@ import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -44,6 +49,7 @@ public final class ShopTagMapper {
                 case "price" -> Tag.preProcessParsed(shopComponent.price().toPlainString());
                 case "owner_name" -> Tag.preProcessParsed(Objects.requireNonNullElse(shopComponent.owner().name(), ""));
                 case "owner_display_name" -> Tag.selfClosingInserting(shopComponent.owner().displayName());
+                case "owner_balance" -> Tag.preProcessParsed(shopComponent.owner().balance(shop.container().getWorld().getName(), shopComponent.currency()).toPlainString());
                 case "trade_type" -> {
                     final Pointered target = Objects.requireNonNullElse(context.target(), Audience.empty());
                     final Component component = this.translations.tradeType(target, shopComponent.tradeType(), TagResolver.empty());
@@ -59,6 +65,8 @@ public final class ShopTagMapper {
                 case "currency" -> Tag.preProcessParsed(shopComponent.currency() == null ? "" : shopComponent.currency());
                 case "display_visible" -> Tag.preProcessParsed(String.valueOf(!shopComponent.displayVisible()));
                 case "infinite_stock" -> Tag.preProcessParsed(String.valueOf(shopComponent.infiniteStock()));
+                case "stock" -> Tag.preProcessParsed(String.valueOf(ShopInventory.stockCount(shop)));
+                case "space" -> Tag.preProcessParsed(String.valueOf(ShopInventory.spaceCount(shop)));
                 default -> Tag.preProcessParsed("Unknown shop information");
             };
         });
@@ -94,6 +102,31 @@ public final class ShopTagMapper {
             }
 
             return Tag.preProcessParsed("Unknown user");
+        });
+    }
+
+    public static TagResolver quickshopPlaceholders() {
+        return TagResolver.resolver("quickshop", (queue, context) -> {
+            if (!queue.hasNext()) {
+                return Tag.preProcessParsed("");
+            }
+            final String key = queue.pop().value();
+            final Pointered target = context.targetOrThrow();
+            if (!(target instanceof UserSession user)) {
+                return Tag.preProcessParsed("");
+            }
+
+            final List<String> args = new ArrayList<>();
+            final PlainTextComponentSerializer plain = PlainTextComponentSerializer.plainText();
+            while (queue.hasNext()) {
+                final String rawArg = queue.pop().value();
+                args.add(plain.serialize(context.deserialize(rawArg)));
+            }
+
+            final Component message = QuickShops.textManager()
+                    .of(user.qsUser(), key, args.toArray())
+                    .forLocale(user.locale().toString());
+            return Tag.selfClosingInserting(message);
         });
     }
 }

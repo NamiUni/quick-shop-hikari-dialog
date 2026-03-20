@@ -63,6 +63,7 @@ public final class ShopCreationDialog {
         final TagResolver placeholders = TagResolver.builder()
                 .resolver(this.shopTagMapper.shopPlaceholders(shop))
                 .resolver(this.shopTagMapper.itemPlaceholders(shop.component().product()))
+                .resolver(ShopTagMapper.quickshopPlaceholders())
                 .build();
 
         return Dialog.create(db -> db.empty()
@@ -166,7 +167,7 @@ public final class ShopCreationDialog {
             final Result<ShopSuccess, Set<ShopFailure>> result = this.shopService.createShop(user, shop.withComponent(inputComponent));
             switch (result) {
                 case Result.Success(ShopSuccess success) -> {
-                    // TODO: ショップの更新内容と支払いコストをDialogType.notice()を使って通知
+                    // TODO: ショップの作成内容と支払いコストをDialogType.notice()を使って通知
                     final Component message = this.translations.shopCreationSuccess(user, placeholders, success);
                     user.sendMessage(message);
                 }

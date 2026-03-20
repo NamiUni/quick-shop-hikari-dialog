@@ -26,12 +26,12 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.T
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopFailure;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopSuccess;
+import io.github.namiuni.qshdialog.minecraft.paper.utilities.ShopTagMapper;
 import java.math.BigDecimal;
 import java.util.Locale;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.translation.Argument;
@@ -53,19 +53,19 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component configurationReloadSuccess(final Pointered target) {
-        return this.translate("qsh_dialog.reload.config.success", target, TagResolver.empty());
+        return this.translate("qsh_dialog.reload.config.success", target);
     }
 
     public Component configurationReloadError(final Pointered target) {
-        return this.translate("qsh_dialog.reload.config.error", target, TagResolver.empty());
+        return this.translate("qsh_dialog.reload.config.error", target);
     }
 
     public Component translationReloadSuccess(final Pointered target) {
-        return this.translate("qsh_dialog.reload.translation.success", target, TagResolver.empty());
+        return this.translate("qsh_dialog.reload.translation.success", target);
     }
 
     public Component translationReloadError(final Pointered target) {
-        return this.translate("qsh_dialog.reload.translation.error", target, TagResolver.empty());
+        return this.translate("qsh_dialog.reload.translation.error", target);
     }
 
     // -------------------------------------------------------------------------
@@ -73,19 +73,19 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopCommandNoTargetBlock(final Pointered target) {
-        return this.translate("qsh_dialog.shop.command.failure.no_target_block", target, TagResolver.empty());
+        return this.translate("qsh_dialog.shop.command.failure.no_target_block", target);
     }
 
     public Component shopCommandInvalidBlock(final Pointered target) {
-        return this.translate("qsh_dialog.shop.command.failure.invalid_block", target, TagResolver.empty());
+        return this.translate("qsh_dialog.shop.command.failure.invalid_block", target);
     }
 
     public Component shopCreationCommandAlreadyExists(final Pointered target) {
-        return this.translate("qsh_dialog.shop.command.creation.failure.already_exists", target, TagResolver.empty());
+        return this.translate("qsh_dialog.shop.command.creation.failure.already_exists", target);
     }
 
     public Component shopModificationCommandShopNotFound(final Pointered target) {
-        return this.translate("qsh_dialog.shop.command.modification.failure.shop_not_found", target, TagResolver.empty());
+        return this.translate("qsh_dialog.shop.command.modification.failure.shop_not_found", target);
     }
 
     // -------------------------------------------------------------------------
@@ -108,15 +108,6 @@ public final class Translations {
         return this.translate("qsh_dialog.dialog.button.cancel", target, placeholders);
     }
 
-    public Component shopCreationErrorPriceInvalid(final Pointered target, final TagResolver placeholders, final String input) {
-        final TagResolver resolver = TagResolver.builder()
-                .resolver(placeholders)
-                .resolver(TagResolver.resolver("input", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(input))))
-                .build();
-        return this.translate("qsh_dialog.shop.creation.failure.price_invalid", target, resolver);
-    }
-
     public Component shopModificationTitle(final Pointered target, final TagResolver placeholders) {
         return this.translate("qsh_dialog.dialog.shop.modification.title", target, placeholders);
     }
@@ -131,15 +122,6 @@ public final class Translations {
 
     public Component shopModificationCancelButton(final Pointered target, final TagResolver placeholders) {
         return this.translate("qsh_dialog.dialog.button.cancel", target, placeholders);
-    }
-
-    public Component shopModificationErrorPriceInvalid(final Pointered target, final TagResolver placeholders, final String input) {
-        final TagResolver resolver = TagResolver.builder()
-                .resolver(placeholders)
-                .resolver(TagResolver.resolver("input", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(input))))
-                .build();
-        return this.translate("qsh_dialog.shop.modification.failure.price_invalid", target, resolver);
     }
 
     // -------------------------------------------------------------------------
@@ -242,20 +224,22 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopCreationSuccess(final UserSession user, final TagResolver placeholders, final ShopSuccess success) {
-        return this.translate("qsh_dialog.shop.creation.success", user, placeholders);
+        return this.translate("qsh_dialog.shop.creation.success", user, placeholders, Placeholder.parsed("total_cost", success.paid().toPlainString()));
     }
 
     public Component shopCreationFailedInsufficientFunds(final UserSession user, final TagResolver placeholders, final ShopFailure.OperatorInsufficientFunds failure) {
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(TagResolver.resolver("total_cost", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(failure.totalCost().toPlainString()))))
+                .resolver(Placeholder.parsed("total_cost", failure.totalCost().toPlainString()))
                 .build();
         return this.translate("qsh_dialog.shop.creation.failure.insufficient_funds", user, resolver);
     }
 
     public Component shopCreationFailedPriceOutOfRange(final UserSession user, final TagResolver placeholders, final ShopFailure.PriceOutOfRange failure) {
-        return this.translate("qsh_dialog.shop.creation.failure.price_out_of_range", user, placeholders);
+        final TagResolver resolver = TagResolver.builder()
+                .resolver(placeholders)
+                .build();
+        return this.translate("qsh_dialog.shop.creation.failure.price_out_of_range", user, resolver);
     }
 
     public Component shopCreationFailedContainerNotFound(final UserSession user, final TagResolver placeholders, final ShopFailure.ContainerNotFound failure) {
@@ -265,8 +249,7 @@ public final class Translations {
     public Component shopCreationFailedPriceInvalid(final UserSession user, final TagResolver placeholders, final String input) {
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(TagResolver.resolver("input", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(input))))
+                .resolver(Placeholder.parsed("input", input))
                 .build();
         return this.translate("qsh_dialog.shop.creation.failure.price_invalid", user, resolver);
     }
@@ -276,14 +259,13 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopModificationSuccess(final UserSession user, final TagResolver placeholders, final ShopSuccess success) {
-        return this.translate("qsh_dialog.shop.modification.success", user, placeholders);
+        return this.translate("qsh_dialog.shop.modification.success", user, placeholders, Placeholder.parsed("total_cost", success.paid().toPlainString()));
     }
 
     public Component shopModificationFailedInsufficientFunds(final UserSession user, final TagResolver placeholders, final ShopFailure.OperatorInsufficientFunds failure) {
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(TagResolver.resolver("total_cost", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(failure.totalCost().toPlainString()))))
+                .resolver(Placeholder.parsed("total_cost", failure.totalCost().toPlainString()))
                 .build();
         return this.translate("qsh_dialog.shop.modification.failure.insufficient_funds", user, resolver);
     }
@@ -291,10 +273,6 @@ public final class Translations {
     public Component shopModificationFailedPriceOutOfRange(final UserSession user, final TagResolver placeholders, final ShopFailure.PriceOutOfRange failure) {
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(TagResolver.resolver("min_price", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(failure.priceLimit().min().toPlainString()))))
-                .resolver(TagResolver.resolver("max_price", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(failure.priceLimit().max().toPlainString()))))
                 .build();
         return this.translate("qsh_dialog.shop.modification.failure.price_out_of_range", user, resolver);
     }
@@ -306,10 +284,47 @@ public final class Translations {
     public Component shopModificationFailedPriceInvalid(final UserSession user, final TagResolver placeholders, final String input) {
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
-                .resolver(TagResolver.resolver("input", (argumentQueue, context) ->
-                        Tag.inserting(Component.text(input))))
+                .resolver(Placeholder.parsed("input", input))
                 .build();
         return this.translate("qsh_dialog.shop.modification.failure.price_invalid", user, resolver);
+    }
+
+    // -------------------------------------------------------------------------
+    // Trade errors (QSMessages wrappers - editable via message files)
+    // -------------------------------------------------------------------------
+
+    public Component tradeErrorShopUnavailable(final UserSession customer) {
+        return this.translate("qsh_dialog.trade.error.shop_unavailable", customer);
+    }
+
+    public Component tradeErrorShopOutOfStock(final UserSession customer, final TagResolver placeholders) {
+        return this.translate("qsh_dialog.trade.error.shop_out_of_stock", customer, placeholders);
+    }
+
+    public Component tradeErrorShopInventoryFull(final UserSession customer, final TagResolver placeholders) {
+        return this.translate("qsh_dialog.trade.error.shop_inventory_full", customer, placeholders);
+    }
+
+    public Component tradeErrorCustomerInventoryFull(final UserSession customer, final TagResolver placeholders, final int actualSpace) {
+        return this.translate("qsh_dialog.trade.error.customer_inventory_full", customer, placeholders, Placeholder.component("actual_space", Component.text(actualSpace)));
+    }
+
+    public Component tradeErrorCustomerInsufficientFunds(final UserSession customer, final TagResolver placeholders) {
+        return this.translate("qsh_dialog.trade.error.customer_insufficient_funds", customer, placeholders);
+    }
+
+    public Component tradeErrorShopInsufficientFunds(final UserSession customer, final TagResolver placeholders) {
+        return this.translate("qsh_dialog.trade.error.shop_insufficient_funds", customer, placeholders);
+    }
+
+    public Component tradeErrorCustomerInsufficientItems(final UserSession customer, final TagResolver placeholders) {
+        return this.translate("qsh_dialog.trade.error.customer_insufficient_items", customer, placeholders);
+    }
+
+    public Component tradeErrorCustomerInsufficientFundsForNaming(
+            final UserSession customer
+    ) {
+        return this.translate("qsh_dialog.trade.error.customer_insufficient_funds_for_naming", customer);
     }
 
     // -------------------------------------------------------------------------
@@ -321,7 +336,8 @@ public final class Translations {
                 key,
                 Argument.target(target),
                 Argument.tagResolver(placeholders),
-                Argument.tagResolver(MiniPlaceholdersExtension.audienceGlobalPlaceholders())
+                Argument.tagResolver(MiniPlaceholdersExtension.audienceGlobalPlaceholders()),
+                Argument.tagResolver(ShopTagMapper.quickshopPlaceholders())
         );
         if (this.primaryConfig.getConfig().translationSource() == PrimaryConfiguration.TranslationSource.PLUGIN) {
             final Locale locale = target.getOrDefault(Identity.LOCALE, this.primaryConfig.getConfig().defaultLocale());

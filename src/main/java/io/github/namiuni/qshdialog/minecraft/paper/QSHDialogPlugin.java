@@ -27,23 +27,27 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickSh
 import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopCreationDialogHandler;
 import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopModificationDialogHandler;
 import io.github.namiuni.qshdialog.minecraft.paper.interaction.TradeDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class QSHDialogPlugin extends JavaPlugin {
 
+    private final Translations translations;
     private final ShopCreationDialog shopCreationDialog;
     private final ShopModificationDialog shopModificationDialog;
     private final TradePurchaseDialog tradePurchaseDialog;
     private final TradeSellDialog tradeSellDialog;
 
     public QSHDialogPlugin(
+            final Translations translations,
             final ShopCreationDialog shopCreationDialog,
             final ShopModificationDialog shopModificationDialog,
             final TradePurchaseDialog tradePurchaseDialog,
             final TradeSellDialog tradeSellDialog
     ) {
+        this.translations = translations;
         this.shopCreationDialog = shopCreationDialog;
         this.shopModificationDialog = shopModificationDialog;
         this.tradePurchaseDialog = tradePurchaseDialog;
@@ -54,7 +58,7 @@ public final class QSHDialogPlugin extends JavaPlugin {
     public void onEnable() {
         final var shopModificationDialogHandler = new ShopModificationDialogHandler(this.shopModificationDialog);
         final var shopCreationDialogHandler = new ShopCreationDialogHandler(this.shopCreationDialog);
-        final var tradeDialogHandler = new TradeDialogHandler(this.tradePurchaseDialog, this.tradeSellDialog);
+        final var tradeDialogHandler = new TradeDialogHandler(this.translations, this.tradePurchaseDialog, this.tradeSellDialog);
 
         QuickShops.interactionManager().behavior(shopModificationDialogHandler);
         QuickShops.interactionManager().behavior(shopCreationDialogHandler);

@@ -23,7 +23,6 @@ import com.github.sviperll.result4j.Result;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.TradeInputs;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSMessages;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopFailure;
@@ -72,6 +71,7 @@ public final class TradeSellDialog {
         final TagResolver placeholders = TagResolver.builder()
                 .resolver(this.shopTagMapper.shopPlaceholders(shop))
                 .resolver(this.shopTagMapper.itemPlaceholders(shop.component().product()))
+                .resolver(ShopTagMapper.quickshopPlaceholders())
                 .build();
 
         final Result<Integer, TradeQuantityFailure> quantityResult =
@@ -79,9 +79,9 @@ public final class TradeSellDialog {
 
         if (quantityResult instanceof Result.Error<Integer, TradeQuantityFailure>(final TradeQuantityFailure failure)) {
             final Component message = switch (failure) {
-                case SHOP_INVENTORY_FULL -> QSMessages.errorShopInventoryFull(user, shop);
-                case SHOP_INSUFFICIENT_FUNDS -> QSMessages.errorShopInsufficientFunds(user, shop);
-                case CUSTOMER_INSUFFICIENT_ITEMS -> QSMessages.errorCustomerInsufficientItems(user, shop);
+                case SHOP_INVENTORY_FULL -> this.translations.tradeErrorShopInventoryFull(user, placeholders);
+                case SHOP_INSUFFICIENT_FUNDS -> this.translations.tradeErrorShopInsufficientFunds(user, placeholders);
+                case CUSTOMER_INSUFFICIENT_ITEMS -> this.translations.tradeErrorCustomerInsufficientItems(user, placeholders);
                 case CUSTOMER_INVENTORY_FULL, SHOP_OUT_OF_STOCK, CUSTOMER_INSUFFICIENT_FUNDS -> null; // 売却時には発生しない
             };
             if (message != null) {
@@ -107,8 +107,8 @@ public final class TradeSellDialog {
                 .action(DialogAction.customClick((response, audience) -> {
                     final int quantity = Objects.requireNonNull(response.getFloat(DialogInputKeys.TRADE_QUANTITY)).intValue();
                     final var result = TradeService.sell(user, shop, quantity);
-                    if (result instanceof Result.Error<Void, ShopFailure.ShopNotFound>(final var failure)) {
-                        final Component message = this.translations.shopModificationFailedShopNotFound(user, placeholders, failure);
+                    if (result instanceof Result.Error<Void, ShopFailure.ShopNotFound>(final var shopFailure)) {
+                        final Component message = this.translations.shopModificationFailedShopNotFound(user, placeholders, shopFailure);
                         user.sendMessage(message);
                     }
                 }, callbackOptions))

@@ -62,6 +62,7 @@ public final class ShopModificationDialog {
         final TagResolver placeholders = TagResolver.builder()
                 .resolver(this.shopTagMapper.shopPlaceholders(shop))
                 .resolver(this.shopTagMapper.itemPlaceholders(shop.component().product()))
+                .resolver(ShopTagMapper.quickshopPlaceholders())
                 .build();
 
         return Dialog.create(db -> db.empty()

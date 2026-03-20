@@ -26,12 +26,12 @@ import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSMessages;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.ShopConverter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
+import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import java.util.List;
 import net.kyori.adventure.dialog.DialogLike;
 import org.bukkit.block.Container;
@@ -46,10 +46,16 @@ public final class TradeDialogHandler implements InteractionBehavior {
 
     private static final String IDENTIFIER = "TRADE_DIALOG";
 
+    private final Translations translations;
     private final TradePurchaseDialog purchaseDialog;
     private final TradeSellDialog sellDialog;
 
-    public TradeDialogHandler(final TradePurchaseDialog purchaseDialog, final TradeSellDialog sellDialog) {
+    public TradeDialogHandler(
+            final Translations translations,
+            final TradePurchaseDialog purchaseDialog,
+            final TradeSellDialog sellDialog
+    ) {
+        this.translations = translations;
         this.purchaseDialog = purchaseDialog;
         this.sellDialog = sellDialog;
     }
@@ -83,7 +89,7 @@ public final class TradeDialogHandler implements InteractionBehavior {
         final ShopComponent shopComponent = ShopConverter.toShopComponent(qsShop);
 
         if (!shopComponent.available()) {
-            customer.sendMessage(QSMessages.errorShopUnavailable(customer));
+            customer.sendMessage(this.translations.tradeErrorShopUnavailable(customer));
             return;
         }
 

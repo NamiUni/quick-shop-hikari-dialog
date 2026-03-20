@@ -104,6 +104,7 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
     @Override
     public JavaPlugin createPlugin(final PluginProviderContext context) {
         return new QSHDialogPlugin(
+                this.translations,
                 this.shopCreationDialog,
                 this.shopModificationDialog,
                 this.tradePurchaseDialog,
