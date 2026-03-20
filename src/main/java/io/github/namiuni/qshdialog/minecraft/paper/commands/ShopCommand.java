@@ -186,7 +186,13 @@ public final class ShopCommand implements QSHCommand {
                         return SINGLE_FAILED;
                     }
 
-                    final Optional<ShopBlock> shopOpt = this.shopService.findShop(target.getLocation());
+                    final Container container = resolveContainer(target);
+                    if (container == null) {
+                        user.sendMessage(this.translations.shopCommandInvalidBlock(user));
+                        return SINGLE_FAILED;
+                    }
+
+                    final Optional<ShopBlock> shopOpt = this.shopService.findShop(container.getLocation());
                     if (shopOpt.isEmpty()) {
                         user.sendMessage(this.translations.shopModificationCommandShopNotFound(user));
                         return SINGLE_FAILED;
