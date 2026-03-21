@@ -279,6 +279,10 @@ public final class Translations {
         return this.translate("qsh_dialog.shop.creation.failure.container_not_found", user, placeholders);
     }
 
+    public Component shopCreationLimitReached(final UserSession user) {
+        return this.translate("qsh_dialog.shop.creation.failure.limit_reached", user);
+    }
+
     public Component shopCreationFailedPriceInvalid(final UserSession user, final TagResolver placeholders, final String input) {
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)

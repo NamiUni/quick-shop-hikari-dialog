@@ -32,9 +32,11 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.S
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopCreationFilter;
+import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import java.util.Optional;
 import java.util.Set;
 import net.kyori.adventure.dialog.DialogLike;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -53,9 +55,11 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
 
     private static final String IDENTIFIER = "CREATION_DIALOG";
 
+    private final Translations translations;
     private final ShopCreationDialog shopCreationDialog;
 
-    public ShopCreationDialogHandler(final ShopCreationDialog shopCreationDialog) {
+    public ShopCreationDialogHandler(final Translations translations, final ShopCreationDialog shopCreationDialog) {
+        this.translations = translations;
         this.shopCreationDialog = shopCreationDialog;
     }
 
@@ -92,6 +96,12 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
         }
 
         if (!ShopCreationFilter.isCreationAllowed(clickedBlock.getWorld(), handItem)) {
+            return;
+        }
+
+        if (ShopCreationFilter.isLimitReached(user)) {
+            final Component message = this.translations.shopCreationLimitReached(user);
+            user.sendMessage(message);
             return;
         }
 
@@ -142,7 +152,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final Block clickedBlock,
             final Sign sign,
             final ItemStack handItem,
-            final Set<Material> allowedBlocks     // ← 引数追加
+            final Set<Material> allowedBlocks
     ) {
         if (!(sign.getBlockData() instanceof WallSign wallSign)) {
             return Optional.empty();

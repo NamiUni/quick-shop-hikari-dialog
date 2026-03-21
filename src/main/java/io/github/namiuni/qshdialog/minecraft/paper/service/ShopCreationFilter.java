@@ -19,8 +19,13 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.service;
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
+import dev.dejvokep.boostedyaml.route.Route;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import java.util.List;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
@@ -36,6 +41,20 @@ public final class ShopCreationFilter {
 
     public static boolean isCreationAllowed(final World world, final ItemStack handItem) {
         return isWorldAllowed(world) && isItemAllowed(handItem);
+    }
+
+    public static boolean isLimitReached(final UserSession user) {
+        if (!QSConfigurations.isShopLimitEnabled()) {
+            return false;
+        }
+        final int limit = resolvePlayerShopLimit(user);
+        final UUID playerUuid = user.uuid();
+        final boolean oldAlgorithm = QSConfigurations.isShopLimitOldAlgorithm();
+        final long shopCount = QuickShops.shopManager().getAllShops().stream()
+                .filter(shop -> playerUuid.equals(shop.getOwner().getUniqueId()))
+                .filter(shop -> oldAlgorithm || !shop.isUnlimited())
+                .count();
+        return shopCount >= limit;
     }
 
     private static boolean isWorldAllowed(final World world) {
@@ -70,5 +89,21 @@ public final class ShopCreationFilter {
         return lore.stream()
                 .map(serializer::serialize)
                 .noneMatch(line -> blacklistLore.stream().anyMatch(line::contains));
+    }
+
+    private static int resolvePlayerShopLimit(final UserSession user) {
+        final int defaultLimit = QSConfigurations.shopDefaultLimit();
+        final Section ranksSection = QuickShops.configuration().getSection("limits.ranks");
+        if (ranksSection == null) {
+            return defaultLimit;
+        }
+        return Math.max(
+                defaultLimit,
+                ranksSection.getRoutesAsStrings(false).stream()
+                        .filter(user::hasPermission)
+                        .mapToInt(permission -> ranksSection.getInt(Route.fromSingleKey(permission), 0))
+                        .max()
+                        .orElse(0)
+        );
     }
 }

@@ -94,4 +94,16 @@ public final class QSConfigurations {
     public static List<String> blacklistLore() {
         return QuickShops.configuration().getStringList("shop.blacklist-lores");
     }
+
+    public static boolean isShopLimitEnabled() {
+        return QuickShops.configuration().getBoolean("limits.use", false);
+    }
+
+    public static int shopDefaultLimit() {
+        return QuickShops.configuration().getInt("limits.default", 10);
+    }
+
+    public static boolean isShopLimitOldAlgorithm() {
+        return QuickShops.configuration().getBoolean("limits.old-algorithm", false);
+    }
 }

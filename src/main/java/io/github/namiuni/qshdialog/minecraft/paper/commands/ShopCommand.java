@@ -118,6 +118,11 @@ public final class ShopCommand implements QSHCommand {
                         return SINGLE_FAILED;
                     }
 
+                    if (ShopCreationFilter.isLimitReached(user)) {
+                        user.sendMessage(this.translations.shopCreationLimitReached(user));
+                        return SINGLE_FAILED;
+                    }
+
                     final ShopBlock shop = resolveShopBlockForCreation(user, target);
                     if (shop == null) {
                         user.sendMessage(this.translations.shopCommandInvalidBlock(user));

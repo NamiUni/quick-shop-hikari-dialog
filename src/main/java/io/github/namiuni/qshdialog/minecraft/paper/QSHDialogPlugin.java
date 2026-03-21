@@ -57,7 +57,7 @@ public final class QSHDialogPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         final var shopModificationDialogHandler = new ShopModificationDialogHandler(this.shopModificationDialog);
-        final var shopCreationDialogHandler = new ShopCreationDialogHandler(this.shopCreationDialog);
+        final var shopCreationDialogHandler = new ShopCreationDialogHandler(this.translations, this.shopCreationDialog);
         final var tradeDialogHandler = new TradeDialogHandler(this.translations, this.tradePurchaseDialog, this.tradeSellDialog);
 
         QuickShops.interactionManager().behavior(shopModificationDialogHandler);
