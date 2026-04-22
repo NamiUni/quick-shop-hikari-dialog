@@ -127,7 +127,7 @@ public final class ShopModificationDialog {
                 }
                 case PRODUCT_QUANTITY -> {
                     if (QSConfigurations.supportsBulkTransaction()) {
-                        if (user.bukkit().orElseThrow().isOp() || isStaff && user.hasPermission(QSPermissions.SHOP_PRODUCT_QUANTITY)) {
+                        if (isStaff && user.hasPermission(QSPermissions.SHOP_PRODUCT_QUANTITY)) {
                             final int maxStackSize = Objects.requireNonNullElse(
                                     shopComponent.product().getData(DataComponentTypes.MAX_STACK_SIZE),
                                     shopComponent.product().getMaxStackSize()

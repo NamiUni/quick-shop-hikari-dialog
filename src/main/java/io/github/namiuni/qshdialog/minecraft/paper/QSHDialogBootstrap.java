@@ -87,13 +87,11 @@ public final class QSHDialogBootstrap implements PluginBootstrap {
                 shopTagMapper
         );
         this.tradePurchaseDialog = new TradePurchaseDialog(
-                this.primaryConfig,
                 this.translations,
                 tradeInputs,
                 shopTagMapper
         );
         this.tradeSellDialog = new TradeSellDialog(
-                this.primaryConfig,
                 this.translations,
                 tradeInputs,
                 shopTagMapper

@@ -79,7 +79,7 @@ public final class ShopTagMapper {
                 .resolver(Placeholder.parsed("shop_name", Objects.requireNonNullElse(shopComponent.name(), "")))
                 .resolver(Placeholder.parsed("shop_name_or_default", nameOrDefault))
                 .resolver(Placeholder.parsed("shop_currency", shopComponent.currency() == null ? "" : shopComponent.currency()))
-                .resolver(Placeholder.parsed("shop_display_visible", String.valueOf(!shopComponent.displayVisible())))
+                .resolver(Placeholder.parsed("shop_display_visible", String.valueOf(shopComponent.displayVisible())))
                 .resolver(Placeholder.parsed("shop_infinite_stock", String.valueOf(shopComponent.infiniteStock())))
                 .resolver(Placeholder.parsed("shop_stock", String.valueOf(ShopInventory.stockCount(shop))))
                 .resolver(Placeholder.parsed("shop_space", String.valueOf(ShopInventory.spaceCount(shop))))
