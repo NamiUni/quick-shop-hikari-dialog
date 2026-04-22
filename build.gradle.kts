@@ -39,7 +39,7 @@ dependencies {
     implementation("net.kyori:adventure-serializer-configurate4:4.25.0")
 
     // Quick Shop
-    compileOnly("dev.dejvokep:boosted-yaml:1.3.6")
+    compileOnly("dev.dejvokep:boosted-yaml:1.3.7")
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
     compileOnly("com.ghostchu:quickshop-api:6.2.0.11")
     compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11")
