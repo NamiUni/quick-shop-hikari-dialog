@@ -20,8 +20,6 @@
 package io.github.namiuni.qshdialog.minecraft.paper.dialog;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.TradeInputs;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.EconomyFormatter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
@@ -54,18 +52,15 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("UnstableApiUsage")
 public final class TradePurchaseDialog {
 
-    private final ConfigurationHolder<PrimaryConfiguration> configHolder;
     private final Translations translations;
     private final TradeInputs tradeInputs;
     private final ShopTagMapper shopTagMapper;
 
     public TradePurchaseDialog(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
             final Translations translations,
             final TradeInputs tradeInputs,
             final ShopTagMapper shopTagMapper
     ) {
-        this.configHolder = configHolder;
         this.translations = translations;
         this.tradeInputs = tradeInputs;
         this.shopTagMapper = shopTagMapper;

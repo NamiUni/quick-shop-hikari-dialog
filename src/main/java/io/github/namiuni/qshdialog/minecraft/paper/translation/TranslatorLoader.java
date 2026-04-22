@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -45,6 +45,7 @@ import org.jspecify.annotations.NullMarked;
 public final class TranslatorLoader {
 
     private static final Set<Locale> INCLUDED_BUNDLE_LOCALES = Set.of(Locale.US, Locale.JAPAN);
+    private static final String BUNDLE_PREFIX = "messages_";
     private static final Key STORE_NAME = Key.key("qsh_dialog", "translations");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
             .tags(TagResolver.builder()
@@ -67,8 +68,11 @@ public final class TranslatorLoader {
 
         try (Stream<Path> pathStream = Files.list(translationDirectory)) {
             pathStream.filter(Files::isRegularFile)
-                    .filter(file -> file.toString().endsWith(".properties"))
+                    .filter(file -> file.getFileName().toString().endsWith(".properties"))
+                    .filter(file -> file.getFileName().toString().startsWith(BUNDLE_PREFIX))
                     .map(LocaleBundlePair::of)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
                     .forEach(localeBundlePair -> {
                         store.registerAll(localeBundlePair.locale, localeBundlePair.bundlePath, false);
                         installedLocales.add(localeBundlePair.locale);
@@ -97,12 +101,22 @@ public final class TranslatorLoader {
     }
 
     private record LocaleBundlePair(Locale locale, Path bundlePath) {
-        static LocaleBundlePair of(final Path translationFile) {
-            final String localeString = translationFile.getFileName().toString()
-                    .substring("messages_".length())
+
+        static Optional<LocaleBundlePair> of(final Path translationFile) {
+            final String fileName = translationFile.getFileName().toString();
+            final String localeString = fileName
+                    .substring(BUNDLE_PREFIX.length())
                     .replace(".properties", "");
-            final Locale locale = Objects.requireNonNull(Translator.parseLocale(localeString));
-            return new LocaleBundlePair(locale, translationFile);
+
+            final Locale locale = Translator.parseLocale(localeString);
+            if (locale == null) {
+                QSHDialogLogger.logger().warn(
+                        "Skipping translation file '{}': '{}' is not a valid locale identifier.",
+                        fileName, localeString);
+                return Optional.empty();
+            }
+
+            return Optional.of(new LocaleBundlePair(locale, translationFile));
         }
     }
 }
