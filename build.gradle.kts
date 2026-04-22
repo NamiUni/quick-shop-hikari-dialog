@@ -11,10 +11,10 @@ plugins {
 }
 
 group = "io.github.namiuni"
-version = "1.0.2"
+version = "1.0.3"
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 checkstyle {

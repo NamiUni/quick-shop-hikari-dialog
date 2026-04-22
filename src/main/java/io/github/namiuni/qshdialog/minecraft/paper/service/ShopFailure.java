@@ -24,9 +24,12 @@ import java.math.BigDecimal;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public sealed interface ShopFailure permits ShopFailure.ContainerNotFound, ShopFailure.OperatorInsufficientFunds, ShopFailure.PriceOutOfRange, ShopFailure.ShopNotFound {
+public sealed interface ShopFailure permits ShopFailure.ContainerNotFound, ShopFailure.CreationCancelled, ShopFailure.OperatorInsufficientFunds, ShopFailure.PriceOutOfRange, ShopFailure.ShopNotFound {
 
     record ContainerNotFound() implements ShopFailure {
+    }
+
+    record CreationCancelled() implements ShopFailure {
     }
 
     record OperatorInsufficientFunds(BigDecimal totalCost) implements ShopFailure {

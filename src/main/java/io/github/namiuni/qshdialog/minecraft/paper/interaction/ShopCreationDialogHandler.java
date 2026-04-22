@@ -86,8 +86,6 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
-        interactEvent.setCancelled(true);
-
         final ItemStack handItem = interactEvent.getItem();
         final Block clickedBlock = interactEvent.getClickedBlock();
 
@@ -99,17 +97,21 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
+        final Optional<ShopBlock> resolvedShopOpt = resolveShopBlock(user, clickedObject, clickedBlock, handItem);
+        if (resolvedShopOpt.isEmpty()) {
+            return;
+        }
+
+        interactEvent.setCancelled(true);
+
         if (ShopCreationFilter.isLimitReached(user)) {
             final Component message = this.translations.shopCreationLimitReached(user);
             user.sendMessage(message);
             return;
         }
 
-        resolveShopBlock(user, clickedObject, clickedBlock, handItem)
-                .ifPresent(resolvedShop -> {
-                    final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShop);
-                    user.showDialog(dialog);
-                });
+        final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShopOpt.get());
+        user.showDialog(dialog);
     }
 
     private static Optional<ShopBlock> resolveShopBlock(

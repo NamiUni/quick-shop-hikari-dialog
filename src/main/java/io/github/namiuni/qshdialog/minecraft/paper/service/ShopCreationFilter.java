@@ -97,13 +97,13 @@ public final class ShopCreationFilter {
         if (ranksSection == null) {
             return defaultLimit;
         }
-        return Math.max(
-                defaultLimit,
-                ranksSection.getRoutesAsStrings(false).stream()
-                        .filter(user::hasPermission)
-                        .mapToInt(permission -> ranksSection.getInt(Route.fromSingleKey(permission), 0))
-                        .max()
-                        .orElse(0)
-        );
+
+        final int rankLimit = ranksSection.getRoutesAsStrings(false).stream()
+                .filter(user::hasPermission)
+                .mapToInt(permission -> ranksSection.getInt(Route.from(permission)))
+                .max()
+                .orElse(0);
+
+        return Math.max(defaultLimit, rankLimit);
     }
 }

@@ -121,7 +121,11 @@ public final class TradeQuantityCalculator {
         if (price.compareTo(BigDecimal.ZERO) <= 0) {
             return Integer.MAX_VALUE;
         }
-        return balance.divide(price, 0, RoundingMode.FLOOR).intValue();
+        final BigDecimal quotient = balance.divide(price, 0, RoundingMode.FLOOR);
+        if (quotient.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) >= 0) {
+            return Integer.MAX_VALUE;
+        }
+        return quotient.intValue();
     }
 
     private static int matchingItemCount(

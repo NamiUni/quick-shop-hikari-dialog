@@ -20,8 +20,6 @@
 package io.github.namiuni.qshdialog.minecraft.paper.dialog;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.TradeInputs;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.EconomyFormatter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
@@ -54,18 +52,15 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("UnstableApiUsage")
 public final class TradeSellDialog {
 
-    private final ConfigurationHolder<PrimaryConfiguration> configHolder;
     private final Translations translations;
     private final TradeInputs tradeInputs;
     private final ShopTagMapper shopTagMapper;
 
     public TradeSellDialog(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
             final Translations translations,
             final TradeInputs tradeInputs,
             final ShopTagMapper shopTagMapper
     ) {
-        this.configHolder = configHolder;
         this.translations = translations;
         this.tradeInputs = tradeInputs;
         this.shopTagMapper = shopTagMapper;
@@ -111,7 +106,7 @@ public final class TradeSellDialog {
                 .lifetime(ClickCallback.DEFAULT_LIFETIME)
                 .build();
         final var confirmButton = ActionButton.builder(this.translations.tradeSellConfirmButton(user, placeholders))
-                .action(DialogAction.customClick((response, audience) -> {
+                .action(DialogAction.customClick((response, _) -> {
                     final int quantity = Objects.requireNonNull(response.getFloat(DialogInputKeys.TRADE_QUANTITY)).intValue();
                     final var result = TradeService.sell(user, shop, quantity);
                     if (result instanceof Result.Error<Void, ShopFailure.ShopNotFound>(final var shopFailure)) {
