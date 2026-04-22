@@ -60,7 +60,6 @@ public final class ShopService {
     // Mutation
     // -------------------------------------------------------------------------
 
-    // TODO: 同一コンテナへの重複ショップ作成を防ぐエラーが必要か確認する
     public Result<ShopSuccess, Set<ShopFailure>> createShop(final UserSession user, final ShopBlock shop) {
         final ShopComponent shopComponent = shop.component();
         final Set<ShopFailure> failures = new HashSet<>();
@@ -68,17 +67,27 @@ public final class ShopService {
         validatePriceRange(user, shopComponent, failures);
 
         final String world = shopComponent.location().getWorld().getName();
-        // 作成時は名前の有無にかかわらず命名コストが発生する可能性があるため、常に計上する
+
         final BigDecimal totalCost = QSConfigurations.shopCreateCost()
-                .add(namingCost(user));
+                .add(hasName(shopComponent) ? namingCost(user) : BigDecimal.ZERO);
         validateBalance(user, world, totalCost, failures);
 
         if (!failures.isEmpty()) {
             return Result.error(failures);
         }
 
-        user.withdrawMoney(totalCost, world);
         ShopRepository.create(shop);
+
+        final boolean created = ShopRepository.find(shopComponent.location()).isPresent();
+        if (!created) {
+            failures.add(new ShopFailure.CreationCancelled());
+            return Result.error(failures);
+        }
+
+        if (totalCost.compareTo(BigDecimal.ZERO) > 0) {
+            user.withdrawMoney(totalCost, world);
+        }
+
         return Result.success(new ShopSuccess(totalCost));
     }
 
@@ -93,11 +102,12 @@ public final class ShopService {
         final Optional<ShopBlock> existing = ShopRepository.find(shopComponent.id());
         final BigDecimal priceChangeCost = existing
                 .filter(e -> shopComponent.price().compareTo(e.component().price()) == 0)
-                .map(e -> BigDecimal.ZERO).orElse(QSConfigurations.shopPriceChangeCost());
+                .map(_ -> BigDecimal.ZERO).orElse(QSConfigurations.shopPriceChangeCost());
 
         final BigDecimal namingCost = existing
-                .filter(e -> Objects.equals(shopComponent.name(), e.component().name()))
-                .map(e -> BigDecimal.ZERO).orElse(namingCost(user));
+                .filter(shopBlock -> Objects.equals(shopComponent.name(), shopBlock.component().name()))
+                .map(_ -> BigDecimal.ZERO)
+                .orElse(hasName(shopComponent) ? namingCost(user) : BigDecimal.ZERO);
 
         final BigDecimal totalCost = priceChangeCost.add(namingCost);
         validateBalance(user, world, totalCost, failures);
@@ -106,7 +116,6 @@ public final class ShopService {
             return Result.error(failures);
         }
 
-        // update を先に試みて、成功した場合のみ課金する（失敗時の課金を防ぐ）
         try {
             ShopRepository.update(shop);
             if (totalCost.compareTo(BigDecimal.ZERO) != 0) {
@@ -144,12 +153,17 @@ public final class ShopService {
             final Set<ShopFailure> failures
     ) {
         if (totalCost.compareTo(BigDecimal.ZERO) <= 0) {
-            return; // 無料なら残高チェック不要
+            return;
         }
         final BigDecimal balance = user.balance(world, QSConfigurations.getCurrency());
         if (balance.compareTo(totalCost) < 0) {
             failures.add(new ShopFailure.OperatorInsufficientFunds(totalCost));
         }
+    }
+
+    private static boolean hasName(final ShopComponent shopComponent) {
+        final String name = shopComponent.name();
+        return name != null && !name.isEmpty();
     }
 
     private static BigDecimal namingCost(final UserSession user) {
