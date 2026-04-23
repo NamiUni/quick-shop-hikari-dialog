@@ -20,6 +20,8 @@
 package io.github.namiuni.qshdialog.minecraft.paper.interaction;
 
 import com.ghostchu.quickshop.api.QuickShopAPI;
+import com.ghostchu.quickshop.api.event.Phase;
+import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
@@ -110,8 +112,11 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
-        final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShopOpt.get());
-        user.showDialog(dialog);
+        final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, user.qsUser(), resolvedShopOpt.get().component().location());
+        if (event.callEvent()) {
+            final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShopOpt.get());
+            user.showDialog(dialog);
+        }
     }
 
     private static Optional<ShopBlock> resolveShopBlock(
