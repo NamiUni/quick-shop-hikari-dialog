@@ -45,7 +45,7 @@ dependencies {
     compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11")
 
     // Integrations
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.1.0")
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.0")
 
     // Misc
     implementation("com.github.sviperll:result4j:1.2.0")
