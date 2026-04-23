@@ -20,6 +20,7 @@
 package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop;
 
 import com.ghostchu.quickshop.QuickShop;
+import com.ghostchu.quickshop.api.RankLimiter;
 import com.ghostchu.quickshop.api.economy.EconomyProvider;
 import com.ghostchu.quickshop.api.inventory.InventoryWrapperManager;
 import com.ghostchu.quickshop.api.localization.text.TextManager;
@@ -61,5 +62,9 @@ public final class QuickShops {
 
     public static InteractionManager interactionManager() {
         return quickShop().getInteractionManager();
+    }
+
+    public static RankLimiter rankLimiter() {
+        return quickShop().getRankLimiter();
     }
 }

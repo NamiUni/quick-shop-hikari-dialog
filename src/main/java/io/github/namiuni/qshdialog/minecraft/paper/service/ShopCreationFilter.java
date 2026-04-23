@@ -19,11 +19,11 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.service;
 
+import io.github.namiuni.qshdialog.common.utilities.QSHDialogLogger;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -46,13 +46,15 @@ public final class ShopCreationFilter {
         if (!QSConfigurations.isShopLimitEnabled()) {
             return false;
         }
-        final int limit = resolvePlayerShopLimit(user);
+        final int limit = QuickShops.rankLimiter().getShopLimit(user.qsUser());
         final UUID playerUuid = user.uuid();
         final boolean oldAlgorithm = QSConfigurations.isShopLimitOldAlgorithm();
         final long shopCount = QuickShops.shopManager().getAllShops().stream()
                 .filter(shop -> playerUuid.equals(shop.getOwner().getUniqueId()))
                 .filter(shop -> oldAlgorithm || !shop.isUnlimited())
                 .count();
+        QSHDialogLogger.logger().debug("{}'s shop count: {}", user.name(), shopCount);
+        QSHDialogLogger.logger().debug("{}'s shop limit: {}", user.name(), limit);
         return shopCount >= limit;
     }
 
@@ -86,16 +88,5 @@ public final class ShopCreationFilter {
         return lore.stream()
                 .map(serializer::serialize)
                 .noneMatch(line -> blacklistLore.stream().anyMatch(line::contains));
-    }
-
-    private static int resolvePlayerShopLimit(final UserSession user) {
-        final int defaultLimit = QSConfigurations.shopDefaultLimit();
-        final int rankLimit = QSConfigurations.shopPermissionsLimit().entrySet().stream()
-                .filter(entry -> user.hasPermission(entry.getKey()))
-                .mapToInt(Map.Entry::getValue)
-                .max()
-                .orElse(0);
-
-        return Math.max(defaultLimit, rankLimit);
     }
 }

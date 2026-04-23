@@ -95,6 +95,7 @@ tasks {
 
     runServer {
         minecraftVersion("1.21.11")
+        systemProperty("log4j.configurationFile", "log4j2.xml")
         downloadPlugins {
             modrinth("luckperms", "v5.5.17-bukkit")
             modrinth("miniplaceholders", "4zOT6txC")

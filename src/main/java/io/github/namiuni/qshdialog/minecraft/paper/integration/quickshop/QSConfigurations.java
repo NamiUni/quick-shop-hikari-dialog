@@ -21,11 +21,9 @@ package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop;
 
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.serializer.BigDecimalSerializer;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.serializer.MaterialSerializer;
-import io.leangen.geantyref.TypeToken;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.Material;
 import org.jspecify.annotations.NullMarked;
@@ -72,7 +70,7 @@ public final class QSConfigurations {
     }
 
     public static boolean supportsBulkTransaction() {
-        return CONFIG_NODE.get().node("shop", "allow-stacks").getBoolean(false);
+        return QuickShops.quickShop().isAllowStack();
     }
 
     public static int shopNameMaxLength() {
@@ -160,22 +158,7 @@ public final class QSConfigurations {
         return CONFIG_NODE.get().node("limits", "use").getBoolean(false);
     }
 
-    public static int shopDefaultLimit() {
-        return CONFIG_NODE.get().node("limits", "default").getInt(10);
-    }
-
     public static boolean isShopLimitOldAlgorithm() {
         return CONFIG_NODE.get().node("limits", "old-algorithm").getBoolean(false);
-    }
-
-    public static Map<String, Integer> shopPermissionsLimit() {
-        try {
-            return CONFIG_NODE.get().node("limits", "ranks").get(
-                    new TypeToken<>() { },
-                    Map.of("quickshop.example", 10)
-            );
-        } catch (final SerializationException exception) {
-            throw new UncheckedIOException(exception);
-        }
     }
 }
