@@ -37,7 +37,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("org.spongepowered:configurate-hocon:4.2.0")
     compileOnly("org.spongepowered:configurate-yaml:4.2.0")
-    implementation("net.kyori:adventure-serializer-configurate4:4.26.1")
+    implementation("net.kyori:adventure-serializer-configurate4:5.0.1")
 
     // Quick Shop
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
