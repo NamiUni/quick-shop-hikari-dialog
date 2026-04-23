@@ -24,6 +24,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
 import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.permission.Permissions;
 import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import io.github.namiuni.qshdialog.minecraft.paper.translation.TranslatorHolder;
@@ -62,6 +63,8 @@ public final class AdminCommand implements QSHCommand {
                         .requires(Commands.restricted(source -> source.getSender().hasPermission(Permissions.COMMAND_RELOAD)))
                         .executes(context -> {
                             final CommandSender commandSender = context.getSource().getSender();
+
+                            QSConfigurations.reload();
 
                             switch (this.configHolder.reload()) {
                                 case Result.Success<PrimaryConfiguration, ConfigurateException>(PrimaryConfiguration ignored) -> {
