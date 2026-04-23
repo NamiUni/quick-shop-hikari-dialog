@@ -68,8 +68,8 @@ public final class ShopService {
 
         final String world = shopComponent.location().getWorld().getName();
 
-        final BigDecimal totalCost = QSConfigurations.shopCreateCost()
-                .add(hasName(shopComponent) ? namingCost(user) : BigDecimal.ZERO);
+        final BigDecimal namingFee = hasName(shopComponent) ? namingCost(user) : BigDecimal.ZERO;
+        final BigDecimal totalCost = QSConfigurations.shopCreateCost().add(namingFee);
         validateBalance(user, world, totalCost, failures);
 
         if (!failures.isEmpty()) {
@@ -84,7 +84,7 @@ public final class ShopService {
             return Result.error(failures);
         }
 
-        if (totalCost.compareTo(BigDecimal.ZERO) > 0) {
+        if (0 < totalCost.compareTo(BigDecimal.ZERO)) {
             user.withdrawMoney(totalCost, world);
         }
 

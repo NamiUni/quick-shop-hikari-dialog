@@ -19,6 +19,8 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.commands;
 
+import com.ghostchu.quickshop.api.event.Phase;
+import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -135,8 +137,14 @@ public final class ShopCommand implements QSHCommand {
                         return SINGLE_FAILED;
                     }
 
-                    user.showDialog(this.creationDialog.createDialog(user, shop));
-                    return Command.SINGLE_SUCCESS;
+                    final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, user.qsUser(), shop.component().location());
+                    if (event.callEvent()) {
+                        final DialogLike dialog = this.creationDialog.createDialog(user, shop);
+                        user.showDialog(dialog);
+                        return Command.SINGLE_SUCCESS;
+                    }
+
+                    return SINGLE_FAILED;
                 })
                 .build();
     }

@@ -19,12 +19,11 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.service;
 
-import dev.dejvokep.boostedyaml.block.implementation.Section;
-import dev.dejvokep.boostedyaml.route.Route;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -60,10 +59,8 @@ public final class ShopCreationFilter {
     private static boolean isWorldAllowed(final World world) {
         final List<String> whitelist = QSConfigurations.whitelistWorlds();
         if (!whitelist.isEmpty()) {
-            // whitelist が設定されている場合は優先。未掲載ワールドは全拒否
             return whitelist.contains(world.getName());
         }
-        // whitelist が空の場合のみ blacklist を参照
         return !QSConfigurations.blacklistWorlds().contains(world.getName());
     }
 
@@ -93,14 +90,9 @@ public final class ShopCreationFilter {
 
     private static int resolvePlayerShopLimit(final UserSession user) {
         final int defaultLimit = QSConfigurations.shopDefaultLimit();
-        final Section ranksSection = QuickShops.configuration().getSection("limits.ranks");
-        if (ranksSection == null) {
-            return defaultLimit;
-        }
-
-        final int rankLimit = ranksSection.getRoutesAsStrings(false).stream()
-                .filter(user::hasPermission)
-                .mapToInt(permission -> ranksSection.getInt(Route.from(permission)))
+        final int rankLimit = QSConfigurations.shopPermissionsLimit().entrySet().stream()
+                .filter(entry -> user.hasPermission(entry.getKey()))
+                .mapToInt(Map.Entry::getValue)
                 .max()
                 .orElse(0);
 

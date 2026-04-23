@@ -36,10 +36,10 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     implementation("org.spongepowered:configurate-hocon:4.2.0")
-    implementation("net.kyori:adventure-serializer-configurate4:4.25.0")
+    compileOnly("org.spongepowered:configurate-yaml:4.2.0")
+    implementation("net.kyori:adventure-serializer-configurate4:4.26.1")
 
     // Quick Shop
-    compileOnly("dev.dejvokep:boosted-yaml:1.3.6")
     compileOnly("com.ghostchu:simplereloadlib:1.1.2")
     compileOnly("com.ghostchu:quickshop-api:6.2.0.11")
     compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11")
@@ -101,7 +101,7 @@ tasks {
             modrinth("quickshop-hikari", "6.2.0.11")
             url("https://github.com/dmulloy2/ProtocolLib/releases/download/dev-build/ProtocolLib.jar")
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
-            url("https://ci.minebench.de/job/FakeEconomy/lastSuccessfulBuild/artifact/target/FakeEconomy.jar")
+            url("https://ci.minebench.de/job/craftconomy3/lastSuccessfulBuild/artifact/build/libs/CraftConomy3.jar")
         }
     }
 }

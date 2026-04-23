@@ -26,7 +26,6 @@ import com.ghostchu.quickshop.api.localization.text.TextManager;
 import com.ghostchu.quickshop.api.shop.ItemMatcher;
 import com.ghostchu.quickshop.api.shop.ShopManager;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionManager;
-import dev.dejvokep.boostedyaml.YamlDocument;
 import java.util.Objects;
 import org.jspecify.annotations.NullMarked;
 
@@ -38,10 +37,6 @@ public final class QuickShops {
 
     public static QuickShop quickShop() {
         return QuickShop.getInstance();
-    }
-
-    public static YamlDocument configuration() {
-        return quickShop().getConfig();
     }
 
     public static InventoryWrapperManager inventoryWrapperManager() {
