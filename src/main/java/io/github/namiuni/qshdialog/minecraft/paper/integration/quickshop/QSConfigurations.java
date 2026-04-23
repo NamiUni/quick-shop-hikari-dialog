@@ -19,19 +19,52 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop;
 
+import io.github.namiuni.qshdialog.minecraft.paper.configuration.serializer.BigDecimalSerializer;
+import io.github.namiuni.qshdialog.minecraft.paper.configuration.serializer.MaterialSerializer;
+import io.leangen.geantyref.TypeToken;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.Material;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 @NullMarked
 public final class QSConfigurations {
 
+    private static final YamlConfigurationLoader LOADER = YamlConfigurationLoader.builder()
+            .path(QuickShops.quickShop().getJavaPlugin().getDataPath().resolve("config.yml"))
+            .defaultOptions(options -> options
+                    .serializers(builder -> builder
+                            .register(Material.class, MaterialSerializer.INSTANCE)
+                            .register(BigDecimal.class, BigDecimalSerializer.INSTANCE)
+                    ))
+            .build();
+    private static final AtomicReference<ConfigurationNode> CONFIG_NODE;
+
+    static {
+        try {
+            CONFIG_NODE = new AtomicReference<>(LOADER.load());
+        } catch (final ConfigurateException exception) {
+            throw new UncheckedIOException("Failed to load QuickShop-Hikari configuration", exception);
+        }
+    }
+
     private QSConfigurations() {
+    }
+
+    public static void reload() {
+        try {
+            CONFIG_NODE.set(LOADER.load());
+        } catch (final ConfigurateException exception) {
+            throw new UncheckedIOException("Failed to load QuickShop-Hikari configuration", exception);
+        }
     }
 
     public static boolean supportsMultiCurrency() {
@@ -39,71 +72,110 @@ public final class QSConfigurations {
     }
 
     public static boolean supportsBulkTransaction() {
-        return QuickShops.configuration().getBoolean("shop.allow-stacks");
+        return CONFIG_NODE.get().node("shop", "allow-stacks").getBoolean(false);
     }
 
     public static int shopNameMaxLength() {
-        return QuickShops.configuration().getInt("shop.name-max-length", 32);
+        return CONFIG_NODE.get().node("shop", "name-max-length").getInt(32);
     }
 
     public static BigDecimal shopNamingCost() {
-        return BigDecimal.valueOf(QuickShops.configuration().getDouble("shop.name-fee", 0.0));
+        try {
+            return CONFIG_NODE.get().node("shop", "name-fee").get(BigDecimal.class, BigDecimal.valueOf(0.0));
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static BigDecimal shopCreateCost() {
-        return BigDecimal.valueOf(QuickShops.configuration().getDouble("shop.cost", 10.0));
+        try {
+            return CONFIG_NODE.get().node("shop", "cost").get(BigDecimal.class, BigDecimal.valueOf(10.0));
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static BigDecimal shopPriceChangeCost() {
-        if (!QuickShops.configuration().getBoolean("price-change-requires-fee", true)) {
+        final boolean requiresFee = CONFIG_NODE.get().node("shop", "price-change-requires-fee").getBoolean(true);
+        if (!requiresFee) {
             return BigDecimal.ZERO;
         }
-        return BigDecimal.valueOf(QuickShops.configuration().getDouble("shop.fee-for-price-change", 50.0));
+
+        try {
+            return CONFIG_NODE.get().node("shop", "fee-for-price-change").get(BigDecimal.class, BigDecimal.valueOf(50.0));
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static @Nullable String getCurrency() {
-        return QuickShops.configuration().getString("currency");
+        return CONFIG_NODE.get().node("currency").getString();
     }
 
     public static boolean requiresUnlimitedOwnerPayment() {
-        return QuickShops.configuration().getBoolean("shop.pay-unlimited-shop-owners");
+        return CONFIG_NODE.get().node("shop", "pay-unlimited-shop-owners").getBoolean(false);
     }
 
-    public static Set<Material> shopBlocks() {
-        return QuickShops.configuration().getStringList("shop-blocks").stream()
-                .map(Material::matchMaterial)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableSet());
+    public static List<Material> shopBlocks() {
+        try {
+            return CONFIG_NODE.get().node("shop-blocks").getList(Material.class, List.of());
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static List<String> whitelistWorlds() {
-        return QuickShops.configuration().getStringList("shop.whitelist-world");
+        try {
+            return CONFIG_NODE.get().node("shop", "whitelist-world").getList(String.class, List.of());
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static List<String> blacklistWorlds() {
-        return QuickShops.configuration().getStringList("shop.blacklist-world");
+        try {
+            return CONFIG_NODE.get().node("shop", "blacklist-world").getList(String.class, List.of());
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static List<Material> blacklistItems() {
-        return QuickShops.configuration().getStringList("blacklist").stream()
-                .map(Material::matchMaterial)
-                .filter(Objects::nonNull)
-                .toList();
+        try {
+            return CONFIG_NODE.get().node("blacklist").getList(Material.class, List.of());
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static List<String> blacklistLore() {
-        return QuickShops.configuration().getStringList("shop.blacklist-lores");
+        try {
+            return CONFIG_NODE.get().node("shop", "blacklist-lores").getList(String.class, List.of());
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 
     public static boolean isShopLimitEnabled() {
-        return QuickShops.configuration().getBoolean("limits.use", false);
+        return CONFIG_NODE.get().node("limits", "use").getBoolean(false);
     }
 
     public static int shopDefaultLimit() {
-        return QuickShops.configuration().getInt("limits.default", 10);
+        return CONFIG_NODE.get().node("limits", "default").getInt(10);
     }
 
     public static boolean isShopLimitOldAlgorithm() {
-        return QuickShops.configuration().getBoolean("limits.old-algorithm", false);
+        return CONFIG_NODE.get().node("limits", "old-algorithm").getBoolean(false);
+    }
+
+    public static Map<String, Integer> shopPermissionsLimit() {
+        try {
+            return CONFIG_NODE.get().node("limits", "ranks").get(
+                    new TypeToken<>() { },
+                    Map.of("quickshop.example", 10)
+            );
+        } catch (final SerializationException exception) {
+            throw new UncheckedIOException(exception);
+        }
     }
 }

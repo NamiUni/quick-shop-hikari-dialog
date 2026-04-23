@@ -33,8 +33,8 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.S
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopCreationFilter;
 import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -120,7 +120,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final Block clickedBlock,
             final ItemStack handItem
     ) {
-        final Set<Material> allowedBlocks = QSConfigurations.shopBlocks();
+        final List<Material> allowedBlocks = QSConfigurations.shopBlocks();
 
         if (clickedObject == InteractionClick.CONTAINER
                 && allowedBlocks.contains(clickedBlock.getType())
@@ -154,7 +154,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final Block clickedBlock,
             final Sign sign,
             final ItemStack handItem,
-            final Set<Material> allowedBlocks
+            final List<Material> allowedBlocks
     ) {
         if (!(sign.getBlockData() instanceof WallSign wallSign)) {
             return Optional.empty();
