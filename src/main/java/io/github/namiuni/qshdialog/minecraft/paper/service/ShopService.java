@@ -88,7 +88,14 @@ public final class ShopService {
             user.withdrawMoney(totalCost, world);
         }
 
-        return Result.success(new ShopSuccess(totalCost));
+        final int currentShopCount = QSConfigurations.isShopLimitEnabled()
+                ? ShopCreationFilter.currentShopCount(user)
+                : -1;
+        final int maxShopLimit = QSConfigurations.isShopLimitEnabled()
+                ? ShopCreationFilter.shopLimit(user)
+                : -1;
+
+        return Result.success(new ShopSuccess(totalCost, currentShopCount, maxShopLimit));
     }
 
     public Result<ShopSuccess, Set<ShopFailure>> updateShop(final UserSession user, final ShopBlock shop) {
@@ -127,7 +134,15 @@ public final class ShopService {
         }
 
         SignUpdater.update(shop, user.locale());
-        return Result.success(new ShopSuccess(totalCost));
+
+        final int shopCount = QSConfigurations.isShopLimitEnabled()
+                ? ShopCreationFilter.currentShopCount(user)
+                : -1;
+        final int shopLimit = QSConfigurations.isShopLimitEnabled()
+                ? ShopCreationFilter.shopLimit(user)
+                : -1;
+
+        return Result.success(new ShopSuccess(totalCost, shopCount, shopLimit));
     }
 
     // -------------------------------------------------------------------------

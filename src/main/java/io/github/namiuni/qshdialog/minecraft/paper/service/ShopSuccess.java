@@ -23,5 +23,5 @@ import java.math.BigDecimal;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public record ShopSuccess(BigDecimal paid) {
+public record ShopSuccess(BigDecimal paid, int shopCount, int shopLimit) {
 }

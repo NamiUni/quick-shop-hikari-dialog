@@ -180,7 +180,7 @@ public final class ShopModificationDialog {
                 .build();
 
         // TODO: ラベルにエラー理由を追記したダイアログの再生成
-        final DialogActionCallback callback = ((response, audience) -> {
+        final DialogActionCallback callback = ((response, _) -> {
             final ShopComponent updatedComponent;
             try {
                 updatedComponent = DialogResponseParser.parse(response, shop.component());

@@ -120,11 +120,6 @@ public final class ShopCommand implements QSHCommand {
                         return SINGLE_FAILED;
                     }
 
-                    if (ShopCreationFilter.isLimitReached(user)) {
-                        user.sendMessage(this.translations.shopCreationLimitReached(user));
-                        return SINGLE_FAILED;
-                    }
-
                     final ShopBlock shop = resolveShopBlockForCreation(user, target);
                     if (shop == null) {
                         user.sendMessage(this.translations.shopCommandInvalidBlock(user));
@@ -137,14 +132,24 @@ public final class ShopCommand implements QSHCommand {
                         return SINGLE_FAILED;
                     }
 
-                    final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, user.qsUser(), shop.component().location());
-                    if (event.callEvent()) {
-                        final DialogLike dialog = this.creationDialog.createDialog(user, shop);
-                        user.showDialog(dialog);
-                        return Command.SINGLE_SUCCESS;
+                    final ShopCreateEvent event = new ShopCreateEvent(
+                            Phase.PRE_CANCELLABLE,
+                            null,
+                            user.qsUser(),
+                            shop.component().location()
+                    );
+                    if (!event.callEvent()) {
+                        return SINGLE_FAILED;
                     }
 
-                    return SINGLE_FAILED;
+                    if (ShopCreationFilter.isLimitReached(user)) {
+                        user.sendMessage(this.translations.shopCreationLimitReached(user));
+                        return SINGLE_FAILED;
+                    }
+
+                    final DialogLike dialog = this.creationDialog.createDialog(user, shop);
+                    user.showDialog(dialog);
+                    return Command.SINGLE_SUCCESS;
                 })
                 .build();
     }

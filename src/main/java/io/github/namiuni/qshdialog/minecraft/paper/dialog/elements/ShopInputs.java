@@ -82,8 +82,7 @@ public final class ShopInputs {
         }
 
         public Builder name(final @Nullable String initial, final Component errorText) {
-            final BigDecimal namingCost = QSConfigurations.shopNamingCost();
-            final DialogInput input = DialogInput.text(DialogInputKeys.SHOP_NAME, withError(this.translations.inputLabelShopName(this.user, this.placeholders, namingCost), errorText))
+            final DialogInput input = DialogInput.text(DialogInputKeys.SHOP_NAME, withError(this.translations.inputLabelShopName(this.user, this.placeholders), errorText))
                     .initial(Objects.requireNonNullElse(initial, ""))
                     .maxLength(QSConfigurations.shopNameMaxLength())
                     .build();

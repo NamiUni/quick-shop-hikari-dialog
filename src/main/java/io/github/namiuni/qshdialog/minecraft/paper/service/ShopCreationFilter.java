@@ -46,16 +46,24 @@ public final class ShopCreationFilter {
         if (!QSConfigurations.isShopLimitEnabled()) {
             return false;
         }
-        final int limit = QuickShops.rankLimiter().getShopLimit(user.qsUser());
+        final int count = currentShopCount(user);
+        final int limit = shopLimit(user);
+        QSHDialogLogger.logger().debug("{}'s shop count: {}", user.name(), count);
+        QSHDialogLogger.logger().debug("{}'s shop limit: {}", user.name(), limit);
+        return count >= limit;
+    }
+
+    public static int currentShopCount(final UserSession user) {
         final UUID playerUuid = user.uuid();
         final boolean oldAlgorithm = QSConfigurations.isShopLimitOldAlgorithm();
-        final long shopCount = QuickShops.shopManager().getAllShops().stream()
+        return (int) QuickShops.shopManager().getAllShops().stream()
                 .filter(shop -> playerUuid.equals(shop.getOwner().getUniqueId()))
                 .filter(shop -> oldAlgorithm || !shop.isUnlimited())
                 .count();
-        QSHDialogLogger.logger().debug("{}'s shop count: {}", user.name(), shopCount);
-        QSHDialogLogger.logger().debug("{}'s shop limit: {}", user.name(), limit);
-        return shopCount >= limit;
+    }
+
+    public static int shopLimit(final UserSession user) {
+        return QuickShops.rankLimiter().getShopLimit(user.qsUser());
     }
 
     private static boolean isWorldAllowed(final World world) {
