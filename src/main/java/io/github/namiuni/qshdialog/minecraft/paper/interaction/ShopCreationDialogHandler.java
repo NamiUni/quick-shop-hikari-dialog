@@ -104,6 +104,16 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
+        final ShopCreateEvent createEvent = new ShopCreateEvent(
+                Phase.PRE_CANCELLABLE,
+                null,
+                user.qsUser(),
+                resolvedShopOpt.get().component().location()
+        );
+        if (!createEvent.callEvent()) {
+            return;
+        }
+
         interactEvent.setCancelled(true);
 
         if (ShopCreationFilter.isLimitReached(user)) {
@@ -112,11 +122,8 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
-        final ShopCreateEvent event = new ShopCreateEvent(Phase.PRE_CANCELLABLE, null, user.qsUser(), resolvedShopOpt.get().component().location());
-        if (event.callEvent()) {
-            final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShopOpt.get());
-            user.showDialog(dialog);
-        }
+        final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShopOpt.get());
+        user.showDialog(dialog);
     }
 
     private static Optional<ShopBlock> resolveShopBlock(

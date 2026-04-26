@@ -28,7 +28,6 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.U
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopFailure;
 import io.github.namiuni.qshdialog.minecraft.paper.service.ShopSuccess;
 import io.github.namiuni.qshdialog.minecraft.paper.utilities.ShopTagMapper;
-import java.math.BigDecimal;
 import java.util.Locale;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.pointer.Pointered;
@@ -172,21 +171,11 @@ public final class Translations {
     // Input labels
     // -------------------------------------------------------------------------
 
-    public Component inputLabelShopName(final Pointered target, final TagResolver placeholders, final BigDecimal namingCost) {
-        final String world;
-        if (target instanceof UserSession user) {
-            world = user.bukkit()
-                    .map(Entity::getWorld)
-                    .map(WorldInfo::getName)
-                    .orElse("world");
-        } else {
-            world = "world";
-        }
+    public Component inputLabelShopName(final Pointered target, final TagResolver placeholders) {
         return this.translate(
                 "qsh_dialog.dialog.input.shop.name",
-                target, placeholders,
-                Formatter.number("naming_cost", namingCost),
-                Placeholder.parsed("naming_cost_formatted", EconomyFormatter.format(namingCost, world))
+                target,
+                placeholders
         );
     }
 
@@ -246,12 +235,15 @@ public final class Translations {
                 .map(Entity::getWorld)
                 .map(WorldInfo::getName)
                 .orElse("world");
+
         return this.translate(
                 "qsh_dialog.shop.creation.success",
                 user,
                 placeholders,
                 Formatter.number("total_cost", success.paid()),
-                Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(success.paid(), world))
+                Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(success.paid(), world)),
+                Placeholder.component("shop_count", Component.text(success.shopCount())),
+                Placeholder.component("shop_limit", Component.text(success.shopLimit()))
         );
     }
 

@@ -55,9 +55,10 @@ import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.entity.Entity;
+import org.bukkit.generator.WorldInfo;
 import org.jspecify.annotations.NullMarked;
 
-// TODO: ConfigからDialogInputsの順序を変更可能にする
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
 public final class ShopCreationDialog {
@@ -84,12 +85,22 @@ public final class ShopCreationDialog {
 
     public DialogLike createDialog(final UserSession user, final ShopBlock shop) {
         final BigDecimal userBalance = user.balance(shop.container().getWorld().getName(), shop.component().currency());
+        final BigDecimal createCost = QSConfigurations.shopCreateCost();
+        final BigDecimal namingCost = QSConfigurations.shopNamingCost();
+        final String world = user.bukkit()
+                .map(Entity::getWorld)
+                .map(WorldInfo::getName)
+                .orElse("world");
         final TagResolver placeholders = TagResolver.builder()
                 .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
                 .resolver(ShopTagMapper.pricePlaceholders())
                 .resolver(ShopTagMapper.quickshopPlaceholders())
                 .resolver(Formatter.number("user_balance", userBalance))
                 .resolver(Placeholder.parsed("user_balance_formatted", EconomyFormatter.format(userBalance, shop.container().getWorld().getName())))
+                .resolver(Formatter.number("create_cost", createCost))
+                .resolver(Placeholder.parsed("create_cost_formatted", EconomyFormatter.format(createCost, world)))
+                .resolver(Formatter.number("naming_cost", namingCost))
+                .resolver(Placeholder.parsed("naming_cost_formatted", EconomyFormatter.format(namingCost, world)))
                 .build();
 
         return Dialog.create(db -> db.empty()
@@ -180,7 +191,7 @@ public final class ShopCreationDialog {
                 .build();
 
         // TODO: ラベルにエラー理由を追記したダイアログの再生成
-        final DialogActionCallback callback = ((response, audience) -> {
+        final DialogActionCallback callback = ((response, _) -> {
             final ShopComponent inputComponent;
             try {
                 inputComponent = DialogResponseParser.parse(response, shop.component());
