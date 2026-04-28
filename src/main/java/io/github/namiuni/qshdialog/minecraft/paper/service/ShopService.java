@@ -84,10 +84,6 @@ public final class ShopService {
             return Result.error(failures);
         }
 
-        if (0 < totalCost.compareTo(BigDecimal.ZERO)) {
-            user.withdrawMoney(totalCost, world);
-        }
-
         return Result.success(new ShopSuccess(totalCost));
     }
 
