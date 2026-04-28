@@ -86,10 +86,7 @@ public final class ShopCreationDialog {
     public DialogLike createDialog(final UserSession user, final ShopBlock shop) {
         final BigDecimal createCost = QSConfigurations.shopCreateCost();
         final BigDecimal namingCost = QSConfigurations.shopNamingCost();
-        final String world = user.bukkit()
-                .map(Entity::getWorld)
-                .map(WorldInfo::getName)
-                .orElse("world");
+        final String world = user.world().getName();
         final TagResolver placeholders = TagResolver.builder()
                 .resolver(ShopTagMapper.pricePlaceholders())
                 .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
