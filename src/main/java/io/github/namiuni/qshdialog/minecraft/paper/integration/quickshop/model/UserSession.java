@@ -33,6 +33,7 @@ import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.permission.PermissionChecker;
 import net.kyori.adventure.text.ComponentLike;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
@@ -132,6 +133,11 @@ public interface UserSession extends Audience, Identified {
     default PlayerInventory inventory() {
         final Player bukkit = this.bukkit().orElseThrow();
         return bukkit.getInventory();
+    }
+
+    default World world() {
+        final Player bukkit = this.bukkit().orElseThrow();
+        return bukkit.getWorld();
     }
 
     @Override

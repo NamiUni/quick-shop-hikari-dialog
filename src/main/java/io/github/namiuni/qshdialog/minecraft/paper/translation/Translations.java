@@ -38,8 +38,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
-import org.bukkit.entity.Entity;
-import org.bukkit.generator.WorldInfo;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -231,27 +229,19 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopCreationSuccess(final UserSession user, final TagResolver placeholders, final ShopSuccess success) {
-        final String world = user.bukkit()
-                .map(Entity::getWorld)
-                .map(WorldInfo::getName)
-                .orElse("world");
+        final String world = user.world().getName();
 
         return this.translate(
                 "qsh_dialog.shop.creation.success",
                 user,
                 placeholders,
                 Formatter.number("total_cost", success.paid()),
-                Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(success.paid(), world)),
-                Placeholder.component("shop_count", Component.text(success.shopCount())),
-                Placeholder.component("shop_limit", Component.text(success.shopLimit()))
+                Placeholder.parsed("total_cost_formatted", EconomyFormatter.format(success.paid(), world))
         );
     }
 
     public Component shopCreationFailedInsufficientFunds(final UserSession user, final TagResolver placeholders, final ShopFailure.OperatorInsufficientFunds failure) {
-        final String world = user.bukkit()
-                .map(Entity::getWorld)
-                .map(WorldInfo::getName)
-                .orElse("world");
+        final String world = user.world().getName();
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
                 .resolver(Formatter.number("total_cost", failure.totalCost()))
@@ -275,9 +265,8 @@ public final class Translations {
         return this.translate("qsh_dialog.shop.creation.failure.limit_reached", user);
     }
 
-    public Component shopCreationFailedPriceInvalid(final UserSession user, final TagResolver placeholders, final String input) {
+    public Component shopCreationFailedPriceInvalid(final UserSession user, final String input) {
         final TagResolver resolver = TagResolver.builder()
-                .resolver(placeholders)
                 .resolver(Placeholder.parsed("input", input))
                 .build();
         return this.translate("qsh_dialog.shop.creation.failure.price_invalid", user, resolver);
@@ -288,10 +277,7 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     public Component shopModificationSuccess(final UserSession user, final TagResolver placeholders, final ShopSuccess success) {
-        final String world = user.bukkit()
-                .map(Entity::getWorld)
-                .map(WorldInfo::getName)
-                .orElse("world");
+        final String world = user.world().getName();
         return this.translate(
                 "qsh_dialog.shop.modification.success",
                 user,
@@ -302,10 +288,7 @@ public final class Translations {
     }
 
     public Component shopModificationFailedInsufficientFunds(final UserSession user, final TagResolver placeholders, final ShopFailure.OperatorInsufficientFunds failure) {
-        final String world = user.bukkit()
-                .map(Entity::getWorld)
-                .map(WorldInfo::getName)
-                .orElse("world");
+        final String world = user.world().getName();
         final TagResolver resolver = TagResolver.builder()
                 .resolver(placeholders)
                 .resolver(Formatter.number("total_cost", failure.totalCost()))
@@ -376,10 +359,16 @@ public final class Translations {
     // -------------------------------------------------------------------------
 
     private Component translate(final String key, final Pointered target, final TagResolver... placeholders) {
+        final TagResolver userPlaceholders = switch (target) {
+            case UserSession user -> ShopTagMapper.userPlaceholders(user);
+            default -> TagResolver.empty();
+        };
+
         final Component component = Component.translatable(
                 key,
                 Argument.target(target),
                 Argument.tagResolver(placeholders),
+                Argument.tagResolver(userPlaceholders),
                 Argument.tagResolver(MiniPlaceholdersExtension.audienceGlobalPlaceholders()),
                 Argument.tagResolver(ShopTagMapper.quickshopPlaceholders())
         );

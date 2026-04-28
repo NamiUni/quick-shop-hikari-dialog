@@ -20,6 +20,7 @@
 package io.github.namiuni.qshdialog.minecraft.paper.utilities;
 
 import io.github.namiuni.qshdialog.common.utilities.NumberRange;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.EconomyFormatter;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.PriceAnalytics;
@@ -27,6 +28,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
+import io.github.namiuni.qshdialog.minecraft.paper.service.ShopCreationFilter;
 import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
@@ -55,35 +57,23 @@ public final class ShopTagMapper {
         this.translations = translations;
     }
 
-    public TagResolver shopPlaceholders(final UserSession user, final ShopBlock shop) {
-        final ShopComponent shopComponent = shop.component();
-        final String worldName = shop.container().getWorld().getName();
+    public static TagResolver userPlaceholders(final UserSession user) {
+        final TagResolver.Builder builder = TagResolver.builder();
+        final BigDecimal userBalance = user.balance(user.world().getName(), null);
+        builder.resolver(Formatter.number("user_balance", userBalance));
+        builder.resolver(Placeholder.parsed("user_balance_formatted", EconomyFormatter.format(userBalance, user.world().getName())));
 
-        final String nameOrDefault = Optional.ofNullable(shopComponent.name())
-                .filter(it -> !it.isEmpty())
-                .orElse(shopComponent.owner().name() + "'s Shop");
-        final Component tradeTypeComponent = this.translations.tradeType(
-                user, shopComponent.tradeType(), TagResolver.empty());
-        final BigDecimal ownerBalance = shopComponent.owner().balance(worldName, shopComponent.currency());
+        final int shopCount = QSConfigurations.isShopLimitEnabled()
+                ? ShopCreationFilter.currentShopCount(user)
+                : -1;
+        builder.resolver(Formatter.number("user_shops", shopCount));
 
-        return TagResolver.builder()
-                .resolver(Placeholder.component("shop_product_name", shopComponent.product().getItemMeta().itemName()))
-                .resolver(Placeholder.component("shop_product_display_name", shopComponent.product().effectiveName()))
-                .resolver(Placeholder.parsed("shop_product_key", shopComponent.product().getType().key().asString()))
-                .resolver(Placeholder.parsed("shop_owner_name", Objects.requireNonNullElse(shopComponent.owner().name(), "")))
-                .resolver(Formatter.number("shop_owner_balance", ownerBalance))
-                .resolver(Placeholder.parsed("shop_owner_balance_formatted", EconomyFormatter.format(ownerBalance, worldName)))
-                .resolver(Formatter.number("shop_price", shopComponent.price()))
-                .resolver(Placeholder.parsed("shop_price_formatted", EconomyFormatter.format(shopComponent.price(), worldName)))
-                .resolver(Placeholder.component("shop_trade_type", tradeTypeComponent))
-                .resolver(Placeholder.parsed("shop_name", Objects.requireNonNullElse(shopComponent.name(), "")))
-                .resolver(Placeholder.parsed("shop_name_or_default", nameOrDefault))
-                .resolver(Placeholder.parsed("shop_currency", shopComponent.currency() == null ? "" : shopComponent.currency()))
-                .resolver(Placeholder.parsed("shop_display_visible", String.valueOf(shopComponent.displayVisible())))
-                .resolver(Placeholder.parsed("shop_infinite_stock", String.valueOf(shopComponent.infiniteStock())))
-                .resolver(Placeholder.parsed("shop_stock", String.valueOf(ShopInventory.stockCount(shop))))
-                .resolver(Placeholder.parsed("shop_space", String.valueOf(ShopInventory.spaceCount(shop))))
-                .build();
+        final int shopLimit = QSConfigurations.isShopLimitEnabled()
+                ? ShopCreationFilter.shopLimit(user)
+                : -1;
+        builder.resolver(Formatter.number("user_shops_limit", shopLimit));
+
+        return builder.build();
     }
 
     public static TagResolver pricePlaceholders() {
@@ -134,5 +124,36 @@ public final class ShopTagMapper {
                     .forLocale(user.locale().toString());
             return Tag.selfClosingInserting(message);
         });
+    }
+
+    public TagResolver shopPlaceholders(final UserSession user, final ShopBlock shop) {
+        final ShopComponent shopComponent = shop.component();
+        final String worldName = shop.container().getWorld().getName();
+
+        final String nameOrDefault = Optional.ofNullable(shopComponent.name())
+                .filter(it -> !it.isEmpty())
+                .orElse(shopComponent.owner().name() + "'s Shop");
+        final Component tradeTypeComponent = this.translations.tradeType(
+                user, shopComponent.tradeType(), TagResolver.empty());
+        final BigDecimal ownerBalance = shopComponent.owner().balance(worldName, shopComponent.currency());
+
+        return TagResolver.builder()
+                .resolver(Placeholder.component("shop_product_name", shopComponent.product().getItemMeta().itemName()))
+                .resolver(Placeholder.component("shop_product_display_name", shopComponent.product().effectiveName()))
+                .resolver(Placeholder.parsed("shop_product_key", shopComponent.product().getType().key().asString()))
+                .resolver(Placeholder.parsed("shop_owner_name", Objects.requireNonNullElse(shopComponent.owner().name(), "")))
+                .resolver(Formatter.number("shop_owner_balance", ownerBalance))
+                .resolver(Placeholder.parsed("shop_owner_balance_formatted", EconomyFormatter.format(ownerBalance, worldName)))
+                .resolver(Formatter.number("shop_price", shopComponent.price()))
+                .resolver(Placeholder.parsed("shop_price_formatted", EconomyFormatter.format(shopComponent.price(), worldName)))
+                .resolver(Placeholder.component("shop_trade_type", tradeTypeComponent))
+                .resolver(Placeholder.parsed("shop_name", Objects.requireNonNullElse(shopComponent.name(), "")))
+                .resolver(Placeholder.parsed("shop_name_or_default", nameOrDefault))
+                .resolver(Placeholder.parsed("shop_currency", shopComponent.currency() == null ? "" : shopComponent.currency()))
+                .resolver(Placeholder.parsed("shop_display_visible", String.valueOf(shopComponent.displayVisible())))
+                .resolver(Placeholder.parsed("shop_infinite_stock", String.valueOf(shopComponent.infiniteStock())))
+                .resolver(Placeholder.parsed("shop_stock", String.valueOf(ShopInventory.stockCount(shop))))
+                .resolver(Placeholder.parsed("shop_space", String.valueOf(ShopInventory.spaceCount(shop))))
+                .build();
     }
 }
