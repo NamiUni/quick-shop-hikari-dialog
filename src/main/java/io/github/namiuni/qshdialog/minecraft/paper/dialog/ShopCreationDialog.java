@@ -84,7 +84,6 @@ public final class ShopCreationDialog {
     }
 
     public DialogLike createDialog(final UserSession user, final ShopBlock shop) {
-        final BigDecimal userBalance = user.balance(shop.container().getWorld().getName(), shop.component().currency());
         final BigDecimal createCost = QSConfigurations.shopCreateCost();
         final BigDecimal namingCost = QSConfigurations.shopNamingCost();
         final String world = user.bukkit()
@@ -92,11 +91,8 @@ public final class ShopCreationDialog {
                 .map(WorldInfo::getName)
                 .orElse("world");
         final TagResolver placeholders = TagResolver.builder()
-                .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
                 .resolver(ShopTagMapper.pricePlaceholders())
-                .resolver(ShopTagMapper.quickshopPlaceholders())
-                .resolver(Formatter.number("user_balance", userBalance))
-                .resolver(Placeholder.parsed("user_balance_formatted", EconomyFormatter.format(userBalance, shop.container().getWorld().getName())))
+                .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
                 .resolver(Formatter.number("create_cost", createCost))
                 .resolver(Placeholder.parsed("create_cost_formatted", EconomyFormatter.format(createCost, world)))
                 .resolver(Formatter.number("naming_cost", namingCost))
@@ -182,7 +178,7 @@ public final class ShopCreationDialog {
 
     private DialogType createType(
             final UserSession user,
-            final ShopBlock shop,
+            final ShopBlock preparingShop,
             final TagResolver placeholders
     ) {
         final var callbackOptions = ClickCallback.Options.builder()
@@ -194,33 +190,51 @@ public final class ShopCreationDialog {
         final DialogActionCallback callback = ((response, _) -> {
             final ShopComponent inputComponent;
             try {
-                inputComponent = DialogResponseParser.parse(response, shop.component());
+                inputComponent = DialogResponseParser.parse(response, preparingShop.component());
             } catch (final InvalidPriceException e) {
-                final Component message = this.translations.shopCreationFailedPriceInvalid(user, placeholders, e.rawInput());
+                final Component message = this.translations.shopCreationFailedPriceInvalid(user, e.rawInput());
                 user.sendMessage(message);
                 return;
             }
 
-            final Result<ShopSuccess, Set<ShopFailure>> result = this.shopService.createShop(user, shop.withComponent(inputComponent));
+            final ShopBlock shop = preparingShop.withComponent(inputComponent);
+            final BigDecimal createCost = QSConfigurations.shopCreateCost();
+            final BigDecimal namingCost = QSConfigurations.shopNamingCost();
+            final String world = user.bukkit()
+                    .map(Entity::getWorld)
+                    .map(WorldInfo::getName)
+                    .orElse("world");
+            final TagResolver newPlaceholders = TagResolver.builder()
+                    .resolver(ShopTagMapper.userPlaceholders(user))
+                    .resolver(ShopTagMapper.pricePlaceholders())
+                    .resolver(ShopTagMapper.quickshopPlaceholders())
+                    .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
+                    .resolver(Formatter.number("create_cost", createCost))
+                    .resolver(Placeholder.parsed("create_cost_formatted", EconomyFormatter.format(createCost, world)))
+                    .resolver(Formatter.number("naming_cost", namingCost))
+                    .resolver(Placeholder.parsed("naming_cost_formatted", EconomyFormatter.format(namingCost, world)))
+                    .build();
+
+            final Result<ShopSuccess, Set<ShopFailure>> result = this.shopService.createShop(user, preparingShop.withComponent(inputComponent));
             switch (result) {
                 case Result.Success(ShopSuccess success) -> {
                     // TODO: ショップの作成内容と支払いコストをDialogType.notice()を使って通知
-                    final Component message = this.translations.shopCreationSuccess(user, placeholders, success);
+                    final Component message = this.translations.shopCreationSuccess(user, newPlaceholders, success);
                     user.sendMessage(message);
                 }
                 case Result.Error(Set<ShopFailure> errors) -> {
                     for (final ShopFailure failure : errors) {
                         switch (failure) {
                             case ShopFailure.ContainerNotFound it -> {
-                                final Component message = this.translations.shopCreationFailedContainerNotFound(user, placeholders, it);
+                                final Component message = this.translations.shopCreationFailedContainerNotFound(user, newPlaceholders, it);
                                 user.sendMessage(message);
                             }
                             case ShopFailure.OperatorInsufficientFunds it -> {
-                                final Component message = this.translations.shopCreationFailedInsufficientFunds(user, placeholders, it);
+                                final Component message = this.translations.shopCreationFailedInsufficientFunds(user, newPlaceholders, it);
                                 user.sendMessage(message);
                             }
                             case ShopFailure.PriceOutOfRange it -> {
-                                final Component message = this.translations.shopCreationFailedPriceOutOfRange(user, placeholders, it);
+                                final Component message = this.translations.shopCreationFailedPriceOutOfRange(user, newPlaceholders, it);
                                 user.sendMessage(message);
                             }
                             default -> {
