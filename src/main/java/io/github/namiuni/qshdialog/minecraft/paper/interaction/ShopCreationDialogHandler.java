@@ -114,13 +114,13 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
-        interactEvent.setCancelled(true);
-
         if (ShopCreationFilter.isLimitReached(user)) {
             final Component message = this.translations.shopCreationLimitReached(user);
             user.sendMessage(message);
             return;
         }
+
+        interactEvent.setCancelled(true);
 
         final DialogLike dialog = this.shopCreationDialog.createDialog(user, resolvedShopOpt.get());
         user.showDialog(dialog);
