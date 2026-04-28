@@ -4,10 +4,11 @@ import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml.Load
 plugins {
     id("java")
     id("checkstyle")
-    id("com.diffplug.spotless") version "8.4.0"
-    id("xyz.jpenilla.run-paper") version "3.0.2"
-    id("xyz.jpenilla.resource-factory-paper-convention") version "1.3.1"
-    id("com.gradleup.shadow") version "9.4.1"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.gremlin.gradle)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.run.paper)
+    alias(libs.plugins.resource.factory)
 }
 
 group = "io.github.namiuni"
@@ -18,6 +19,7 @@ java {
 }
 
 checkstyle {
+    toolVersion = libs.versions.checkstyle.get()
     configDirectory = rootProject.file(".checkstyle")
 }
 
@@ -27,28 +29,29 @@ spotless {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.codemc.io/repository/maven-public/")
-}
-
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    implementation("org.spongepowered:configurate-hocon:4.2.0")
-    compileOnly("org.spongepowered:configurate-yaml:4.2.0")
-    implementation("net.kyori:adventure-serializer-configurate4:4.26.1")
+    compileOnly(libs.paper.api)
+    compileOnly(libs.configurate.yaml)
+    runtimeDownload(libs.configurate.hocon)
+    runtimeDownload(libs.adventure.serializer.configurate)
+    runtimeDownload(libs.kotonoha.message)
+    runtimeDownload(libs.kotonoha.message.extra.miniplaceholders)
 
     // Quick Shop
-    compileOnly("com.ghostchu:simplereloadlib:1.1.2")
-    compileOnly("com.ghostchu:quickshop-api:6.2.0.11")
-    compileOnly("com.ghostchu:quickshop-bukkit:6.2.0.11")
+    compileOnly(libs.simplereloadlib)
+    compileOnly(libs.quickshop.api)
+    compileOnly(libs.quickshop.bukkit)
 
     // Integrations
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.0")
+    compileOnly(libs.mini.placeholders)
 
     // Misc
-    implementation("com.github.sviperll:result4j:1.2.0")
+    implementation(libs.result4j)
+    annotationProcessor(libs.kotonoha.resourcebundle.generator.processor)
+}
+
+configurations.compileOnly {
+    extendsFrom(configurations.runtimeDownload.get())
 }
 
 val mainPackage = "${group}.qshdialog.minecraft.paper"
@@ -56,11 +59,11 @@ paperPluginYaml {
     name = "QuickShop-Hikari-Dialog"
     author = "Namiu (うにたろう)"
     website = "https://github.com/NamiUni"
-    apiVersion = "1.21.10"
+    apiVersion = "1.21.11"
 
     main = "$mainPackage.QSHDialogPlugin"
     bootstrapper = "$mainPackage.QSHDialogBootstrap"
-//    loader = "$mainPackage."
+    loader = "$mainPackage.QSHDialogLoader"
 
     permissions {
         register("qshdialog.command.admin.reload") {
@@ -82,6 +85,7 @@ paperPluginYaml {
     }
 
     dependencies {
+        bootstrap("MiniPlaceholders", Load.BEFORE, false)
         server("QuickShop-Hikari", Load.BEFORE, true)
         server("MiniPlaceholders", Load.BEFORE, false)
     }
@@ -99,7 +103,7 @@ tasks {
         downloadPlugins {
             modrinth("luckperms", "v5.5.17-bukkit")
             modrinth("miniplaceholders", "4zOT6txC")
-            modrinth("quickshop-hikari", "6.2.0.11")
+            modrinth("quickshop-hikari", libs.versions.quickshop.get())
             url("https://github.com/dmulloy2/ProtocolLib/releases/download/dev-build/ProtocolLib.jar")
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
             url("https://ci.minebench.de/job/craftconomy3/lastSuccessfulBuild/artifact/build/libs/CraftConomy3.jar")
