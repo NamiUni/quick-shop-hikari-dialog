@@ -20,30 +20,26 @@
 package io.github.namiuni.qshdialog.minecraft.paper.dialog;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.elements.TradeInputs;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.EconomyFormatter;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
-import io.github.namiuni.qshdialog.minecraft.paper.service.ShopFailure;
-import io.github.namiuni.qshdialog.minecraft.paper.service.TradeQuantityCalculator;
-import io.github.namiuni.qshdialog.minecraft.paper.service.TradeQuantityFailure;
-import io.github.namiuni.qshdialog.minecraft.paper.service.TradeService;
-import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
-import io.github.namiuni.qshdialog.minecraft.paper.utilities.ShopTagMapper;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPlaceholders;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeFailure;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeQuantityCalculator;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeQuantityFailure;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeService;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user.UserSession;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
-import java.math.BigDecimal;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
-import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -52,39 +48,40 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("UnstableApiUsage")
 public final class TradeSellDialog {
 
-    private final Translations translations;
+    private final TranslationService translations;
     private final TradeInputs tradeInputs;
-    private final ShopTagMapper shopTagMapper;
+    private final QSPlaceholders qsPlaceholders;
+    private final TradeService tradeService;
+    private final TradeQuantityCalculator quantityCalculator;
 
-    public TradeSellDialog(
-            final Translations translations,
+    @Inject
+    TradeSellDialog(
+            final TranslationService translations,
             final TradeInputs tradeInputs,
-            final ShopTagMapper shopTagMapper
+            final QSPlaceholders qsPlaceholders,
+            final TradeService tradeService,
+            final TradeQuantityCalculator quantityCalculator
     ) {
         this.translations = translations;
         this.tradeInputs = tradeInputs;
-        this.shopTagMapper = shopTagMapper;
+        this.qsPlaceholders = qsPlaceholders;
+        this.tradeService = tradeService;
+        this.quantityCalculator = quantityCalculator;
     }
 
     public @Nullable DialogLike createDialog(final UserSession user, final ShopBlock shop) {
-        final BigDecimal userBalance = user.balance(shop.container().getWorld().getName(), shop.component().currency());
         final TagResolver placeholders = TagResolver.builder()
-                .resolver(this.shopTagMapper.shopPlaceholders(user, shop))
-                .resolver(ShopTagMapper.pricePlaceholders())
-                .resolver(ShopTagMapper.quickshopPlaceholders())
-                .resolver(Formatter.number("user_balance", userBalance))
-                .resolver(Placeholder.parsed("user_balance_formatted", EconomyFormatter.format(userBalance, shop.container().getWorld().getName())))
+                .resolver(this.qsPlaceholders.shopPlaceholder(shop))
                 .build();
 
-        final Result<Integer, TradeQuantityFailure> quantityResult =
-                TradeQuantityCalculator.sellableQuantity(user, shop);
+        final Result<Integer, TradeQuantityFailure> quantityResult = this.quantityCalculator.sellableQuantity(user, shop);
 
         if (quantityResult instanceof Result.Error<Integer, TradeQuantityFailure>(final TradeQuantityFailure failure)) {
             final Component message = switch (failure) {
                 case SHOP_INVENTORY_FULL -> this.translations.tradeErrorShopInventoryFull(user, placeholders);
                 case SHOP_INSUFFICIENT_FUNDS -> this.translations.tradeErrorShopInsufficientFunds(user, placeholders);
                 case CUSTOMER_INSUFFICIENT_ITEMS -> this.translations.tradeErrorCustomerInsufficientItems(user, placeholders);
-                case CUSTOMER_INVENTORY_FULL, SHOP_OUT_OF_STOCK, CUSTOMER_INSUFFICIENT_FUNDS -> null; // 売却時には発生しない
+                case CUSTOMER_INVENTORY_FULL, SHOP_OUT_OF_STOCK, CUSTOMER_INSUFFICIENT_FUNDS -> null;
             };
             if (message != null) {
                 user.sendMessage(message);
@@ -108,9 +105,9 @@ public final class TradeSellDialog {
         final var confirmButton = ActionButton.builder(this.translations.tradeSellConfirmButton(user, placeholders))
                 .action(DialogAction.customClick((response, _) -> {
                     final int quantity = Objects.requireNonNull(response.getFloat(DialogInputKeys.TRADE_QUANTITY)).intValue();
-                    final var result = TradeService.sell(user, shop, quantity);
-                    if (result instanceof Result.Error<Void, ShopFailure.ShopNotFound>(final var shopFailure)) {
-                        final Component message = this.translations.shopModificationFailedShopNotFound(user, placeholders, shopFailure);
+                    final Result<Void, TradeFailure> result = this.tradeService.sell(user, shop, quantity);
+                    if (result instanceof Result.Error) {
+                        final Component message = this.translations.shopModificationFailedShopNotFound(user, placeholders);
                         user.sendMessage(message);
                     }
                 }, callbackOptions))

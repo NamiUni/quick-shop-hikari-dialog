@@ -17,24 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper;
+package io.github.namiuni.qshdialog.minecraft.paper.infrastructure;
 
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
-import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class QSHDialogBootstrap implements PluginBootstrap {
+@FunctionalInterface
+public interface Reloadable<T> {
 
-    @Override
-    public void bootstrap(final BootstrapContext context) {
-    }
-
-    @Override
-    public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(context);
-    }
+    T reload();
 }

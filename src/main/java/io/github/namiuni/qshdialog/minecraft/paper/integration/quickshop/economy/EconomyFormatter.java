@@ -17,24 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper;
+package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.economy;
 
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
-import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.ghostchu.quickshop.api.economy.EconomyProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import java.math.BigDecimal;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@Singleton
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class QSHDialogBootstrap implements PluginBootstrap {
+public final class EconomyFormatter {
+    
+    private final EconomyProvider economyProvider;
 
-    @Override
-    public void bootstrap(final BootstrapContext context) {
+    @Inject
+    EconomyFormatter(final EconomyProvider economyProvider) {
+        this.economyProvider = economyProvider;
     }
 
-    @Override
-    public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(context);
+    public String format(final BigDecimal value, final String world) {
+        return this.format(value, world, null);
+    }
+
+    public String format(final BigDecimal value, final String world, final @Nullable String currency) {
+        return this.economyProvider.format(value, world, currency);
     }
 }
