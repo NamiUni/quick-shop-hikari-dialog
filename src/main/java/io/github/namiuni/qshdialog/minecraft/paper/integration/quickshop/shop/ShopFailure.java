@@ -17,24 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper;
+package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop;
 
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
-import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
-import org.bukkit.plugin.java.JavaPlugin;
+import java.math.BigDecimal;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class QSHDialogBootstrap implements PluginBootstrap {
+public sealed interface ShopFailure permits ShopFailure.AlreadyExists, ShopFailure.ContainerNotFound, ShopFailure.Cancelled, ShopFailure.OperatorInsufficientFunds, ShopFailure.PriceOutOfRange, ShopFailure.ShopNotFound {
 
-    @Override
-    public void bootstrap(final BootstrapContext context) {
+    record ContainerNotFound() implements ShopFailure {
     }
 
-    @Override
-    public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(context);
+    record Cancelled() implements ShopFailure {
+    }
+
+    record OperatorInsufficientFunds(BigDecimal totalCost) implements ShopFailure {
+    }
+
+    record PriceOutOfRange() implements ShopFailure {
+    }
+
+    record ShopNotFound() implements ShopFailure {
+    }
+
+    record AlreadyExists(ShopBlock shopBlock) implements ShopFailure {
     }
 }

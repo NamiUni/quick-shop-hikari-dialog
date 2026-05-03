@@ -28,17 +28,18 @@ import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPermissions;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.adapter.PriceAnalytics;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopBlock;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.UserSession;
-import io.github.namiuni.qshdialog.minecraft.paper.permission.Permissions;
-import io.github.namiuni.qshdialog.minecraft.paper.service.ShopCreationFilter;
-import io.github.namiuni.qshdialog.minecraft.paper.service.ShopService;
-import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.economy.PriceAnalytics;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopComponent;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopCreationFilter;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopService;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user.UserSession;
+import io.github.namiuni.qshdialog.minecraft.paper.permission.QSHDialogPermissions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,18 +54,23 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public final class ShopCommand implements QSHCommand {
+public final class ShopCommand implements CommandFactory {
 
-    private final Translations translations;
+    private final TranslationService translations;
     private final ShopService shopService;
+    private final ShopCreationFilter shopCreationFilter;
+    private final PriceAnalytics priceAnalytics;
     private final ShopCreationDialog creationDialog;
     private final ShopModificationDialog modificationDialog;
     private final TradePurchaseDialog purchaseDialog;
     private final TradeSellDialog sellDialog;
 
-    public ShopCommand(
-            final Translations translations,
+    @Inject
+    ShopCommand(
+            final TranslationService translations,
             final ShopService shopService,
+            final ShopCreationFilter shopCreationFilter,
+            final PriceAnalytics priceAnalytics,
             final ShopCreationDialog creationDialog,
             final ShopModificationDialog modificationDialog,
             final TradePurchaseDialog purchaseDialog,
@@ -72,6 +78,8 @@ public final class ShopCommand implements QSHCommand {
     ) {
         this.translations = translations;
         this.shopService = shopService;
+        this.shopCreationFilter = shopCreationFilter;
+        this.priceAnalytics = priceAnalytics;
         this.creationDialog = creationDialog;
         this.modificationDialog = modificationDialog;
         this.purchaseDialog = purchaseDialog;
@@ -79,7 +87,7 @@ public final class ShopCommand implements QSHCommand {
     }
 
     @Override
-    public LiteralCommandNode<CommandSourceStack> node() {
+    public LiteralCommandNode<CommandSourceStack> createCommand() {
         return Commands.literal("shopdialog")
                 .then(this.createNode())
                 .then(this.modificationNode())
@@ -89,46 +97,55 @@ public final class ShopCommand implements QSHCommand {
 
     @Override
     public List<String> aliases() {
-        return QSHCommand.super.aliases();
+        return CommandFactory.super.aliases();
     }
 
     @Override
     public String description() {
-        return QSHCommand.super.description();
+        return CommandFactory.super.description();
     }
-
-    // -------------------------------------------------------------------------
 
     private CommandNode<CommandSourceStack> createNode() {
         return Commands.literal("create")
                 .requires(source -> source.getExecutor() instanceof Player player
                         && player.hasPermission(QSPermissions.USE)
-                        && player.hasPermission(Permissions.COMMAND_CREATE)
+                        && player.hasPermission(QSHDialogPermissions.COMMAND_CREATE)
                 )
                 .executes(context -> {
                     final Player player = (Player) Objects.requireNonNull(context.getSource().getExecutor());
                     final UserSession user = UserSession.of(player);
 
-                    final Block target = user.targetBlock();
-                    if (target == null) {
-                        user.sendMessage(this.translations.shopCommandNoTargetBlock(user));
+                    final Block targetBlock = user.targetBlock();
+                    if (targetBlock == null) {
+                        user.sendMessage(this.translations.commandShopFailedNoTargetBlock(user));
+                        return SINGLE_FAILED;
+                    }
+
+                    if (!this.shopCreationFilter.isWorldAllowed(targetBlock.getWorld())) {
+                        // TODO: message
                         return SINGLE_FAILED;
                     }
 
                     final ItemStack handItem = user.inventory().getItemInMainHand();
-                    if (!ShopCreationFilter.isCreationAllowed(target.getWorld(), handItem)) {
+                    if (!this.shopCreationFilter.isProductAllowed(handItem)) {
+                        // TODO: message
                         return SINGLE_FAILED;
                     }
 
-                    final ShopBlock shop = resolveShopBlockForCreation(user, target);
+                    final ShopBlock shop = this.resolveShopBlockForCreation(user, targetBlock);
                     if (shop == null) {
-                        user.sendMessage(this.translations.shopCommandInvalidBlock(user));
+                        user.sendMessage(this.translations.commandShopFailedInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
-                    final Optional<ShopBlock> existing = this.shopService.findShop(shop.container().getLocation());
+                    if (this.shopCreationFilter.isLimitReached(user)) {
+                        user.sendMessage(this.translations.shopCreationFailedLimitReached(user));
+                        return SINGLE_FAILED;
+                    }
+
+                    final Optional<ShopBlock> existing = this.shopService.findShop(shop.component().location());
                     if (existing.isPresent()) {
-                        user.sendMessage(this.translations.shopCreationCommandAlreadyExists(user));
+                        user.sendMessage(this.translations.shopCreationFailedAlreadyExists(user));
                         return SINGLE_FAILED;
                     }
 
@@ -139,11 +156,6 @@ public final class ShopCommand implements QSHCommand {
                             shop.component().location()
                     );
                     if (!event.callEvent()) {
-                        return SINGLE_FAILED;
-                    }
-
-                    if (ShopCreationFilter.isLimitReached(user)) {
-                        user.sendMessage(this.translations.shopCreationLimitReached(user));
                         return SINGLE_FAILED;
                     }
 
@@ -158,7 +170,7 @@ public final class ShopCommand implements QSHCommand {
         return Commands.literal("modify")
                 .requires(source -> source.getExecutor() instanceof Player player
                         && player.hasPermission(QSPermissions.USE)
-                        && player.hasPermission(Permissions.COMMAND_MODIFY)
+                        && player.hasPermission(QSHDialogPermissions.COMMAND_MODIFY)
                 )
                 .executes(context -> {
                     final Player player = (Player) Objects.requireNonNull(context.getSource().getExecutor());
@@ -166,19 +178,19 @@ public final class ShopCommand implements QSHCommand {
 
                     final Block target = user.targetBlock();
                     if (target == null) {
-                        user.sendMessage(this.translations.shopCommandNoTargetBlock(user));
+                        user.sendMessage(this.translations.commandShopFailedNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Container container = resolveContainer(target);
                     if (container == null) {
-                        user.sendMessage(this.translations.shopCommandInvalidBlock(user));
+                        user.sendMessage(this.translations.commandShopFailedInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> existing = this.shopService.findShop(container.getLocation());
                     if (existing.isEmpty()) {
-                        user.sendMessage(this.translations.shopModificationCommandShopNotFound(user));
+                        user.sendMessage(this.translations.shopModificationFailedShopNotFound(user));
                         return SINGLE_FAILED;
                     }
 
@@ -192,7 +204,7 @@ public final class ShopCommand implements QSHCommand {
         return Commands.literal("trade")
                 .requires(source -> source.getExecutor() instanceof Player player
                         && player.hasPermission(QSPermissions.USE)
-                        && player.hasPermission(Permissions.COMMAND_TRADE)
+                        && player.hasPermission(QSHDialogPermissions.COMMAND_TRADE)
                 )
                 .executes(context -> {
                     final Player player = (Player) Objects.requireNonNull(context.getSource().getExecutor());
@@ -200,25 +212,25 @@ public final class ShopCommand implements QSHCommand {
 
                     final Block target = user.targetBlock();
                     if (target == null) {
-                        user.sendMessage(this.translations.shopCommandNoTargetBlock(user));
+                        user.sendMessage(this.translations.commandShopFailedNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Container container = resolveContainer(target);
                     if (container == null) {
-                        user.sendMessage(this.translations.shopCommandInvalidBlock(user));
+                        user.sendMessage(this.translations.commandShopFailedInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> shopOpt = this.shopService.findShop(container.getLocation());
                     if (shopOpt.isEmpty()) {
-                        user.sendMessage(this.translations.shopModificationCommandShopNotFound(user));
+                        user.sendMessage(this.translations.shopModificationFailedShopNotFound(user));
                         return SINGLE_FAILED;
                     }
 
                     final ShopBlock shop = shopOpt.get();
                     if (!shop.component().available()) {
-                        user.sendMessage(this.translations.tradeErrorShopUnavailable(user));
+                        user.sendMessage(this.translations.tradeFailedShopUnavailable(user));
                         return SINGLE_FAILED;
                     }
 
@@ -237,21 +249,21 @@ public final class ShopCommand implements QSHCommand {
                 .build();
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
     // Block resolution helpers
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
-    private static @Nullable ShopBlock resolveShopBlockForCreation(final UserSession user, final Block target) {
+    private @Nullable ShopBlock resolveShopBlockForCreation(final UserSession user, final Block target) {
         if (target.getState() instanceof Container container) {
-            return buildShopBlockFromContainer(user, container, target);
+            return this.buildShopBlockFromContainer(user, container, target);
         }
         if (target.getState() instanceof Sign sign) {
-            return createShopBlockFromSign(user, sign, target);
+            return this.createShopBlockFromSign(user, sign, target);
         }
         return null;
     }
 
-    private static ShopBlock buildShopBlockFromContainer(
+    private ShopBlock buildShopBlockFromContainer(
             final UserSession user,
             final Container container,
             final Block containerBlock
@@ -263,12 +275,12 @@ public final class ShopCommand implements QSHCommand {
                 .location(containerBlock.getLocation())
                 .owner(user)
                 .product(item)
-                .price(PriceAnalytics.getPriceLimit(user, item).min())
+                .price(this.priceAnalytics.priceRange(user, item).min())
                 .build();
         return new ShopBlock(container, frontBlock, shopComponent);
     }
 
-    private static @Nullable ShopBlock createShopBlockFromSign(
+    private @Nullable ShopBlock createShopBlockFromSign(
             final UserSession user,
             final Sign sign,
             final Block signBlock
@@ -286,7 +298,7 @@ public final class ShopCommand implements QSHCommand {
                 .location(wallBlock.getLocation())
                 .owner(user)
                 .product(item)
-                .price(PriceAnalytics.getPriceLimit(user, item).min())
+                .price(this.priceAnalytics.priceRange(user, item).min())
                 .build();
         return new ShopBlock(container, sign.getBlock(), shopComponent);
     }

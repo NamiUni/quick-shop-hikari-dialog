@@ -19,54 +19,44 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper;
 
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShops;
-import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopCreationDialogHandler;
-import io.github.namiuni.qshdialog.minecraft.paper.interaction.ShopModificationDialogHandler;
-import io.github.namiuni.qshdialog.minecraft.paper.interaction.TradeDialogHandler;
-import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
+import com.ghostchu.quickshop.api.shop.interaction.InteractionManager;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
+import io.github.namiuni.qshdialog.minecraft.paper.commands.CommandFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.ShopCreationDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.ShopModificationDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.TradeDialogHandler;
+import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import java.util.Set;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
+@SuppressWarnings("UnstableApiUsage")
 public final class QSHDialogPlugin extends JavaPlugin {
 
-    private final Translations translations;
-    private final ShopCreationDialog shopCreationDialog;
-    private final ShopModificationDialog shopModificationDialog;
-    private final TradePurchaseDialog tradePurchaseDialog;
-    private final TradeSellDialog tradeSellDialog;
+    private final PluginProviderContext context;
 
-    public QSHDialogPlugin(
-            final Translations translations,
-            final ShopCreationDialog shopCreationDialog,
-            final ShopModificationDialog shopModificationDialog,
-            final TradePurchaseDialog tradePurchaseDialog,
-            final TradeSellDialog tradeSellDialog
-    ) {
-        this.translations = translations;
-        this.shopCreationDialog = shopCreationDialog;
-        this.shopModificationDialog = shopModificationDialog;
-        this.tradePurchaseDialog = tradePurchaseDialog;
-        this.tradeSellDialog = tradeSellDialog;
+    public QSHDialogPlugin(final PluginProviderContext context) {
+        this.context = context;
     }
 
     @Override
     public void onEnable() {
-        final var shopModificationDialogHandler = new ShopModificationDialogHandler(this.shopModificationDialog);
-        final var shopCreationDialogHandler = new ShopCreationDialogHandler(this.translations, this.shopCreationDialog);
-        final var tradeDialogHandler = new TradeDialogHandler(this.translations, this.tradePurchaseDialog, this.tradeSellDialog);
+        final QSHDialogModule module = new QSHDialogModule(this.context);
+        final Injector injector = Guice.createInjector(module);
 
-        QuickShops.interactionManager().behavior(shopModificationDialogHandler);
-        QuickShops.interactionManager().behavior(shopCreationDialogHandler);
-        QuickShops.interactionManager().behavior(tradeDialogHandler);
-    }
+        final InteractionManager interactionManager = injector.getInstance(InteractionManager.class);
+        interactionManager.behavior(injector.getInstance(ShopCreationDialogHandler.class));
+        interactionManager.behavior(injector.getInstance(ShopModificationDialogHandler.class));
+        interactionManager.behavior(injector.getInstance(TradeDialogHandler.class));
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Set<CommandFactory> commands = injector.getInstance(Key.get(new TypeLiteral<>() { }));
+            commands.forEach(command -> event.registrar().register(command.createCommand(), command.description(), command.aliases()));
+        });
     }
 }

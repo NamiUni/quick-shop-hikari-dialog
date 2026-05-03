@@ -17,24 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper;
+package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop;
 
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
-import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class QSHDialogBootstrap implements PluginBootstrap {
+public record ShopBlock(Container container, Block frontBlock, ShopComponent component) {
 
-    @Override
-    public void bootstrap(final BootstrapContext context) {
-    }
-
-    @Override
-    public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(context);
+    public ShopBlock withComponent(final ShopComponent component) {
+        return new ShopBlock(this.container, this.frontBlock, component);
     }
 }

@@ -17,24 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper;
+package io.github.namiuni.qshdialog.minecraft.paper.commands;
 
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
-import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import java.util.List;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class QSHDialogBootstrap implements PluginBootstrap {
+public interface CommandFactory {
 
-    @Override
-    public void bootstrap(final BootstrapContext context) {
+    int SINGLE_FAILED = 0;
+
+    LiteralCommandNode<CommandSourceStack> createCommand();
+
+    default List<String> aliases() {
+        return List.of();
     }
 
-    @Override
-    public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(context);
+    default String description() {
+        return "Provided by the QuickShop-Hikari Dialog";
     }
 }

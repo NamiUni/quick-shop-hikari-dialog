@@ -17,24 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper;
+package io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user;
 
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
-import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.ghostchu.quickshop.api.obj.QUser;
+import java.util.Objects;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-@SuppressWarnings("UnstableApiUsage")
-public final class QSHDialogBootstrap implements PluginBootstrap {
+record UserSessionImpl(QUser qsUser) implements UserSession, ForwardingAudience.Single {
 
     @Override
-    public void bootstrap(final BootstrapContext context) {
+    public Audience audience() {
+        return this.qsUser.getBukkitPlayer()
+                .map(Audience.class::cast)
+                .orElse(Audience.empty());
     }
 
     @Override
-    public JavaPlugin createPlugin(final PluginProviderContext context) {
-        return new QSHDialogPlugin(context);
+    public QUser qsUser() {
+        return this.qsUser;
+    }
+
+    @Override
+    @SuppressWarnings("PatternValidation")
+    public String name() {
+        return Objects.requireNonNullElse(this.qsUser.getUsername(), "Unknown");
     }
 }

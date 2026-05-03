@@ -19,75 +19,68 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.commands;
 
-import com.github.sviperll.result4j.Result;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.github.namiuni.qshdialog.minecraft.paper.configuration.ConfigurationHolder;
-import io.github.namiuni.qshdialog.minecraft.paper.configuration.PrimaryConfiguration;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSConfigurations;
-import io.github.namiuni.qshdialog.minecraft.paper.permission.Permissions;
-import io.github.namiuni.qshdialog.minecraft.paper.translation.Translations;
-import io.github.namiuni.qshdialog.minecraft.paper.translation.TranslatorHolder;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.Reloadable;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.UncheckedConfigurateException;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.configurations.PrimaryConfiguration;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.configuration.QSConfiguration;
+import io.github.namiuni.qshdialog.minecraft.paper.permission.QSHDialogPermissions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import java.io.IOException;
+import jakarta.inject.Inject;
 import java.io.UncheckedIOException;
 import java.util.List;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.translation.Translator;
 import org.bukkit.command.CommandSender;
 import org.jspecify.annotations.NullMarked;
-import org.spongepowered.configurate.ConfigurateException;
 
 @NullMarked
-public final class AdminCommand implements QSHCommand {
+public final class AdminCommand implements CommandFactory {
 
-    private final ConfigurationHolder<PrimaryConfiguration> configHolder;
-    private final TranslatorHolder translatorHolder;
-    private final Translations translations;
+    private final Reloadable<PrimaryConfiguration> primaryConfig;
+    private final Reloadable<Translator> translatorHolder;
+    private final TranslationService translations;
+    private final QSConfiguration qsConfig;
 
-    public AdminCommand(
-            final ConfigurationHolder<PrimaryConfiguration> configHolder,
-            final TranslatorHolder translatorHolder,
-            final Translations translations
+    @Inject
+    AdminCommand(
+            final Reloadable<PrimaryConfiguration> primaryConfig,
+            final Reloadable<Translator> translator,
+            final TranslationService translations,
+            final QSConfiguration qsConfig
     ) {
-        this.configHolder = configHolder;
-        this.translatorHolder = translatorHolder;
+        this.primaryConfig = primaryConfig;
+        this.translatorHolder = translator;
         this.translations = translations;
+        this.qsConfig = qsConfig;
     }
 
     @Override
-    public LiteralCommandNode<CommandSourceStack> node() {
+    public LiteralCommandNode<CommandSourceStack> createCommand() {
         return Commands.literal("qshdialog")
                 .then(Commands.literal("reload")
-                        .requires(Commands.restricted(source -> source.getSender().hasPermission(Permissions.COMMAND_RELOAD)))
+                        .requires(Commands.restricted(source -> source.getSender().hasPermission(QSHDialogPermissions.COMMAND_RELOAD)))
                         .executes(context -> {
                             final CommandSender commandSender = context.getSource().getSender();
 
-                            QSConfigurations.reload();
+                            this.qsConfig.reload();
 
-                            switch (this.configHolder.reload()) {
-                                case Result.Success<PrimaryConfiguration, ConfigurateException>(PrimaryConfiguration ignored) -> {
-                                    final Component message = this.translations.configurationReloadSuccess(commandSender);
-                                    commandSender.sendMessage(message);
-                                }
-                                case Result.Error<PrimaryConfiguration, ConfigurateException>(ConfigurateException exception) -> {
-                                    final Component message = this.translations.configurationReloadError(commandSender);
-                                    commandSender.sendMessage(message);
-                                    throw new UncheckedIOException("Failed to reload config!!", exception);
-                                }
+                            try {
+                                this.primaryConfig.reload();
+                                this.translations.configReloadSuccess(commandSender);
+                            } catch (final UncheckedConfigurateException exception) {
+                                this.translations.configReloadFailure(commandSender);
+                                return SINGLE_FAILED;
                             }
 
-                            switch (this.translatorHolder.reload()) {
-                                case Result.Success<Translator, IOException>(Translator ignore) -> {
-                                    final Component message = this.translations.translationReloadSuccess(commandSender);
-                                    commandSender.sendMessage(message);
-                                }
-                                case Result.Error<Translator, IOException>(IOException exception) -> {
-                                    final Component message = this.translations.translationReloadError(commandSender);
-                                    commandSender.sendMessage(message);
-                                    throw new UncheckedIOException("Failed to reload translation!!", exception);
-                                }
+                            try {
+                                this.translatorHolder.reload();
+                                this.translations.translationReloadSuccess(commandSender);
+                            } catch (final UncheckedIOException exception) {
+                                this.translations.translationReloadFailure(commandSender);
+                                return SINGLE_FAILED;
                             }
 
                             return Command.SINGLE_SUCCESS;
@@ -98,11 +91,11 @@ public final class AdminCommand implements QSHCommand {
 
     @Override
     public List<String> aliases() {
-        return QSHCommand.super.aliases();
+        return CommandFactory.super.aliases();
     }
 
     @Override
     public String description() {
-        return QSHCommand.super.description();
+        return CommandFactory.super.description();
     }
 }

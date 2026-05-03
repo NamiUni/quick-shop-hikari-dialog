@@ -19,8 +19,8 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.dialog;
 
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.ShopComponent;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.model.TradeType;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopComponent;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeType;
 import io.papermc.paper.dialog.DialogResponseView;
 import java.math.BigDecimal;
 import java.util.Optional;

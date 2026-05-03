@@ -32,6 +32,7 @@ spotless {
 dependencies {
     compileOnly(libs.paper.api)
     compileOnly(libs.configurate.yaml)
+    runtimeDownload(libs.guice)
     runtimeDownload(libs.configurate.hocon)
     runtimeDownload(libs.adventure.serializer.configurate)
     runtimeDownload(libs.kotonoha.message)
@@ -86,6 +87,7 @@ paperPluginYaml {
 
     dependencies {
         bootstrap("MiniPlaceholders", Load.BEFORE, false)
+        server("PlaceholderAPI", Load.BEFORE, false)
         server("QuickShop-Hikari", Load.BEFORE, true)
         server("MiniPlaceholders", Load.BEFORE, false)
     }
@@ -98,7 +100,7 @@ tasks {
     }
 
     runServer {
-        minecraftVersion("1.21.11")
+        minecraftVersion("26.1.2")
         systemProperty("log4j.configurationFile", "log4j2.xml")
         downloadPlugins {
             modrinth("luckperms", "v5.5.17-bukkit")
@@ -108,5 +110,9 @@ tasks {
             url("https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar")
             url("https://ci.minebench.de/job/craftconomy3/lastSuccessfulBuild/artifact/build/libs/CraftConomy3.jar")
         }
+    }
+
+    compileJava {
+        options.compilerArgs.add("-parameters")
     }
 }
