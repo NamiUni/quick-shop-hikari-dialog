@@ -19,9 +19,9 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs;
 
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks.ShopCreationCallbackFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopInputType;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopInputs;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks.ShopCreationCallbackFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPlaceholders;

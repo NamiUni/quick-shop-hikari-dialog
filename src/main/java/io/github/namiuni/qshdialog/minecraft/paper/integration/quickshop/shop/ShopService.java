@@ -133,7 +133,7 @@ public final class ShopService {
 
         this.signUpdater.update(newShop, user.locale());
 
-        if (!failures.isEmpty()) {
+        if (failures.isEmpty()) {
             return Result.success(new ShopSuccess(totalCost));
         } else {
             return Result.error(failures);
