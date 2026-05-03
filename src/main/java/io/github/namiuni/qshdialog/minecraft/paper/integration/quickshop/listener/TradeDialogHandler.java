@@ -24,8 +24,8 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.TradePurchaseDialogFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.TradeSellDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
@@ -51,15 +51,15 @@ public final class TradeDialogHandler implements InteractionBehavior {
     private static final String IDENTIFIER = "TRADE_DIALOG";
 
     private final TranslationService translations;
-    private final TradePurchaseDialog purchaseDialog;
-    private final TradeSellDialog sellDialog;
+    private final TradePurchaseDialogFactory purchaseDialog;
+    private final TradeSellDialogFactory sellDialog;
     private final SignUpdater signUpdater;
 
     @Inject
     TradeDialogHandler(
             final TranslationService translations,
-            final TradePurchaseDialog purchaseDialog,
-            final TradeSellDialog sellDialog,
+            final TradePurchaseDialogFactory purchaseDialog,
+            final TradeSellDialogFactory sellDialog,
             final SignUpdater signUpdater
     ) {
         this.translations = translations;

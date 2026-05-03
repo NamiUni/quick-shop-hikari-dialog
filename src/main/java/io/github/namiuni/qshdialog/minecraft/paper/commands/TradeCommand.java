@@ -21,8 +21,8 @@ package io.github.namiuni.qshdialog.minecraft.paper.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.TradePurchaseDialogFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.TradeSellDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
@@ -48,15 +48,15 @@ public final class TradeCommand implements CommandFactory {
 
     private final TranslationService translations;
     private final ShopService shopService;
-    private final TradePurchaseDialog purchaseDialog;
-    private final TradeSellDialog sellDialog;
+    private final TradePurchaseDialogFactory purchaseDialog;
+    private final TradeSellDialogFactory sellDialog;
 
     @Inject
     TradeCommand(
             final TranslationService translations,
             final ShopService shopService,
-            final TradePurchaseDialog purchaseDialog,
-            final TradeSellDialog sellDialog
+            final TradePurchaseDialogFactory purchaseDialog,
+            final TradeSellDialogFactory sellDialog
     ) {
         this.translations = translations;
         this.shopService = shopService;

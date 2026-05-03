@@ -26,7 +26,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopCreationDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.economy.PriceAnalytics;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
@@ -55,14 +55,14 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
     private static final String IDENTIFIER = "CREATION_DIALOG";
 
     private final TranslationService translations;
-    private final ShopCreationDialog shopCreationDialog;
+    private final ShopCreationDialogFactory shopCreationDialog;
     private final ShopCreationFilter shopCreationFilter;
     private final PriceAnalytics priceAnalytics;
 
     @Inject
     ShopCreationDialogHandler(
             final TranslationService translations,
-            final ShopCreationDialog shopCreationDialog,
+            final ShopCreationDialogFactory shopCreationDialog,
             final ShopCreationFilter shopCreationFilter,
             final PriceAnalytics priceAnalytics
     ) {

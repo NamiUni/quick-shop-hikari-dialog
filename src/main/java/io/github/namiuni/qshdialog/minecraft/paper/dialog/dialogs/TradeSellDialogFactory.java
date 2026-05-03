@@ -17,56 +17,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.namiuni.qshdialog.minecraft.paper.dialog;
+package io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs;
 
 import com.github.sviperll.result4j.Result;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeInputs;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks.TradeSellCallbackFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPlaceholders;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeFailure;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeQuantityCalculator;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeQuantityFailure;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.trade.TradeService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user.UserSession;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Objects;
 import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-public final class TradeSellDialog {
+public final class TradeSellDialogFactory {
 
     private final TranslationService translations;
     private final TradeInputs tradeInputs;
     private final QSPlaceholders qsPlaceholders;
-    private final TradeService tradeService;
     private final TradeQuantityCalculator quantityCalculator;
+    private final TradeSellCallbackFactory callbackFactory;
 
     @Inject
-    TradeSellDialog(
+    TradeSellDialogFactory(
             final TranslationService translations,
             final TradeInputs tradeInputs,
             final QSPlaceholders qsPlaceholders,
-            final TradeService tradeService,
-            final TradeQuantityCalculator quantityCalculator
+            final TradeQuantityCalculator quantityCalculator,
+            final TradeSellCallbackFactory callbackFactory
     ) {
         this.translations = translations;
         this.tradeInputs = tradeInputs;
         this.qsPlaceholders = qsPlaceholders;
-        this.tradeService = tradeService;
         this.quantityCalculator = quantityCalculator;
+        this.callbackFactory = callbackFactory;
     }
 
     public @Nullable DialogLike createDialog(final UserSession user, final ShopBlock shop) {
@@ -98,19 +95,8 @@ public final class TradeSellDialog {
                 .inputs(List.of(this.tradeInputs.tradeQuantity(maxQuantity, 1, user, placeholders))) // TODO スタック
                 .build();
 
-        final var callbackOptions = ClickCallback.Options.builder()
-                .uses(1)
-                .lifetime(ClickCallback.DEFAULT_LIFETIME)
-                .build();
         final var confirmButton = ActionButton.builder(this.translations.dialogTradeSellConfirmButton(user, placeholders))
-                .action(DialogAction.customClick((response, _) -> {
-                    final int quantity = Objects.requireNonNull(response.getFloat(DialogInputKeys.TRADE_QUANTITY)).intValue();
-                    final Result<Void, TradeFailure> result = this.tradeService.sell(user, shop, quantity);
-                    if (result instanceof Result.Error) {
-                        final Component message = this.translations.shopModificationFailedShopNotFound(user);
-                        user.sendMessage(message);
-                    }
-                }, callbackOptions))
+                .action(this.callbackFactory.createAction(user, shop))
                 .build();
         final var cancelButton = ActionButton.builder(this.translations.dialogTradeSellCancelButton(user, placeholders))
                 .build();

@@ -24,7 +24,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopComponent;
@@ -47,10 +47,10 @@ public final class ShopModificationDialogHandler implements InteractionBehavior 
 
     private static final String IDENTIFIER = "MODIFICATION_DIALOG";
 
-    private final ShopModificationDialog shopModificationDialog;
+    private final ShopModificationDialogFactory shopModificationDialog;
 
     @Inject
-    ShopModificationDialogHandler(final ShopModificationDialog shopModificationDialog) {
+    ShopModificationDialogHandler(final ShopModificationDialogFactory shopModificationDialog) {
         this.shopModificationDialog = shopModificationDialog;
     }
 

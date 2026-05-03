@@ -24,8 +24,8 @@ import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopCreationDialogFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopModificationDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.economy.PriceAnalytics;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
@@ -57,8 +57,8 @@ public final class ShopCommand implements CommandFactory {
     private final ShopService shopService;
     private final ShopCreationFilter shopCreationFilter;
     private final PriceAnalytics priceAnalytics;
-    private final ShopCreationDialog creationDialog;
-    private final ShopModificationDialog modificationDialog;
+    private final ShopCreationDialogFactory creationDialog;
+    private final ShopModificationDialogFactory modificationDialog;
 
     @Inject
     ShopCommand(
@@ -66,8 +66,8 @@ public final class ShopCommand implements CommandFactory {
             final ShopService shopService,
             final ShopCreationFilter shopCreationFilter,
             final PriceAnalytics priceAnalytics,
-            final ShopCreationDialog creationDialog,
-            final ShopModificationDialog modificationDialog
+            final ShopCreationDialogFactory creationDialog,
+            final ShopModificationDialogFactory modificationDialog
     ) {
         this.translations = translations;
         this.shopService = shopService;
