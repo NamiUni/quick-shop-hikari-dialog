@@ -151,7 +151,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final BlockFace blockFace
     ) {
         final Block shopBlock = switch (clickedType) {
-            case InteractionClick.SIGN -> clickedBlock.getRelative(blockFace);
+            case InteractionClick.SIGN -> clickedBlock.getRelative(blockFace.getOppositeFace());
             case InteractionClick.CONTAINER -> clickedBlock;
             default -> null;
         };
@@ -166,7 +166,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
 
         final Block frontBlock = switch (clickedType) {
             case InteractionClick.SIGN -> clickedBlock;
-            default -> clickedBlock.getRelative(blockFace);
+            default -> clickedBlock.getRelative(this.resolveBlockFace(blockFace, user));
         };
 
         if (!(shopBlock.getState() instanceof Container container)) {
@@ -181,5 +181,12 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
                 .price(this.priceAnalytics.priceRange(user, handItem).min())
                 .build();
         return Optional.of(new ShopBlock(container, frontBlock, shopComponent));
+    }
+
+    private BlockFace resolveBlockFace(final BlockFace blockFace, final UserSession user) {
+        return switch (blockFace) {
+            case NORTH, EAST, WEST, SOUTH -> blockFace;
+            default -> user.direction().getOppositeFace();
+        };
     }
 }
