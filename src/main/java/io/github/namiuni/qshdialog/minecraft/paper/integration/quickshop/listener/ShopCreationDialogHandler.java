@@ -40,6 +40,7 @@ import java.util.Optional;
 import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -109,7 +110,13 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             return;
         }
 
-        final Optional<ShopBlock> shopBlock = this.resolveShopBlock(user, clickedObject, clickedBlock, handItem);
+        final Optional<ShopBlock> shopBlock = this.resolveShopBlock(
+                user,
+                clickedObject,
+                clickedBlock,
+                handItem,
+                interactEvent.getBlockFace()
+        );
         if (shopBlock.isEmpty()) {
             return;
         }
@@ -125,7 +132,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
         }
 
         if (this.shopCreationFilter.isLimitReached(user)) {
-            final Component message = this.translations.shopCreationLimitReached(user);
+            final Component message = this.translations.shopCreationFailedLimitReached(user);
             user.sendMessage(message);
             return;
         }
@@ -140,10 +147,11 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
             final UserSession user,
             final InteractionClick clickedType,
             final Block clickedBlock,
-            final ItemStack handItem
+            final ItemStack handItem,
+            final BlockFace blockFace
     ) {
         final Block shopBlock = switch (clickedType) {
-            case InteractionClick.SIGN -> clickedBlock.getRelative(user.direction().getOppositeFace());
+            case InteractionClick.SIGN -> clickedBlock.getRelative(blockFace);
             case InteractionClick.CONTAINER -> clickedBlock;
             default -> null;
         };
@@ -158,7 +166,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
 
         final Block frontBlock = switch (clickedType) {
             case InteractionClick.SIGN -> clickedBlock;
-            default -> clickedBlock.getRelative(user.direction().getOppositeFace());
+            default -> clickedBlock.getRelative(blockFace);
         };
 
         if (!(shopBlock.getState() instanceof Container container)) {

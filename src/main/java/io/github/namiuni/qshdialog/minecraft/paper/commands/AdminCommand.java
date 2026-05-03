@@ -69,9 +69,9 @@ public final class AdminCommand implements CommandFactory {
 
                             try {
                                 this.primaryConfig.reload();
-                                this.translations.configurationReloadSuccess(commandSender);
+                                this.translations.configReloadSuccess(commandSender);
                             } catch (final UncheckedConfigurateException exception) {
-                                this.translations.configurationReloadFailure(commandSender);
+                                this.translations.configReloadFailure(commandSender);
                                 return SINGLE_FAILED;
                             }
 

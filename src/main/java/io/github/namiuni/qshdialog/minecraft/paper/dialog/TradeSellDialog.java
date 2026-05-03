@@ -78,9 +78,9 @@ public final class TradeSellDialog {
 
         if (quantityResult instanceof Result.Error<Integer, TradeQuantityFailure>(final TradeQuantityFailure failure)) {
             final Component message = switch (failure) {
-                case SHOP_INVENTORY_FULL -> this.translations.tradeErrorShopInventoryFull(user, placeholders);
-                case SHOP_INSUFFICIENT_FUNDS -> this.translations.tradeErrorShopInsufficientFunds(user, placeholders);
-                case CUSTOMER_INSUFFICIENT_ITEMS -> this.translations.tradeErrorCustomerInsufficientItems(user, placeholders);
+                case SHOP_INVENTORY_FULL -> this.translations.tradeFailedShopInventoryFull(user, placeholders);
+                case SHOP_INSUFFICIENT_FUNDS -> this.translations.tradeFailedShopInsufficientFunds(user, placeholders);
+                case CUSTOMER_INSUFFICIENT_ITEMS -> this.translations.tradeFailedCustomerInsufficientItems(user, placeholders);
                 case CUSTOMER_INVENTORY_FULL, SHOP_OUT_OF_STOCK, CUSTOMER_INSUFFICIENT_FUNDS -> null;
             };
             if (message != null) {
@@ -91,9 +91,9 @@ public final class TradeSellDialog {
 
         final int maxQuantity = ((Result.Success<Integer, TradeQuantityFailure>) quantityResult).result();
 
-        final DialogBase base = DialogBase.builder(this.translations.tradeSellTitle(user, placeholders))
+        final DialogBase base = DialogBase.builder(this.translations.dialogTradeSellTitle(user, placeholders))
                 .body(List.of(DialogBody.item(shop.component().product())
-                        .description(DialogBody.plainMessage(this.translations.tradeSellDescription(user, placeholders)))
+                        .description(DialogBody.plainMessage(this.translations.dialogTradeSellDescription(user, placeholders)))
                         .build()))
                 .inputs(List.of(this.tradeInputs.tradeQuantity(maxQuantity, 1, user, placeholders))) // TODO スタック
                 .build();
@@ -102,17 +102,17 @@ public final class TradeSellDialog {
                 .uses(1)
                 .lifetime(ClickCallback.DEFAULT_LIFETIME)
                 .build();
-        final var confirmButton = ActionButton.builder(this.translations.tradeSellConfirmButton(user, placeholders))
+        final var confirmButton = ActionButton.builder(this.translations.dialogTradeSellConfirmButton(user, placeholders))
                 .action(DialogAction.customClick((response, _) -> {
                     final int quantity = Objects.requireNonNull(response.getFloat(DialogInputKeys.TRADE_QUANTITY)).intValue();
                     final Result<Void, TradeFailure> result = this.tradeService.sell(user, shop, quantity);
                     if (result instanceof Result.Error) {
-                        final Component message = this.translations.shopModificationFailedShopNotFound(user, placeholders);
+                        final Component message = this.translations.shopModificationFailedShopNotFound(user);
                         user.sendMessage(message);
                     }
                 }, callbackOptions))
                 .build();
-        final var cancelButton = ActionButton.builder(this.translations.tradeSellCancelButton(user, placeholders))
+        final var cancelButton = ActionButton.builder(this.translations.dialogTradeSellCancelButton(user, placeholders))
                 .build();
 
         return Dialog.create(builder -> builder.empty()

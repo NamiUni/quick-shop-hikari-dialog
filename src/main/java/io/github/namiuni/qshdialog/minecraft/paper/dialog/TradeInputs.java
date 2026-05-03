@@ -41,8 +41,8 @@ public final class TradeInputs {
     }
 
     public DialogInput tradeQuantity(final int max, final int initial, final UserSession target, final TagResolver placeholders) {
-        final Component label = this.translations.inputLabelTradeQuantity(target, placeholders);
-        final String format = this.translations.inputFormatTradeQuantity(target, placeholders);
+        final Component label = this.translations.dialogTradeInputQuantity(target, placeholders);
+        final String format = this.translations.dialogTradeInputQuantityFormat(target, placeholders);
         return DialogInput.numberRange(DialogInputKeys.TRADE_QUANTITY, label, 1.0f, max)
                 .step(1.0f)
                 .initial((float) initial)

@@ -103,7 +103,7 @@ public final class ShopCreationDialog {
 
     private DialogBase createBase(final UserSession user, final ShopBlock shop, final TagResolver placeholders) {
         final ShopComponent shopComponent = shop.component();
-        final ShopInputs.Builder inputBuilder = this.shopInputs.target(user, placeholders);
+        final ShopInputs.Builder inputBuilder = this.shopInputs.forCreation(user, placeholders);
 
         for (final ShopInputType inputType : this.primaryConfig.get().creationDialogInputs()) {
             switch (inputType) {
@@ -164,9 +164,9 @@ public final class ShopCreationDialog {
             }
         }
 
-        final Component title = this.translations.shopCreationTitle(user, placeholders);
+        final Component title = this.translations.dialogCreationTitle(user, placeholders);
         final DialogBody body = DialogBody.item(shopComponent.product().asOne())
-                .description(DialogBody.plainMessage(this.translations.shopCreationDescription(user, placeholders)))
+                .description(DialogBody.plainMessage(this.translations.dialogCreationDescription(user, placeholders)))
                 .build();
         return DialogBase.builder(title)
                 .body(List.of(body))
@@ -184,14 +184,12 @@ public final class ShopCreationDialog {
                 .lifetime(ClickCallback.DEFAULT_LIFETIME)
                 .build();
 
-        // TODO: ラベルにエラー理由を追記したダイアログの再生成
         final DialogActionCallback callback = ((response, _) -> {
             final ShopComponent inputComponent;
             try {
                 inputComponent = DialogResponseParser.parse(response, preparingShop.component());
             } catch (final InvalidPriceException e) {
-                final Component message = this.translations.shopCreationFailedPriceInvalid(user, e.rawInput());
-                user.sendMessage(message);
+                user.sendMessage(this.translations.shopCreationFailedPriceInvalid(user, e.rawInput()));
                 return;
             }
 
@@ -199,37 +197,29 @@ public final class ShopCreationDialog {
             final TagResolver newPlaceholders = TagResolver.builder()
                     .resolver(this.qsPlaceholders.shopPlaceholder(shop))
                     .build();
-
-            final Result<ShopSuccess, Set<ShopFailure>> result = this.shopService.createShop(user, preparingShop.withComponent(inputComponent));
+            final Result<ShopSuccess, Set<ShopFailure>> result = this.shopService.createShop(user, shop);
             final String world = shop.container().getWorld().getName();
             switch (result) {
                 case Result.Success(ShopSuccess success) -> {
-                    // TODO: ショップの作成内容と支払いコストをDialogType.notice()を使って通知
-                    final Component message = this.translations.shopCreationSuccess(
+                    user.sendMessage(this.translations.shopCreationSuccess(
                             user,
                             success.paid(),
                             this.economyFormatter.format(success.paid(), world),
                             newPlaceholders
-                    );
-                    user.sendMessage(message);
+                    ));
                 }
                 case Result.Error(Set<ShopFailure> errors) -> {
                     for (final ShopFailure failure : errors) {
                         switch (failure) {
-                            case ShopFailure.ContainerNotFound _ -> {
-                                final Component message = this.translations.shopCreationFailedContainerNotFound(user, newPlaceholders);
-                                user.sendMessage(message);
-                            }
+                            case ShopFailure.ContainerNotFound _ ->
+                                    user.sendMessage(this.translations.shopCreationFailedContainerNotFound(user, newPlaceholders));
                             case ShopFailure.OperatorInsufficientFunds it -> {
                                 final BigDecimal cost = it.totalCost();
-                                final String formatted = this.economyFormatter.format(cost, world);
-                                final Component message = this.translations.shopCreationFailedInsufficientFunds(user, cost, formatted, newPlaceholders);
-                                user.sendMessage(message);
+                                user.sendMessage(this.translations.shopCreationFailedInsufficientFunds(
+                                        user, cost, this.economyFormatter.format(cost, world), newPlaceholders));
                             }
-                            case ShopFailure.PriceOutOfRange _ -> {
-                                final Component message = this.translations.shopCreationFailedPriceOutOfRange(user, newPlaceholders);
-                                user.sendMessage(message);
-                            }
+                            case ShopFailure.PriceOutOfRange _ ->
+                                    user.sendMessage(this.translations.shopCreationFailedPriceOutOfRange(user, newPlaceholders));
                             default -> {
                                 // ignored
                             }
@@ -239,10 +229,10 @@ public final class ShopCreationDialog {
             }
         });
 
-        final var applyButton = ActionButton.builder(this.translations.shopCreationConfirmButton(user, placeholders))
+        final var applyButton = ActionButton.builder(this.translations.dialogCreationConfirmButton(user, placeholders))
                 .action(DialogAction.customClick(callback, callbackOptions))
                 .build();
-        final var cancelButton = ActionButton.builder(this.translations.shopCreationCancelButton(user, placeholders))
+        final var cancelButton = ActionButton.builder(this.translations.dialogCreationCancelButton(user, placeholders))
                 .build();
 
         return DialogType.confirmation(applyButton, cancelButton);
