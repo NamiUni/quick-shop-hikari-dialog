@@ -26,6 +26,7 @@ import com.google.inject.multibindings.Multibinder;
 import io.github.namiuni.qshdialog.minecraft.paper.commands.AdminCommand;
 import io.github.namiuni.qshdialog.minecraft.paper.commands.CommandFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.commands.ShopCommand;
+import io.github.namiuni.qshdialog.minecraft.paper.commands.TradeCommand;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.InfrastructureModule;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QuickShopModule;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
@@ -60,5 +61,6 @@ public final class QSHDialogModule extends AbstractModule {
         final Multibinder<CommandFactory> commands = Multibinder.newSetBinder(this.binder(), CommandFactory.class);
         commands.addBinding().to(AdminCommand.class).in(Scopes.SINGLETON);
         commands.addBinding().to(ShopCommand.class).in(Scopes.SINGLETON);
+        commands.addBinding().to(TradeCommand.class).in(Scopes.SINGLETON);
     }
 }

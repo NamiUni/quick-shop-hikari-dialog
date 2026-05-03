@@ -75,6 +75,16 @@ public interface TranslationService {
     @Message(locale = Locales.JA_JP, content = "<jis_red>対象のブロックはコンテナまたは壁面看板ではありません。")
     Component commandShopFailedInvalidBlock(Pointered target);
 
+    @Key("qsh_dialog.command.shop.failure.world_not_allowed")
+    @Message(locale = Locales.ROOT, content = "<jis_red>Shops cannot be created in this world.")
+    @Message(locale = Locales.JA_JP, content = "<jis_red>このワールドではショップを作成できません。")
+    Component commandShopFailedWorldNotAllowed(Pointered target);
+
+    @Key("qsh_dialog.command.shop.failure.product_not_allowed")
+    @Message(locale = Locales.ROOT, content = "<jis_red>This item cannot be used as a shop product.")
+    @Message(locale = Locales.JA_JP, content = "<jis_red>このアイテムはショップの商品として使用できません。")
+    Component commandShopFailedProductNotAllowed(Pointered target);
+
     // =========================================================================
     // Dialog — creation
     // =========================================================================

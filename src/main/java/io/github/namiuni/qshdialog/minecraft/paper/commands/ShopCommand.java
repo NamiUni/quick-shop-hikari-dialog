@@ -26,8 +26,6 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopCreationDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopModificationDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradePurchaseDialog;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeSellDialog;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.economy.PriceAnalytics;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
@@ -40,7 +38,6 @@ import io.github.namiuni.qshdialog.minecraft.paper.permission.QSHDialogPermissio
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import jakarta.inject.Inject;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import net.kyori.adventure.dialog.DialogLike;
@@ -62,8 +59,6 @@ public final class ShopCommand implements CommandFactory {
     private final PriceAnalytics priceAnalytics;
     private final ShopCreationDialog creationDialog;
     private final ShopModificationDialog modificationDialog;
-    private final TradePurchaseDialog purchaseDialog;
-    private final TradeSellDialog sellDialog;
 
     @Inject
     ShopCommand(
@@ -72,9 +67,7 @@ public final class ShopCommand implements CommandFactory {
             final ShopCreationFilter shopCreationFilter,
             final PriceAnalytics priceAnalytics,
             final ShopCreationDialog creationDialog,
-            final ShopModificationDialog modificationDialog,
-            final TradePurchaseDialog purchaseDialog,
-            final TradeSellDialog sellDialog
+            final ShopModificationDialog modificationDialog
     ) {
         this.translations = translations;
         this.shopService = shopService;
@@ -82,8 +75,6 @@ public final class ShopCommand implements CommandFactory {
         this.priceAnalytics = priceAnalytics;
         this.creationDialog = creationDialog;
         this.modificationDialog = modificationDialog;
-        this.purchaseDialog = purchaseDialog;
-        this.sellDialog = sellDialog;
     }
 
     @Override
@@ -91,18 +82,7 @@ public final class ShopCommand implements CommandFactory {
         return Commands.literal("shopdialog")
                 .then(this.createNode())
                 .then(this.modificationNode())
-                .then(this.tradeNode())
                 .build();
-    }
-
-    @Override
-    public List<String> aliases() {
-        return CommandFactory.super.aliases();
-    }
-
-    @Override
-    public String description() {
-        return CommandFactory.super.description();
     }
 
     private CommandNode<CommandSourceStack> createNode() {
@@ -122,13 +102,13 @@ public final class ShopCommand implements CommandFactory {
                     }
 
                     if (!this.shopCreationFilter.isWorldAllowed(targetBlock.getWorld())) {
-                        // TODO: message
+                        user.sendMessage(this.translations.commandShopFailedWorldNotAllowed(user));
                         return SINGLE_FAILED;
                     }
 
                     final ItemStack handItem = user.inventory().getItemInMainHand();
                     if (!this.shopCreationFilter.isProductAllowed(handItem)) {
-                        // TODO: message
+                        user.sendMessage(this.translations.commandShopFailedProductNotAllowed(user));
                         return SINGLE_FAILED;
                     }
 
@@ -195,55 +175,6 @@ public final class ShopCommand implements CommandFactory {
                     }
 
                     user.showDialog(this.modificationDialog.createDialog(user, existing.get()));
-                    return Command.SINGLE_SUCCESS;
-                })
-                .build();
-    }
-
-    private CommandNode<CommandSourceStack> tradeNode() {
-        return Commands.literal("trade")
-                .requires(source -> source.getExecutor() instanceof Player player
-                        && player.hasPermission(QSPermissions.USE)
-                        && player.hasPermission(QSHDialogPermissions.COMMAND_TRADE)
-                )
-                .executes(context -> {
-                    final Player player = (Player) Objects.requireNonNull(context.getSource().getExecutor());
-                    final UserSession user = UserSession.of(player);
-
-                    final Block target = user.targetBlock();
-                    if (target == null) {
-                        user.sendMessage(this.translations.commandShopFailedNoTargetBlock(user));
-                        return SINGLE_FAILED;
-                    }
-
-                    final Container container = resolveContainer(target);
-                    if (container == null) {
-                        user.sendMessage(this.translations.commandShopFailedInvalidBlock(user));
-                        return SINGLE_FAILED;
-                    }
-
-                    final Optional<ShopBlock> shopOpt = this.shopService.findShop(container.getLocation());
-                    if (shopOpt.isEmpty()) {
-                        user.sendMessage(this.translations.shopModificationFailedShopNotFound(user));
-                        return SINGLE_FAILED;
-                    }
-
-                    final ShopBlock shop = shopOpt.get();
-                    if (!shop.component().available()) {
-                        user.sendMessage(this.translations.tradeFailedShopUnavailable(user));
-                        return SINGLE_FAILED;
-                    }
-
-                    final DialogLike dialog = switch (shop.component().tradeType()) {
-                        case SELLING -> this.purchaseDialog.createDialog(user, shop);
-                        case BUYING -> this.sellDialog.createDialog(user, shop);
-                    };
-
-                    if (dialog == null) {
-                        return SINGLE_FAILED;
-                    }
-
-                    user.showDialog(dialog);
                     return Command.SINGLE_SUCCESS;
                 })
                 .build();
