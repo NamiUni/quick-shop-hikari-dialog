@@ -23,6 +23,7 @@ import io.github.namiuni.kotonoha.annotations.Key;
 import io.github.namiuni.kotonoha.annotations.Locales;
 import io.github.namiuni.kotonoha.annotations.Message;
 import io.github.namiuni.kotonoha.annotations.ResourceBundle;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user.UserSession;
 import java.math.BigDecimal;
 import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
@@ -37,12 +38,12 @@ public interface TranslationService {
     // Admin — config reload
     // =========================================================================
 
-    @Key("qsh_dialog.admin.config.reload.success")
+    @Key("qsh_dialog.config.reload.success")
     @Message(locale = Locales.ROOT, content = "<jis_green>Configuration reloaded successfully.")
     @Message(locale = Locales.JA_JP, content = "<jis_green>設定の再読み込みに成功しました。")
     Component configReloadSuccess(Pointered target);
 
-    @Key("qsh_dialog.admin.config.reload.failure")
+    @Key("qsh_dialog.config.reload.failure")
     @Message(locale = Locales.ROOT, content = "<jis_red>Failed to reload configuration. See the console for details.")
     @Message(locale = Locales.JA_JP, content = "<jis_red>設定の再読み込みに失敗しました。詳細はコンソールを確認してください。")
     Component configReloadFailure(Pointered target);
@@ -51,12 +52,12 @@ public interface TranslationService {
     // Admin — translation reload
     // =========================================================================
 
-    @Key("qsh_dialog.admin.translation.reload.success")
+    @Key("qsh_dialog.translation.reload.success")
     @Message(locale = Locales.ROOT, content = "<jis_green>Translations reloaded successfully.")
     @Message(locale = Locales.JA_JP, content = "<jis_green>翻訳の再読み込みに成功しました。")
     Component translationReloadSuccess(Pointered target);
 
-    @Key("qsh_dialog.admin.translation.reload.failure")
+    @Key("qsh_dialog.translation.reload.failure")
     @Message(locale = Locales.ROOT, content = "<jis_red>Failed to reload translations. See the console for details.")
     @Message(locale = Locales.JA_JP, content = "<jis_red>翻訳の再読み込みに失敗しました。詳細はコンソールを確認してください。")
     Component translationReloadFailure(Pointered target);
@@ -413,4 +414,9 @@ public interface TranslationService {
     @Message(locale = Locales.ROOT, content = "<quickshop:you-dont-have-that-many-items:0:'<shop_product_display_name>'>")
     @Message(locale = Locales.JA_JP, content = "<quickshop:you-dont-have-that-many-items:0:'<shop_product_display_name>'>")
     Component tradeFailedCustomerInsufficientItems(Pointered target, TagResolver placeholders);
+
+    @Key("qsh_dialog.trade.failure.shop_not_found")
+    @Message(locale = Locales.ROOT, content = "<jis_red>Trade failed. The shop could not be found.")
+    @Message(locale = Locales.JA_JP, content = "<jis_red>取引に失敗しました。対象のショップが見つかりません。")
+    Component tradeFailedShopNotFound(UserSession user);
 }

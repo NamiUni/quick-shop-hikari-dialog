@@ -89,7 +89,7 @@ public final class TradeCommand implements CommandFactory {
 
                     final Optional<ShopBlock> shopOpt = this.shopService.findShop(container.getLocation());
                     if (shopOpt.isEmpty()) {
-                        user.sendMessage(this.translations.shopModificationFailedShopNotFound(user));
+                        user.sendMessage(this.translations.tradeFailedShopNotFound(user));
                         return SINGLE_FAILED;
                     }
 
