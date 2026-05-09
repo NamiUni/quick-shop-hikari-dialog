@@ -132,7 +132,7 @@ public final class ShopCreationDialogHandler implements InteractionBehavior {
         }
 
         if (this.shopCreationFilter.isLimitReached(user)) {
-            final Component message = this.translations.shopCreationFailedLimitReached(user);
+            final Component message = this.translations.shopCreationFailureLimitReached(user);
             user.sendMessage(message);
             return;
         }

@@ -75,9 +75,9 @@ public final class TradeSellDialogFactory {
 
         if (quantityResult instanceof Result.Error<Integer, TradeQuantityFailure>(final TradeQuantityFailure failure)) {
             final Component message = switch (failure) {
-                case SHOP_INVENTORY_FULL -> this.translations.tradeFailedShopInventoryFull(user, placeholders);
-                case SHOP_INSUFFICIENT_FUNDS -> this.translations.tradeFailedShopInsufficientFunds(user, placeholders);
-                case CUSTOMER_INSUFFICIENT_ITEMS -> this.translations.tradeFailedCustomerInsufficientItems(user, placeholders);
+                case SHOP_INVENTORY_FULL -> this.translations.tradeSellFailureShopInventoryFull(user, placeholders);
+                case SHOP_INSUFFICIENT_FUNDS -> this.translations.tradeSellFailureShopInsufficientFunds(user, placeholders);
+                case CUSTOMER_INSUFFICIENT_ITEMS -> this.translations.tradeSellFailureCustomerInsufficientItems(user, placeholders);
                 case CUSTOMER_INVENTORY_FULL, SHOP_OUT_OF_STOCK, CUSTOMER_INSUFFICIENT_FUNDS -> null;
             };
             if (message != null) {
@@ -88,17 +88,17 @@ public final class TradeSellDialogFactory {
 
         final int maxQuantity = ((Result.Success<Integer, TradeQuantityFailure>) quantityResult).result();
 
-        final DialogBase base = DialogBase.builder(this.translations.dialogTradeSellTitle(user, placeholders))
+        final DialogBase base = DialogBase.builder(this.translations.tradeSellDialogTitle(user, placeholders))
                 .body(List.of(DialogBody.item(shop.component().product())
-                        .description(DialogBody.plainMessage(this.translations.dialogTradeSellDescription(user, placeholders)))
+                        .description(DialogBody.plainMessage(this.translations.tradePurchaseDialogDescription(user, placeholders)))
                         .build()))
-                .inputs(List.of(this.tradeInputs.tradeQuantity(maxQuantity, 1, user, placeholders))) // TODO スタック
+                .inputs(List.of(this.tradeInputs.tradeQuantityForSell(maxQuantity, 1, user, placeholders))) // TODO スタック
                 .build();
 
-        final var confirmButton = ActionButton.builder(this.translations.dialogTradeSellConfirmButton(user, placeholders))
+        final var confirmButton = ActionButton.builder(this.translations.tradeSellDialogConfirm(user, placeholders))
                 .action(this.callbackFactory.createAction(user, shop))
                 .build();
-        final var cancelButton = ActionButton.builder(this.translations.dialogTradeSellCancelButton(user, placeholders))
+        final var cancelButton = ActionButton.builder(this.translations.tradeSellDialogCancel(user, placeholders))
                 .build();
 
         return Dialog.create(builder -> builder.empty()

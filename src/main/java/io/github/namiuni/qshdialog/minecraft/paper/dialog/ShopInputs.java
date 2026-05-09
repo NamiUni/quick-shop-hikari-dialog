@@ -92,8 +92,8 @@ public final class ShopInputs {
 
         public Builder name(final @Nullable String initial, final Component errorText) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputName(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputName(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputName(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputName(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.text(DialogInputKeys.SHOP_NAME, withError(label, errorText))
                     .initial(Objects.requireNonNullElse(initial, ""))
@@ -105,15 +105,22 @@ public final class ShopInputs {
 
         public Builder tradeType(final List<TradeType> available, final TradeType initial) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputTradeType(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputTradeType(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputTradeType(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputTradeType(this.user, this.placeholders);
             };
             final var entries = available.stream()
                     .map(tradeType -> {
-                        final Component optionLabel = switch (tradeType) {
-                            case SELLING -> ShopInputs.this.translations.tradeTypeSelling(this.user);
-                            case BUYING -> ShopInputs.this.translations.tradeTypeBuying(this.user);
+                        final Component optionLabel = switch (this.context) {
+                            case CREATION -> switch (tradeType) {
+                                case SELLING -> ShopInputs.this.translations.shopCreationInputTradeTypeSelling(this.user);
+                                case BUYING -> ShopInputs.this.translations.shopCreationInputTradeTypeBuying(this.user);
+                            };
+                            case MODIFICATION -> switch (tradeType) {
+                                case SELLING -> ShopInputs.this.translations.shopModificationInputTradeTypeSelling(this.user);
+                                case BUYING -> ShopInputs.this.translations.shopModificationInputTradeTypeBuying(this.user);
+                            };
                         };
+
                         return SingleOptionDialogInput.OptionEntry.create(tradeType.name(), optionLabel, tradeType == initial);
                     })
                     .toList();
@@ -125,8 +132,8 @@ public final class ShopInputs {
 
         public Builder currency(final @Nullable String initial) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputCurrency(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputCurrency(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputCurrency(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputCurrency(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.text(DialogInputKeys.SHOP_CURRENCY, label)
                     .initial(Objects.requireNonNullElse(initial, ""))
@@ -137,12 +144,12 @@ public final class ShopInputs {
 
         public Builder quantity(final int max, final int initial) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputQuantity(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputQuantity(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputQuantity(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputQuantity(this.user, this.placeholders);
             };
             final String format = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputQuantityFormat(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputQuantityFormat(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputQuantityFormat(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputQuantityFormat(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.numberRange(DialogInputKeys.SHOP_QUANTITY, label, 1.0f, max)
                     .step(1.0f)
@@ -159,8 +166,8 @@ public final class ShopInputs {
 
         public Builder price(final BigDecimal initial, final Component errorText) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputPrice(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputPrice(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputPrice(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputPrice(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.text(DialogInputKeys.SHOP_PRICE, withError(label, errorText))
                     .initial(initial.toPlainString())
@@ -171,8 +178,8 @@ public final class ShopInputs {
 
         public Builder status(final boolean initial) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputStatus(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputStatus(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputStatus(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputStatus(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.bool(DialogInputKeys.SHOP_AVAILABLE, label)
                     .initial(initial)
@@ -183,8 +190,8 @@ public final class ShopInputs {
 
         public Builder display(final boolean initial) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputDisplay(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputDisplay(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputDisplay(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputDisplay(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.bool(DialogInputKeys.SHOP_DISPLAY_VISIBLE, label)
                     .initial(initial)
@@ -195,8 +202,8 @@ public final class ShopInputs {
 
         public Builder stock(final boolean initial) {
             final Component label = switch (this.context) {
-                case CREATION -> ShopInputs.this.translations.dialogCreationInputInfiniteStock(this.user, this.placeholders);
-                case MODIFICATION -> ShopInputs.this.translations.dialogModificationInputInfiniteStock(this.user, this.placeholders);
+                case CREATION -> ShopInputs.this.translations.shopCreationInputInfiniteStock(this.user, this.placeholders);
+                case MODIFICATION -> ShopInputs.this.translations.shopModificationInputInfiniteStock(this.user, this.placeholders);
             };
             final DialogInput input = DialogInput.bool(DialogInputKeys.SHOP_INFINITE_STOCK, label)
                     .initial(initial)

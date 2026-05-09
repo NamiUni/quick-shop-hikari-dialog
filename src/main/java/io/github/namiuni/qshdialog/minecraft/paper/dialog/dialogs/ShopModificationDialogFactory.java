@@ -152,9 +152,9 @@ public final class ShopModificationDialogFactory {
             }
         }
 
-        final Component title = this.translations.dialogModificationTitle(user, placeholders);
+        final Component title = this.translations.shopModificationDialogTitle(user, placeholders);
         final DialogBody body = DialogBody.item(shopComponent.product().asOne())
-                .description(DialogBody.plainMessage(this.translations.dialogModificationDescription(user, placeholders)))
+                .description(DialogBody.plainMessage(this.translations.shopModificationDialogDescription(user, placeholders)))
                 .build();
         return DialogBase.builder(title)
                 .body(List.of(body))
@@ -167,10 +167,10 @@ public final class ShopModificationDialogFactory {
             final ShopBlock shop,
             final TagResolver placeholders
     ) {
-        final ActionButton applyButton = ActionButton.builder(this.translations.dialogModificationConfirmButton(user, placeholders))
+        final ActionButton applyButton = ActionButton.builder(this.translations.shopCreationDialogConfirm(user, placeholders))
                 .action(this.callbackFactory.createAction(user, shop))
                 .build();
-        final ActionButton cancelButton = ActionButton.builder(this.translations.dialogModificationCancelButton(user, placeholders))
+        final ActionButton cancelButton = ActionButton.builder(this.translations.shopCreationDialogCancel(user, placeholders))
                 .build();
         return DialogType.confirmation(applyButton, cancelButton);
     }

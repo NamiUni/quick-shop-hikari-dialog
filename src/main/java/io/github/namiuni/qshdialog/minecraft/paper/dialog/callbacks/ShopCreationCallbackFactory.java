@@ -74,7 +74,7 @@ public final class ShopCreationCallbackFactory {
             try {
                 inputComponent = DialogResponseParser.parse(response, preparingShop.component());
             } catch (final InvalidPriceException e) {
-                user.sendMessage(this.translations.shopCreationFailedPriceInvalid(user, e.rawInput()));
+                user.sendMessage(this.translations.shopCreationFailurePriceInvalid(user, e.rawInput()));
                 return;
             }
 
@@ -93,14 +93,14 @@ public final class ShopCreationCallbackFactory {
                 case Result.Error(final Set<ShopFailure> errors) -> errors.forEach(failure -> {
                     switch (failure) {
                         case ShopFailure.ContainerNotFound _ ->
-                                user.sendMessage(this.translations.shopCreationFailedContainerNotFound(user, newPlaceholders));
+                                user.sendMessage(this.translations.shopCreationFailureContainerNotFound(user, newPlaceholders));
                         case ShopFailure.OperatorInsufficientFunds it -> {
                             final BigDecimal cost = it.totalCost();
-                            user.sendMessage(this.translations.shopCreationFailedInsufficientFunds(
+                            user.sendMessage(this.translations.shopCreationFailureInsufficientFunds(
                                     user, cost, this.economyFormatter.format(cost, world), newPlaceholders));
                         }
                         case ShopFailure.PriceOutOfRange _ ->
-                                user.sendMessage(this.translations.shopCreationFailedPriceOutOfRange(user, newPlaceholders));
+                                user.sendMessage(this.translations.shopCreationFailurePriceOutOfRange(user, newPlaceholders));
                         default -> { }
                     }
                 });

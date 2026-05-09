@@ -40,9 +40,19 @@ public final class TradeInputs {
         this.translations = translations;
     }
 
-    public DialogInput tradeQuantity(final int max, final int initial, final UserSession target, final TagResolver placeholders) {
-        final Component label = this.translations.dialogTradeInputQuantity(target, placeholders);
-        final String format = this.translations.dialogTradeInputQuantityFormat(target, placeholders);
+    public DialogInput tradeQuantityForPurchase(final int max, final int initial, final UserSession target, final TagResolver placeholders) {
+        final Component label = this.translations.tradePurchaseInputQuantity(target, placeholders);
+        final String format = this.translations.tradePurchaseInputQuantityFormat(target, placeholders);
+        return DialogInput.numberRange(DialogInputKeys.TRADE_QUANTITY, label, 1.0f, max)
+                .step(1.0f)
+                .initial((float) initial)
+                .labelFormat(format)
+                .build();
+    }
+
+    public DialogInput tradeQuantityForSell(final int max, final int initial, final UserSession target, final TagResolver placeholders) {
+        final Component label = this.translations.tradeSellInputQuantity(target, placeholders);
+        final String format = this.translations.tradeSellInputQuantityFormat(target, placeholders);
         return DialogInput.numberRange(DialogInputKeys.TRADE_QUANTITY, label, 1.0f, max)
                 .step(1.0f)
                 .initial((float) initial)
