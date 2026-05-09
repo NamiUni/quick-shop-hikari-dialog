@@ -97,35 +97,35 @@ public final class ShopCommand implements CommandFactory {
 
                     final Block targetBlock = user.targetBlock();
                     if (targetBlock == null) {
-                        user.sendMessage(this.translations.shopCreationFailureNoTargetBlock(user));
+                        user.sendMessage(this.translations.shopCreateFailNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     if (!this.shopCreationFilter.isWorldAllowed(targetBlock.getWorld())) {
-                        user.sendMessage(this.translations.shopCreationFailureWorldNotAllowed(user));
+                        user.sendMessage(this.translations.shopCreateFailWorldNotAllowed(user));
                         return SINGLE_FAILED;
                     }
 
                     final ItemStack handItem = user.inventory().getItemInMainHand();
                     if (!this.shopCreationFilter.isProductAllowed(handItem)) {
-                        user.sendMessage(this.translations.shopCreationFailureProductNotAllowed(user));
+                        user.sendMessage(this.translations.shopCreateFailProductNotAllowed(user));
                         return SINGLE_FAILED;
                     }
 
                     final ShopBlock shop = this.resolveShopBlockForCreation(user, targetBlock);
                     if (shop == null) {
-                        user.sendMessage(this.translations.shopCreationFailureInvalidBlock(user));
+                        user.sendMessage(this.translations.shopCreateFailInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     if (this.shopCreationFilter.isLimitReached(user)) {
-                        user.sendMessage(this.translations.shopCreationFailureLimitReached(user));
+                        user.sendMessage(this.translations.shopCreateFailLimitReached(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> existing = this.shopService.findShop(shop.component().location());
                     if (existing.isPresent()) {
-                        user.sendMessage(this.translations.shopCreationFailureAlreadyExists(user));
+                        user.sendMessage(this.translations.shopCreateFailAlreadyExists(user));
                         return SINGLE_FAILED;
                     }
 
@@ -158,19 +158,19 @@ public final class ShopCommand implements CommandFactory {
 
                     final Block target = user.targetBlock();
                     if (target == null) {
-                        user.sendMessage(this.translations.shopModificationFailureNoTargetBlock(user));
+                        user.sendMessage(this.translations.shopEditFailNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Container container = resolveContainer(target);
                     if (container == null) {
-                        user.sendMessage(this.translations.shopModificationFailureInvalidBlock(user));
+                        user.sendMessage(this.translations.shopEditFailInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> existing = this.shopService.findShop(container.getLocation());
                     if (existing.isEmpty()) {
-                        user.sendMessage(this.translations.shopModificationFailureShopNotFound(user));
+                        user.sendMessage(this.translations.shopEditFailShopNotFound(user));
                         return SINGLE_FAILED;
                     }
 

@@ -20,7 +20,7 @@
 package io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.TradeInputs;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.DialogInputKeys;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks.TradePurchaseCallbackFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPlaceholders;
@@ -32,6 +32,7 @@ import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
+import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -48,7 +49,6 @@ import org.jspecify.annotations.Nullable;
 public final class TradePurchaseDialogFactory {
 
     private final TranslationService translations;
-    private final TradeInputs tradeInputs;
     private final QSPlaceholders qsPlaceholders;
     private final TradeQuantityCalculator quantityCalculator;
     private final TradePurchaseCallbackFactory callbackFactory;
@@ -56,13 +56,11 @@ public final class TradePurchaseDialogFactory {
     @Inject
     TradePurchaseDialogFactory(
             final TranslationService translations,
-            final TradeInputs tradeInputs,
             final QSPlaceholders qsPlaceholders,
             final TradeQuantityCalculator quantityCalculator,
             final TradePurchaseCallbackFactory callbackFactory
     ) {
         this.translations = translations;
-        this.tradeInputs = tradeInputs;
         this.qsPlaceholders = qsPlaceholders;
         this.quantityCalculator = quantityCalculator;
         this.callbackFactory = callbackFactory;
@@ -74,9 +72,11 @@ public final class TradePurchaseDialogFactory {
         final Result<Integer, TradeQuantityFailure> quantityResult = this.quantityCalculator.purchasableQuantity(user, shop);
         if (quantityResult instanceof Result.Error<Integer, TradeQuantityFailure>(final TradeQuantityFailure failure)) {
             final Component message = switch (failure) {
-                case CUSTOMER_INVENTORY_FULL -> this.translations.tradePurchaseFailureCustomerInventoryFull(user, 0, placeholders);
-                case SHOP_OUT_OF_STOCK -> this.translations.tradePurchaseFailureShopOutOfStock(user, placeholders);
-                case CUSTOMER_INSUFFICIENT_FUNDS -> this.translations.tradePurchaseFailureCustomerInsufficientFunds(user, placeholders);
+                case CUSTOMER_INVENTORY_FULL ->
+                        this.translations.tradePurchaseFailCustomerInventoryFull(user, 0, placeholders);
+                case SHOP_OUT_OF_STOCK -> this.translations.tradePurchaseFailShopOutOfStock(user, placeholders);
+                case CUSTOMER_INSUFFICIENT_FUNDS ->
+                        this.translations.tradePurchaseFailCustomerInsufficientFunds(user, placeholders);
                 default -> null;
             };
             if (message != null) {
@@ -86,12 +86,21 @@ public final class TradePurchaseDialogFactory {
         }
 
         final int maxQuantity = ((Result.Success<Integer, TradeQuantityFailure>) quantityResult).result();
+        final Component label = this.translations.tradeInputQuantity(user, placeholders);
+        final String format = this.translations.tradeInputQuantityFormat(user, placeholders);
+        final List<DialogInput> inputs = List.of(
+                DialogInput.numberRange(DialogInputKeys.TRADE_QUANTITY, label, 1.0f, maxQuantity)
+                        .step(1.0f)
+                        .initial(1.0f)
+                        .labelFormat(format)
+                        .build()
+        );
 
         final DialogBase base = DialogBase.builder(this.translations.tradePurchaseDialogTitle(user, placeholders))
                 .body(List.of(DialogBody.item(shop.component().product())
                         .description(DialogBody.plainMessage(this.translations.tradePurchaseDialogDescription(user, placeholders)))
                         .build()))
-                .inputs(List.of(this.tradeInputs.tradeQuantityForPurchase(maxQuantity, 1, user, placeholders)))
+                .inputs(inputs)
                 .build();
 
         final ActionButton confirmButton = ActionButton.builder(this.translations.tradePurchaseDialogConfirm(user, placeholders))

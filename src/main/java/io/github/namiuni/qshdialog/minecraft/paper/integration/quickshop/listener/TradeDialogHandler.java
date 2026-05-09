@@ -95,8 +95,8 @@ public final class TradeDialogHandler implements InteractionBehavior {
         final UserSession customer = UserSession.of(player);
         final ShopComponent shopComponent = ShopConverter.toShopComponent(qsShop);
 
-        if (!shopComponent.available()) {
-            customer.sendMessage(this.translations.tradeCommonFailureShopUnavailable(customer));
+        if (!shopComponent.status()) {
+            customer.sendMessage(this.translations.tradeCommonFailShopUnavailable(customer));
             return;
         }
 

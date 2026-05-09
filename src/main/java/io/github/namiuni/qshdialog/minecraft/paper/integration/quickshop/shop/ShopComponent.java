@@ -51,7 +51,7 @@ public record ShopComponent(
         BigDecimal price,
 
         // Status
-        boolean available,
+        boolean status,
         boolean displayVisible,
         boolean infiniteStock,
 
@@ -80,7 +80,7 @@ public record ShopComponent(
                 .tradeType(this.tradeType)
                 .currency(this.currency)
                 .price(this.price)
-                .available(this.available)
+                .available(this.status)
                 .displayVisible(this.displayVisible)
                 .infiniteStock(this.infiniteStock)
                 .accessLevels(this.accessLevels);

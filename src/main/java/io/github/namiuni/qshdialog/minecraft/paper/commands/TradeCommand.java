@@ -77,25 +77,25 @@ public final class TradeCommand implements CommandFactory {
 
                     final Block target = user.targetBlock();
                     if (target == null) {
-                        user.sendMessage(this.translations.tradeCommonFailureNoTargetBlock(user));
+                        user.sendMessage(this.translations.tradeCommonFailNoTargetBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Container container = resolveContainer(target);
                     if (container == null) {
-                        user.sendMessage(this.translations.tradeCommonFailureInvalidBlock(user));
+                        user.sendMessage(this.translations.tradeCommonFailInvalidBlock(user));
                         return SINGLE_FAILED;
                     }
 
                     final Optional<ShopBlock> shopOpt = this.shopService.findShop(container.getLocation());
                     if (shopOpt.isEmpty()) {
-                        user.sendMessage(this.translations.tradeCommonFailureShopNotFound(user));
+                        user.sendMessage(this.translations.tradeCommonFailShopNotFound(user));
                         return SINGLE_FAILED;
                     }
 
                     final ShopBlock shop = shopOpt.get();
-                    if (!shop.component().available()) {
-                        user.sendMessage(this.translations.tradeCommonFailureShopUnavailable(user));
+                    if (!shop.component().status()) {
+                        user.sendMessage(this.translations.tradeCommonFailShopUnavailable(user));
                         return SINGLE_FAILED;
                     }
 

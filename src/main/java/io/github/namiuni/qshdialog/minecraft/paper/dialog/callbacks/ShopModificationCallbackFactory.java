@@ -76,7 +76,7 @@ public final class ShopModificationCallbackFactory {
             try {
                 updatedComponent = DialogResponseParser.parse(response, shop.component());
             } catch (final InvalidPriceException e) {
-                user.sendMessage(this.translations.shopModificationFailurePriceInvalid(user, e.rawInput(), originalPlaceholders));
+                user.sendMessage(this.translations.shopEditFailPriceInvalid(user, e.rawInput(), originalPlaceholders));
                 return;
             }
 
@@ -86,7 +86,7 @@ public final class ShopModificationCallbackFactory {
 
             switch (this.shopService.updateShop(user, updatedShop)) {
                 case Result.Success(final ShopSuccess success) -> user.sendMessage(
-                        this.translations.shopModificationSuccess(
+                        this.translations.shopEditSuccess(
                                 user,
                                 success.paid(),
                                 this.economyFormatter.format(success.paid(), world, updatedComponent.currency()),
@@ -95,14 +95,14 @@ public final class ShopModificationCallbackFactory {
                 case Result.Error(final Set<ShopFailure> errors) -> errors.forEach(failure -> {
                     switch (failure) {
                         case ShopFailure.ShopNotFound _ ->
-                                user.sendMessage(this.translations.shopModificationFailureShopNotFound(user));
+                                user.sendMessage(this.translations.shopEditFailShopNotFound(user));
                         case ShopFailure.OperatorInsufficientFunds it -> {
                             final BigDecimal cost = it.totalCost();
-                            user.sendMessage(this.translations.shopModificationFailureInsufficientFunds(
+                            user.sendMessage(this.translations.shopEditFailInsufficientFunds(
                                     user, cost, this.economyFormatter.format(cost, world), newPlaceholders));
                         }
                         case ShopFailure.PriceOutOfRange _ ->
-                                user.sendMessage(this.translations.shopModificationFailurePriceOutOfRange(
+                                user.sendMessage(this.translations.shopEditFailPriceOutOfRange(
                                         user, updatedComponent.price(), newPlaceholders));
                         default -> { }
                     }

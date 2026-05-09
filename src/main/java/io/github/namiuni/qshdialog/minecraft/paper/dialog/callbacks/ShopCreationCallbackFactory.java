@@ -20,6 +20,7 @@
 package io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks;
 
 import com.github.sviperll.result4j.Result;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.DialogInputKeys;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.DialogResponseParser;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.InvalidPriceException;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
@@ -31,10 +32,16 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.Sh
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopSuccess;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user.UserSession;
+import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.DialogRegistryEntry;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.input.DialogInput;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -68,13 +75,16 @@ public final class ShopCreationCallbackFactory {
         this.economyFormatter = economyFormatter;
     }
 
-    public DialogAction createAction(final UserSession user, final ShopBlock preparingShop) {
+    public DialogAction createAction(
+            final UserSession user,
+            final ShopBlock preparingShop
+    ) {
         return DialogAction.customClick((response, _) -> {
             final ShopComponent inputComponent;
             try {
                 inputComponent = DialogResponseParser.parse(response, preparingShop.component());
             } catch (final InvalidPriceException e) {
-                user.sendMessage(this.translations.shopCreationFailurePriceInvalid(user, e.rawInput()));
+                user.sendMessage(this.translations.shopCreateFailPriceInvalid(user, e.rawInput()));
                 return;
             }
 
@@ -84,7 +94,7 @@ public final class ShopCreationCallbackFactory {
 
             switch (this.shopService.createShop(user, shop)) {
                 case Result.Success(final ShopSuccess success) -> user.sendMessage(
-                        this.translations.shopCreationSuccess(
+                        this.translations.shopCreateSuccess(
                                 user,
                                 success.paid(),
                                 this.economyFormatter.format(success.paid(), world),
@@ -93,14 +103,14 @@ public final class ShopCreationCallbackFactory {
                 case Result.Error(final Set<ShopFailure> errors) -> errors.forEach(failure -> {
                     switch (failure) {
                         case ShopFailure.ContainerNotFound _ ->
-                                user.sendMessage(this.translations.shopCreationFailureContainerNotFound(user, newPlaceholders));
+                                user.sendMessage(this.translations.shopCreateFailContainerNotFound(user, newPlaceholders));
                         case ShopFailure.OperatorInsufficientFunds it -> {
                             final BigDecimal cost = it.totalCost();
-                            user.sendMessage(this.translations.shopCreationFailureInsufficientFunds(
+                            user.sendMessage(this.translations.shopCreateFailInsufficientFunds(
                                     user, cost, this.economyFormatter.format(cost, world), newPlaceholders));
                         }
                         case ShopFailure.PriceOutOfRange _ ->
-                                user.sendMessage(this.translations.shopCreationFailurePriceOutOfRange(user, newPlaceholders));
+                                user.sendMessage(this.translations.shopCreateFailPriceOutOfRange(user, newPlaceholders));
                         default -> { }
                     }
                 });

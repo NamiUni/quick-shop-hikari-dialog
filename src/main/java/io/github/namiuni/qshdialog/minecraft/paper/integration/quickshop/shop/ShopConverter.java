@@ -85,7 +85,7 @@ public final class ShopConverter {
     }
 
     public static IShopType toQSShopType(final ShopComponent shopComponent) {
-        if (!shopComponent.available()) {
+        if (!shopComponent.status()) {
             return SimpleShopManager.FROZEN_TYPE;
         }
         return switch (shopComponent.tradeType()) {

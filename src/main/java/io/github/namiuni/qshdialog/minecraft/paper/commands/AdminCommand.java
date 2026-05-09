@@ -71,7 +71,7 @@ public final class AdminCommand implements CommandFactory {
                                 this.primaryConfig.reload();
                                 this.translations.configReloadSuccess(commandSender);
                             } catch (final UncheckedConfigurateException exception) {
-                                this.translations.configReloadFailure(commandSender);
+                                this.translations.configReloadFail(commandSender);
                                 return SINGLE_FAILED;
                             }
 
@@ -79,7 +79,7 @@ public final class AdminCommand implements CommandFactory {
                                 this.translatorHolder.reload();
                                 this.translations.translationReloadSuccess(commandSender);
                             } catch (final UncheckedIOException exception) {
-                                this.translations.translationReloadFailure(commandSender);
+                                this.translations.translationReloadFail(commandSender);
                                 return SINGLE_FAILED;
                             }
 

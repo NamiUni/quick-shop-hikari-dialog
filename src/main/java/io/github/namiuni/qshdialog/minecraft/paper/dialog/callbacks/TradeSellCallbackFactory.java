@@ -58,7 +58,7 @@ public final class TradeSellCallbackFactory {
         return DialogAction.customClick((response, _) -> {
             final int quantity = Objects.requireNonNull(response.getFloat(DialogInputKeys.TRADE_QUANTITY)).intValue();
             if (this.tradeService.sell(user, shop, quantity) instanceof Result.Error) {
-                user.sendMessage(this.translations.tradeCommonFailureShopNotFound(user));
+                user.sendMessage(this.translations.tradeCommonFailShopNotFound(user));
             }
         }, CALLBACK_OPTIONS);
     }
