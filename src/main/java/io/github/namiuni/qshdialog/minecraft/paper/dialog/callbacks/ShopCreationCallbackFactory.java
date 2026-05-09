@@ -20,7 +20,6 @@
 package io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks;
 
 import com.github.sviperll.result4j.Result;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.DialogInputKeys;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.DialogResponseParser;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.InvalidPriceException;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
@@ -32,16 +31,10 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.Sh
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopSuccess;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.user.UserSession;
-import io.papermc.paper.registry.data.dialog.DialogBase;
-import io.papermc.paper.registry.data.dialog.DialogRegistryEntry;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import io.papermc.paper.registry.data.dialog.input.DialogInput;
-import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
