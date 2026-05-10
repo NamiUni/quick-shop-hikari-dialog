@@ -44,7 +44,7 @@ public final class DialogResponseParser {
             }
         }
 
-        Optional.ofNullable(response.getFloat(DialogInputKeys.SHOP_QUANTITY))
+        Optional.ofNullable(response.getFloat(DialogInputKeys.SHOP_UNIT))
                 .map(Float::intValue)
                 .ifPresent(i -> builder.product(current.product().asQuantity(i)));
 
@@ -52,13 +52,13 @@ public final class DialogResponseParser {
                 .map(TradeType::valueOf)
                 .ifPresent(builder::tradeType);
 
-        Optional.ofNullable(response.getBoolean(DialogInputKeys.SHOP_AVAILABLE))
+        Optional.ofNullable(response.getBoolean(DialogInputKeys.SHOP_STATUS))
                 .ifPresent(builder::available);
 
-        Optional.ofNullable(response.getBoolean(DialogInputKeys.SHOP_DISPLAY_VISIBLE))
+        Optional.ofNullable(response.getBoolean(DialogInputKeys.SHOP_DISPLAY))
                 .ifPresent(builder::displayVisible);
 
-        Optional.ofNullable(response.getBoolean(DialogInputKeys.SHOP_INFINITE_STOCK))
+        Optional.ofNullable(response.getBoolean(DialogInputKeys.SHOP_UNLIMITED_STOCK))
                 .ifPresent(builder::infiniteStock);
 
         Optional.ofNullable(response.getText(DialogInputKeys.SHOP_NAME))
