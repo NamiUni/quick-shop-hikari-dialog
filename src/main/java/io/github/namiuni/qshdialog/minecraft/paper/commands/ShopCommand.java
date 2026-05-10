@@ -24,8 +24,8 @@ import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopCreationDialogFactory;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopModificationDialogFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopCreateDialogFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopEditDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.economy.PriceAnalytics;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
@@ -57,8 +57,8 @@ public final class ShopCommand implements CommandFactory {
     private final ShopService shopService;
     private final ShopCreationFilter shopCreationFilter;
     private final PriceAnalytics priceAnalytics;
-    private final ShopCreationDialogFactory creationDialog;
-    private final ShopModificationDialogFactory modificationDialog;
+    private final ShopCreateDialogFactory createDialog;
+    private final ShopEditDialogFactory editDialog;
 
     @Inject
     ShopCommand(
@@ -66,22 +66,22 @@ public final class ShopCommand implements CommandFactory {
             final ShopService shopService,
             final ShopCreationFilter shopCreationFilter,
             final PriceAnalytics priceAnalytics,
-            final ShopCreationDialogFactory creationDialog,
-            final ShopModificationDialogFactory modificationDialog
+            final ShopCreateDialogFactory createDialog,
+            final ShopEditDialogFactory editDialog
     ) {
         this.translations = translations;
         this.shopService = shopService;
         this.shopCreationFilter = shopCreationFilter;
         this.priceAnalytics = priceAnalytics;
-        this.creationDialog = creationDialog;
-        this.modificationDialog = modificationDialog;
+        this.createDialog = createDialog;
+        this.editDialog = editDialog;
     }
 
     @Override
     public LiteralCommandNode<CommandSourceStack> createCommand() {
         return Commands.literal("shopdialog")
                 .then(this.createNode())
-                .then(this.modificationNode())
+                .then(this.editNode())
                 .build();
     }
 
@@ -139,15 +139,15 @@ public final class ShopCommand implements CommandFactory {
                         return SINGLE_FAILED;
                     }
 
-                    final DialogLike dialog = this.creationDialog.createDialog(user, shop);
+                    final DialogLike dialog = this.createDialog.createDialog(user, shop);
                     user.showDialog(dialog);
                     return Command.SINGLE_SUCCESS;
                 })
                 .build();
     }
 
-    private CommandNode<CommandSourceStack> modificationNode() {
-        return Commands.literal("modify")
+    private CommandNode<CommandSourceStack> editNode() {
+        return Commands.literal("edit")
                 .requires(source -> source.getExecutor() instanceof Player player
                         && player.hasPermission(QSPermissions.USE)
                         && player.hasPermission(QSHDialogPermissions.COMMAND_MODIFY)
@@ -174,7 +174,7 @@ public final class ShopCommand implements CommandFactory {
                         return SINGLE_FAILED;
                     }
 
-                    user.showDialog(this.modificationDialog.createDialog(user, existing.get()));
+                    user.showDialog(this.editDialog.createDialog(user, existing.get()));
                     return Command.SINGLE_SUCCESS;
                 })
                 .build();

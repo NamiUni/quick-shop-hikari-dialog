@@ -25,8 +25,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import io.github.namiuni.qshdialog.minecraft.paper.commands.CommandFactory;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.ShopCreationDialogHandler;
-import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.ShopModificationDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.ShopCreateDialogHandler;
+import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.ShopEditDialogHandler;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listener.TradeDialogHandler;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -50,8 +50,8 @@ public final class QSHDialogPlugin extends JavaPlugin {
         final Injector injector = Guice.createInjector(module);
 
         final InteractionManager interactionManager = injector.getInstance(InteractionManager.class);
-        interactionManager.behavior(injector.getInstance(ShopCreationDialogHandler.class));
-        interactionManager.behavior(injector.getInstance(ShopModificationDialogHandler.class));
+        interactionManager.behavior(injector.getInstance(ShopCreateDialogHandler.class));
+        interactionManager.behavior(injector.getInstance(ShopEditDialogHandler.class));
         interactionManager.behavior(injector.getInstance(TradeDialogHandler.class));
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {

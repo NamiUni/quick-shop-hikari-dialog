@@ -25,9 +25,9 @@ import org.jspecify.annotations.NullMarked;
 public final class QSHDialogPermissions {
 
     public static final String COMMAND_RELOAD = "qshdialog.command.admin.reload";
-    public static final String COMMAND_CREATE = "qshdialog.command.shopdialog.create";
-    public static final String COMMAND_MODIFY = "qshdialog.command.shopdialog.modify";
-    public static final String COMMAND_TRADE = "qshdialog.command.shopdialog.trade";
+    public static final String COMMAND_CREATE = "qshdialog.command.shop.create";
+    public static final String COMMAND_MODIFY = "qshdialog.command.shop.edit";
+    public static final String COMMAND_TRADE = "qshdialog.command.trade";
 
     private QSHDialogPermissions() {
     }

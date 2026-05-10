@@ -21,7 +21,7 @@ package io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs;
 
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopInputType;
 import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopInputs;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks.ShopModificationCallbackFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.callbacks.ShopCreateCallbackFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.configurations.PrimaryConfiguration;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation.translations.TranslationService;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.QSPlaceholders;
@@ -52,7 +52,7 @@ import org.jspecify.annotations.NullMarked;
 @Singleton
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-public final class ShopModificationDialogFactory {
+public final class ShopCreateDialogFactory {
 
     private final Provider<PrimaryConfiguration> primaryConfig;
     private final TranslationService translations;
@@ -60,17 +60,17 @@ public final class ShopModificationDialogFactory {
     private final QSPlaceholders qsPlaceholders;
     private final EconomyService economyService;
     private final QSConfiguration qsConfig;
-    private final ShopModificationCallbackFactory callbackFactory;
+    private final ShopCreateCallbackFactory callbackFactory;
 
     @Inject
-    ShopModificationDialogFactory(
+    ShopCreateDialogFactory(
             final Provider<PrimaryConfiguration> primaryConfig,
             final TranslationService translations,
             final ShopInputs shopInputs,
             final QSPlaceholders qsPlaceholders,
             final EconomyService economyService,
             final QSConfiguration qsConfig,
-            final ShopModificationCallbackFactory callbackFactory
+            final ShopCreateCallbackFactory callbackFactory
     ) {
         this.primaryConfig = primaryConfig;
         this.translations = translations;
@@ -83,28 +83,27 @@ public final class ShopModificationDialogFactory {
 
     public DialogLike createDialog(final UserSession user, final ShopBlock shop) {
         final TagResolver placeholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
-        return Dialog.create(db -> db.empty()
+        return Dialog.create(builder -> builder.empty()
                 .base(this.createBase(user, shop, placeholders))
                 .type(this.createType(user, shop, placeholders)));
     }
 
     private DialogBase createBase(final UserSession user, final ShopBlock shop, final TagResolver placeholders) {
         final ShopComponent shopComponent = shop.component();
-        final boolean isStaff = shopComponent.isStaff(user.uuid());
-        final ShopInputs.Builder inputBuilder = this.shopInputs.forModification(user, placeholders);
+        final ShopInputs.Builder inputBuilder = this.shopInputs.forCreate(user, placeholders);
 
-        for (final ShopInputType inputType : this.primaryConfig.get().modificationDialogInputs()) {
+        for (final ShopInputType inputType : this.primaryConfig.get().dialog().shopCreateInputs()) {
             switch (inputType) {
-                case NAME -> {
-                    if (user.hasPermission(QSPermissions.SHOP_NAMING_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_NAMING)) {
-                        inputBuilder.name(shopComponent.name());
+                case SHOP_NAME -> {
+                    if (user.hasPermission(QSPermissions.SHOP_NAMING)) {
+                        inputBuilder.shopName(shopComponent.name());
                     }
                 }
                 case TRADE_TYPE -> {
                     final List<TradeType> modes = new ArrayList<>();
-                    if (user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_SELLING_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_SELLING))
+                    if (user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_SELLING))
                         modes.add(TradeType.SELLING);
-                    if (user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_BUYING_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_BUYING))
+                    if (user.hasPermission(QSPermissions.SHOP_TRADE_TYPE_BUYING))
                         modes.add(TradeType.BUYING);
                     if (!modes.isEmpty()) {
                         inputBuilder.tradeType(modes, shopComponent.tradeType());
@@ -113,62 +112,62 @@ public final class ShopModificationDialogFactory {
                 case CURRENCY -> {
                     final String currency = shop.component().currency();
                     if (currency != null && this.economyService.supportsMultiCurrency()) {
-                        if (user.hasPermission(QSPermissions.SHOP_CURRENCY_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_CURRENCY)) {
+                        if (user.hasPermission(QSPermissions.SHOP_CURRENCY)) {
                             inputBuilder.currency(shopComponent.currency());
                         }
                     }
                 }
-                case PRODUCT_QUANTITY -> {
+                case UNIT -> {
                     if (this.qsConfig.supportsUnitTransaction()) {
-                        if (isStaff && user.hasPermission(QSPermissions.SHOP_PRODUCT_QUANTITY)) {
+                        if (user.hasPermission(QSPermissions.SHOP_UNIT)) {
                             final int maxStackSize = Objects.requireNonNullElse(
                                     shopComponent.product().getData(DataComponentTypes.MAX_STACK_SIZE),
                                     shopComponent.product().getMaxStackSize()
                             );
-                            inputBuilder.quantity(maxStackSize, shopComponent.product().getAmount());
+                            inputBuilder.unit(maxStackSize, shopComponent.product().getAmount());
                         }
                     }
                 }
                 case PRICE -> {
-                    if (user.hasPermission(QSPermissions.SHOP_PRICE_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_PRICE)) {
+                    if (user.hasPermission(QSPermissions.SHOP_PRICE)) {
                         inputBuilder.price(shopComponent.price());
                     }
                 }
                 case STATUS -> {
-                    if (user.hasPermission(QSPermissions.SHOP_TOGGLE_STATUS_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_TOGGLE_STATUS)) {
+                    if (user.hasPermission(QSPermissions.SHOP_TOGGLE_STATUS)) {
                         inputBuilder.status(shopComponent.available());
                     }
                 }
                 case DISPLAY -> {
-                    if (user.hasPermission(QSPermissions.SHOP_TOGGLE_DISPLAY_OTHER) || isStaff && user.hasPermission(QSPermissions.SHOP_TOGGLE_DISPLAY)) {
+                    if (user.hasPermission(QSPermissions.SHOP_TOGGLE_DISPLAY)) {
                         inputBuilder.display(shopComponent.displayVisible());
                     }
                 }
-                case STOCK -> {
-                    if (user.hasPermission(QSPermissions.SHOP_INFINITE_STOCK)) {
-                        inputBuilder.stock(shopComponent.infiniteStock());
+                case UNLIMITED_STOCK -> {
+                    if (user.hasPermission(QSPermissions.SHOP_UNLIMITED_STOCK)) {
+                        inputBuilder.unlimitedStock(shopComponent.infiniteStock());
                     }
                 }
             }
         }
 
-        final Component title = this.translations.shopModificationDialogTitle(user, placeholders);
+        final Component title = this.translations.shopCreationDialogTitle(user, placeholders);
         final DialogBody body = DialogBody.item(shopComponent.product().asOne())
-                .description(DialogBody.plainMessage(this.translations.shopModificationDialogDescription(user, placeholders)))
+                .description(DialogBody.plainMessage(this.translations.shopCreationDialogDescription(user, placeholders)))
                 .build();
         return DialogBase.builder(title)
                 .body(List.of(body))
-                .inputs(inputBuilder.buildInputs())
+                .inputs(inputBuilder.build())
                 .build();
     }
 
     private DialogType createType(
             final UserSession user,
-            final ShopBlock shop,
+            final ShopBlock preparingShop,
             final TagResolver placeholders
     ) {
         final ActionButton applyButton = ActionButton.builder(this.translations.shopCreationDialogConfirm(user, placeholders))
-                .action(this.callbackFactory.createAction(user, shop))
+                .action(this.callbackFactory.createAction(user, preparingShop))
                 .build();
         final ActionButton cancelButton = ActionButton.builder(this.translations.shopCreationDialogCancel(user, placeholders))
                 .build();

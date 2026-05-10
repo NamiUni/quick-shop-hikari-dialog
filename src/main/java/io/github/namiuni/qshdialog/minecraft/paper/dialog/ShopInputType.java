@@ -24,14 +24,14 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public enum ShopInputType {
-    NAME("name"),
+    SHOP_NAME("shop_name"),
     TRADE_TYPE("trade_type"),
     CURRENCY("currency"),
-    PRODUCT_QUANTITY("product_quantity"),
+    UNIT("unit"),
     PRICE("price"),
     STATUS("status"),
     DISPLAY("display"),
-    STOCK("stock");
+    UNLIMITED_STOCK("unlimited_stock");
 
     private final String name;
 
@@ -41,14 +41,14 @@ public enum ShopInputType {
 
     public static ShopInputType of(final String name) {
         return switch (name.toLowerCase(Locale.ROOT)) {
-            case "name" -> NAME;
+            case "shop_name" -> SHOP_NAME;
             case "trade_type" -> TRADE_TYPE;
             case "currency" -> CURRENCY;
-            case "product_quantity" -> PRODUCT_QUANTITY;
+            case "unit" -> UNIT;
             case "price" -> PRICE;
             case "status" -> STATUS;
             case "display" -> DISPLAY;
-            case "stock" -> STOCK;
+            case "unlimited_stock" -> UNLIMITED_STOCK;
             default -> throw new IllegalArgumentException();
         };
     }

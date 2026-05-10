@@ -106,10 +106,10 @@ public interface TranslationService {
     @Message(locale = Locales.JA_JP, content = "通貨")
     Component shopCreationInputCurrency(Pointered target, TagResolver placeholders);
 
-    @Key("qsh_dialog.shop.create.dialog.input.infinite_stock")
+    @Key("qsh_dialog.shop.create.dialog.input.unlimited_stock")
     @Message(locale = Locales.ROOT, content = "Unlimited Stock")
     @Message(locale = Locales.JA_JP, content = "在庫無制限")
-    Component shopCreationInputInfiniteStock(Pointered target, TagResolver placeholders);
+    Component shopCreationInputUnlimitedStock(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.input.price")
     @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>)")
@@ -210,8 +210,8 @@ public interface TranslationService {
     Component shopModificationDialogDescription(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.shop_name")
-    @Message(locale = Locales.ROOT, content = "Shop Name (Rename Cost: <user_cost:shop_modify_name_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "ショップ名 (変更費用: <user_cost:shop_modify_name_formatted>)")
+    @Message(locale = Locales.ROOT, content = "Shop Name (Rename Cost: <user_cost:shop_edit_name_formatted>)")
+    @Message(locale = Locales.JA_JP, content = "ショップ名 (変更費用: <user_cost:shop_edit_name_formatted>)")
     Component shopModificationInputName(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.trade_type")
@@ -244,14 +244,14 @@ public interface TranslationService {
     @Message(locale = Locales.JA_JP, content = "通貨")
     Component shopModificationInputCurrency(Pointered target, TagResolver placeholders);
 
-    @Key("qsh_dialog.shop.edit.dialog.input.infinite_stock")
+    @Key("qsh_dialog.shop.edit.dialog.input.unlimited_stock")
     @Message(locale = Locales.ROOT, content = "Unlimited Stock")
     @Message(locale = Locales.JA_JP, content = "在庫無制限")
-    Component shopModificationInputInfiniteStock(Pointered target, TagResolver placeholders);
+    Component shopModificationInputUnlimitedStock(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.price")
-    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, Cost: <user_cost:shop_modify_price_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, 変更費用: <user_cost:shop_modify_price_formatted>)")
+    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, Cost: <user_cost:shop_edit_price_formatted>)")
+    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, 変更費用: <user_cost:shop_edit_price_formatted>)")
     Component shopModificationInputPrice(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.unit")
@@ -327,7 +327,7 @@ public interface TranslationService {
     @Message(locale = Locales.JA_JP, content = "数量を入力したら <b><jis_green>購入</jis_green></b> をクリックしてください。")
     Component tradePurchaseDialogDescription(Pointered target, TagResolver placeholders);
 
-    @Key("qsh_dialog.trade.purchase.dialog.input.amout")
+    @Key("qsh_dialog.trade.purchase.dialog.input.amount")
     @Message(locale = Locales.ROOT, content = "Amount")
     @Message(locale = Locales.JA_JP, content = "数量")
     Component tradePurchaseInputQuantity(Pointered target, TagResolver placeholders);

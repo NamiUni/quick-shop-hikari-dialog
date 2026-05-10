@@ -38,48 +38,56 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
         
         Available Behaviors:
           TRADE_DIALOG        - Dialog for buying/selling items at a shop
-          CREATION_DIALOG     - Dialog for creating a new shop
-          MODIFICATION_DIALOG - Dialog for modifying an existing shop
+          SHOP_CREATE_DIALOG  - Dialog for creating a new shop
+          SHOP_EDIT_DIALOG    - Dialog for modifying an existing shop
         
         Example configuration:
           STANDING_LEFT_CLICK_SIGN: TRADE_DIALOG
-          STANDING_RIGHT_CLICK_SIGN: MODIFICATION_DIALOG
+          STANDING_RIGHT_CLICK_SIGN: SHOP_EDIT_DIALOG
           STANDING_LEFT_CLICK_SHOPBLOCK: TRADE_DIALOG
           STANDING_RIGHT_CLICK_SHOPBLOCK: NONE # Reserved for opening chest
-          STANDING_LEFT_CLICK_CONTAINER: CREATION_DIALOG
+          STANDING_LEFT_CLICK_CONTAINER: SHOP_CREATE_DIALOG
           STANDING_RIGHT_CLICK_CONTAINER:  NONE
         """)
-public record PrimaryConfiguration(
+public record PrimaryConfiguration(DialogConfig dialog) {
 
-        @Comment("""
-                Input fields displayed in the shop creation dialog (CREATION_DIALOG).
-                Available values: name, trade_type, currency, product_quantity, price, status, display, stock""")
-        List<ShopInputType> creationDialogInputs,
+    @ConfigSerializable
+    public record DialogConfig(
 
-        @Comment("""
-                Input fields displayed in the shop modification dialog (MODIFICATION_DIALOG).
-                Available values: name, trade_type, currency, product_quantity, price, status, display, stock""")
-        List<ShopInputType> modificationDialogInputs
-) {
+            @Comment("""
+                    Input fields displayed in the shop create dialog (SHOP_CREATE_DIALOG).
+                    Available values: shop_name, trade_type, currency, unit, price, status, display, unlimited_stock""")
+            List<ShopInputType> shopCreateInputs,
+
+            @Comment("""
+                    Input fields displayed in the shop edit dialog (SHOP_EDIT_DIALOG).
+                    Available values: name, trade_type, currency, unit, price, status, display, unlimited_stock""")
+            List<ShopInputType> shopEditInputs
+    ) {
+    }
 
     public static final PrimaryConfiguration DEFAULT = new PrimaryConfiguration(
-            List.of(ShopInputType.NAME,
-                    ShopInputType.TRADE_TYPE,
-                    ShopInputType.CURRENCY,
-                    ShopInputType.PRODUCT_QUANTITY,
-                    ShopInputType.PRICE,
-                    ShopInputType.STATUS,
-                    ShopInputType.DISPLAY,
-                    ShopInputType.STOCK
-            ),
-            List.of(ShopInputType.NAME,
-                    ShopInputType.TRADE_TYPE,
-                    ShopInputType.CURRENCY,
-                    ShopInputType.PRODUCT_QUANTITY,
-                    ShopInputType.PRICE,
-                    ShopInputType.STATUS,
-                    ShopInputType.DISPLAY,
-                    ShopInputType.STOCK
+            new DialogConfig(
+                    List.of(
+                            ShopInputType.SHOP_NAME,
+                            ShopInputType.TRADE_TYPE,
+                            ShopInputType.CURRENCY,
+                            ShopInputType.UNIT,
+                            ShopInputType.PRICE,
+                            ShopInputType.STATUS,
+                            ShopInputType.DISPLAY,
+                            ShopInputType.UNLIMITED_STOCK
+                    ),
+                    List.of(
+                            ShopInputType.SHOP_NAME,
+                            ShopInputType.TRADE_TYPE,
+                            ShopInputType.CURRENCY,
+                            ShopInputType.UNIT,
+                            ShopInputType.PRICE,
+                            ShopInputType.STATUS,
+                            ShopInputType.DISPLAY,
+                            ShopInputType.UNLIMITED_STOCK
+                    )
             )
     );
 }

@@ -24,7 +24,7 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionBehavior;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionClick;
 import com.ghostchu.quickshop.api.shop.interaction.InteractionType;
-import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopModificationDialogFactory;
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.dialogs.ShopEditDialogFactory;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.permission.QSPermissions;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopBlock;
 import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.shop.ShopComponent;
@@ -43,15 +43,15 @@ import org.jspecify.annotations.Nullable;
 
 @Singleton
 @NullMarked
-public final class ShopModificationDialogHandler implements InteractionBehavior {
+public final class ShopEditDialogHandler implements InteractionBehavior {
 
-    private static final String IDENTIFIER = "MODIFICATION_DIALOG";
+    private static final String IDENTIFIER = "SHOP_EDIT_DIALOG";
 
-    private final ShopModificationDialogFactory shopModificationDialog;
+    private final ShopEditDialogFactory shopEditDialogFactory;
 
     @Inject
-    ShopModificationDialogHandler(final ShopModificationDialogFactory shopModificationDialog) {
-        this.shopModificationDialog = shopModificationDialog;
+    ShopEditDialogHandler(final ShopEditDialogFactory shopEditDialogFactory) {
+        this.shopEditDialogFactory = shopEditDialogFactory;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class ShopModificationDialogHandler implements InteractionBehavior 
         }
         final Sign shopSign = signs.getFirst();
         final ShopBlock shopBlock = new ShopBlock(container, shopSign.getBlock(), shopComponent);
-        final DialogLike dialog = this.shopModificationDialog.createDialog(user, shopBlock);
+        final DialogLike dialog = this.shopEditDialogFactory.createDialog(user, shopBlock);
 
         user.showDialog(dialog);
     }
@@ -103,7 +103,7 @@ public final class ShopModificationDialogHandler implements InteractionBehavior 
     private static boolean canModify(final UserSession user, final ShopComponent shopComponent) {
         return shopComponent.isStaff(user.uuid())
                 || hasAnyModificationOtherPermission(user)
-                || user.hasPermission(QSPermissions.SHOP_INFINITE_STOCK);
+                || user.hasPermission(QSPermissions.SHOP_UNLIMITED_STOCK);
     }
 
     private static boolean hasAnyModificationOtherPermission(final UserSession user) {

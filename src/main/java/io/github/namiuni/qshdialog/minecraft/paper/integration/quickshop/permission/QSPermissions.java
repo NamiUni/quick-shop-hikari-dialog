@@ -42,8 +42,8 @@ public final class QSPermissions {
     public static final String SHOP_TOGGLE_DISPLAY_OTHER = "quickshop.other.toggledisplay";
 
     // Product quantity
-    public static final String SHOP_PRODUCT_QUANTITY = "quickshop.create.stacks";
-    // public static final String SHOP_PRODUCT_QUANTITY_OTHER = "quickshop.other.stacks";
+    public static final String SHOP_UNIT = "quickshop.create.stacks";
+    // public static final String SHOP_UNIT_OTHER = "quickshop.other.stacks";
 
     // Naming
     public static final String SHOP_NAMING = "quickshop.shopnaming";
@@ -54,7 +54,7 @@ public final class QSPermissions {
     public static final String SHOP_CURRENCY_OTHER = "quickshop.other.currency";
 
     // Infinite stock
-    public static final String SHOP_INFINITE_STOCK = "quickshop.unlimited";
+    public static final String SHOP_UNLIMITED_STOCK = "quickshop.unlimited";
 
     // Price
     public static final String SHOP_PRICE = "quickshop.create.changeprice";

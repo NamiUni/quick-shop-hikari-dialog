@@ -180,19 +180,19 @@ public final class QSPlaceholders {
                     final BigDecimal createCost = this.costCalculator.calculateCreateCost(user);
                     return Tag.preProcessParsed(this.economyFormatter.format(createCost, user.world()));
                 }
-                case "shop_modify_name" -> {
+                case "shop_edit_name" -> {
                     final BigDecimal namingCost = this.costCalculator.calculateNamingCost(user);
                     return Tag.preProcessParsed(namingCost.toPlainString());
                 }
-                case "shop_modify_name_formatted" -> {
+                case "shop_edit_name_formatted" -> {
                     final BigDecimal namingCost = this.costCalculator.calculateNamingCost(user);
                     return Tag.preProcessParsed(this.economyFormatter.format(namingCost, user.world()));
                 }
-                case "shop_modify_price" -> {
+                case "shop_edit_price" -> {
                     final BigDecimal pricingCost = this.costCalculator.calculatePricingCost(user);
                     return Tag.preProcessParsed(pricingCost.toPlainString());
                 }
-                case "shop_modify_price_formatted" -> {
+                case "shop_edit_price_formatted" -> {
                     final BigDecimal pricingCost = this.costCalculator.calculatePricingCost(user);
                     return Tag.preProcessParsed(this.economyFormatter.format(pricingCost, user.world()));
                 }

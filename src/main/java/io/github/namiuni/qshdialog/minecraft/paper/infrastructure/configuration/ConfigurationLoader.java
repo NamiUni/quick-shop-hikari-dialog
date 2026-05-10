@@ -19,9 +19,11 @@
  */
 package io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration;
 
+import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopInputType;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.DataDirectory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.annotations.ConfigHeader;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.annotations.ConfigName;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.serializer.ShopInputTypeSerializer;
 import java.nio.file.Path;
 import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -73,6 +75,7 @@ public final class ConfigurationLoader<T extends Record> {
                         .header(configHeader)
                         .serializers(builder -> builder
                                 .registerAll(kyoriSerializer)
+                                .register(ShopInputType.class, ShopInputTypeSerializer.INSTANCE)
                         )
                 )
                 .path(configPath)

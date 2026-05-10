@@ -43,7 +43,7 @@ import org.jspecify.annotations.NullMarked;
 @Singleton
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
-public final class ShopModificationCallbackFactory {
+public final class ShopCreateCallbackFactory {
 
     private static final ClickCallback.Options CALLBACK_OPTIONS = ClickCallback.Options.builder()
             .uses(1)
@@ -56,7 +56,7 @@ public final class ShopModificationCallbackFactory {
     private final EconomyFormatter economyFormatter;
 
     @Inject
-    ShopModificationCallbackFactory(
+    ShopCreateCallbackFactory(
             final TranslationService translations,
             final ShopService shopService,
             final QSPlaceholders qsPlaceholders,
@@ -68,42 +68,39 @@ public final class ShopModificationCallbackFactory {
         this.economyFormatter = economyFormatter;
     }
 
-    public DialogAction createAction(final UserSession user, final ShopBlock shop) {
-        final TagResolver originalPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
-
+    public DialogAction createAction(final UserSession user, final ShopBlock preparingShop) {
         return DialogAction.customClick((response, _) -> {
-            final ShopComponent updatedComponent;
+            final ShopComponent inputComponent;
             try {
-                updatedComponent = DialogResponseParser.parse(response, shop.component());
+                inputComponent = DialogResponseParser.parse(response, preparingShop.component());
             } catch (final InvalidPriceException e) {
-                user.sendMessage(this.translations.shopModificationFailurePriceInvalid(user, e.rawInput(), originalPlaceholders));
+                user.sendMessage(this.translations.shopCreationFailurePriceInvalid(user, e.rawInput()));
                 return;
             }
 
-            final ShopBlock updatedShop = shop.withComponent(updatedComponent);
-            final TagResolver newPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(updatedShop));
+            final ShopBlock shop = preparingShop.withComponent(inputComponent);
+            final TagResolver newPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
             final String world = shop.container().getWorld().getName();
 
-            switch (this.shopService.updateShop(user, updatedShop)) {
+            switch (this.shopService.createShop(user, shop)) {
                 case Result.Success(final ShopSuccess success) -> user.sendMessage(
-                        this.translations.shopModificationSuccess(
+                        this.translations.shopCreationSuccess(
                                 user,
                                 success.paid(),
-                                this.economyFormatter.format(success.paid(), world, updatedComponent.currency()),
+                                this.economyFormatter.format(success.paid(), world),
                                 newPlaceholders
                         ));
                 case Result.Error(final Set<ShopFailure> errors) -> errors.forEach(failure -> {
                     switch (failure) {
-                        case ShopFailure.ShopNotFound _ ->
-                                user.sendMessage(this.translations.shopModificationFailureShopNotFound(user));
+                        case ShopFailure.ContainerNotFound _ ->
+                                user.sendMessage(this.translations.shopCreationFailureContainerNotFound(user, newPlaceholders));
                         case ShopFailure.OperatorInsufficientFunds it -> {
                             final BigDecimal cost = it.totalCost();
-                            user.sendMessage(this.translations.shopModificationFailureInsufficientFunds(
+                            user.sendMessage(this.translations.shopCreationFailureInsufficientFunds(
                                     user, cost, this.economyFormatter.format(cost, world), newPlaceholders));
                         }
                         case ShopFailure.PriceOutOfRange _ ->
-                                user.sendMessage(this.translations.shopModificationFailurePriceOutOfRange(
-                                        user, updatedComponent.price(), newPlaceholders));
+                                user.sendMessage(this.translations.shopCreationFailurePriceOutOfRange(user, newPlaceholders));
                         default -> { }
                     }
                 });
