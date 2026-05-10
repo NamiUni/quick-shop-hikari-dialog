@@ -112,8 +112,8 @@ public interface TranslationService {
     Component shopCreationInputUnlimitedStock(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.input.price")
-    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>)")
-    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>)")
+    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_id>':min> - <price:'<shop_product_id>':max>)")
+    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_id>':min> - <price:'<shop_product_id>':max>)")
     Component shopCreationInputPrice(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.input.unit")
@@ -141,8 +141,8 @@ public interface TranslationService {
     // =========================================================================
 
     @Key("qsh_dialog.shop.create.success")
-    @Message(locale = Locales.ROOT, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green>You placed <user_shops>/<user_shops_limit> shops.")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green><user_shops>/<user_shops_limit>店舗設置しました。")
+    @Message(locale = Locales.ROOT, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green>You placed <user_shops_current>/<user_shops_max> shops.")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green><user_shops_current>/<user_shops_max>店舗設置しました。")
     Component shopCreationSuccess(Pointered target, BigDecimal totalCost, String totalCostFormatted, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.fail.no_target_block")
@@ -210,8 +210,8 @@ public interface TranslationService {
     Component shopModificationDialogDescription(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.shop_name")
-    @Message(locale = Locales.ROOT, content = "Shop Name (Rename Cost: <user_cost:shop_edit_name_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "ショップ名 (変更費用: <user_cost:shop_edit_name_formatted>)")
+    @Message(locale = Locales.ROOT, content = "Shop Name (Cost: <user_cost:shop_edit_name_formatted>)")
+    @Message(locale = Locales.JA_JP, content = "ショップ名 (費用: <user_cost:shop_edit_name_formatted>)")
     Component shopModificationInputName(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.trade_type")
@@ -251,7 +251,7 @@ public interface TranslationService {
 
     @Key("qsh_dialog.shop.edit.dialog.input.price")
     @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, Cost: <user_cost:shop_edit_price_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, 変更費用: <user_cost:shop_edit_price_formatted>)")
+    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, 費用: <user_cost:shop_edit_price_formatted>)")
     Component shopModificationInputPrice(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.unit")

@@ -24,10 +24,10 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class QSHDialogPermissions {
 
-    public static final String COMMAND_RELOAD = "qshdialog.command.admin.reload";
-    public static final String COMMAND_CREATE = "qshdialog.command.shop.create";
-    public static final String COMMAND_MODIFY = "qshdialog.command.shop.edit";
-    public static final String COMMAND_TRADE = "qshdialog.command.trade";
+    public static final String COMMAND_RELOAD = "qshdialog.command.qshdialog.reload";
+    public static final String COMMAND_CREATE = "qshdialog.command.shopdialog.create";
+    public static final String COMMAND_MODIFY = "qshdialog.command.shopdialog.edit";
+    public static final String COMMAND_TRADE = "qshdialog.command.tradedialog";
 
     private QSHDialogPermissions() {
     }

@@ -123,7 +123,7 @@ public final class QSPlaceholders {
         return TagResolver.builder()
                 .resolver(Placeholder.component("shop_product_name", shopComponent.product().getItemMeta().itemName()))
                 .resolver(Placeholder.component("shop_product_display_name", shopComponent.product().effectiveName()))
-                .resolver(Placeholder.parsed("shop_product_key", shopComponent.product().getType().key().asString()))
+                .resolver(Placeholder.parsed("shop_product_id", shopComponent.product().getType().key().asString()))
                 .resolver(Placeholder.parsed("shop_owner_name", Objects.requireNonNullElse(shopComponent.owner().name(), "")))
                 .resolver(Formatter.number("shop_owner_balance", ownerBalance))
                 .resolver(Placeholder.parsed("shop_owner_balance_formatted", this.economyFormatter.format(ownerBalance, worldName)))
@@ -202,7 +202,7 @@ public final class QSPlaceholders {
             }
         });
 
-        final TagResolver userShops = TagResolver.resolver("user_shops", (_, context) -> {
+        final TagResolver userShops = TagResolver.resolver("user_shops_current", (_, context) -> {
             if (!(context.target() instanceof UserSession user)) {
                 return Tag.preProcessParsed("");
             } else {
@@ -213,7 +213,7 @@ public final class QSPlaceholders {
             }
         });
 
-        final TagResolver userShopsLimit = TagResolver.resolver("user_shops_limit", (_, context) -> {
+        final TagResolver userShopsLimit = TagResolver.resolver("user_shops_max", (_, context) -> {
             if (!(context.target() instanceof UserSession user)) {
                 return Tag.preProcessParsed("");
             } else {

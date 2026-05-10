@@ -14,8 +14,7 @@ dialog UIs (1.21.4+).
 
 Optional dependencies:
 
-- **MiniPlaceholders** — Enables `<audience>` and global placeholder tags inside translation messages.
-- **LuckPerms** — Recommended for fine-grained permission management.
+- **MiniPlaceholders** — Enables audience and global placeholder tags inside translation messages.
 
 ---
 
@@ -34,11 +33,11 @@ Optional dependencies:
 QuickShop-Hikari-Dialog registers three behavior identifiers that must be assigned in QuickShop-Hikari's
 `interaction.yml`.
 
-| Identifier            | Description                                                              |
-|-----------------------|--------------------------------------------------------------------------|
-| `CREATION_DIALOG`     | Opens a dialog to create a new shop by clicking a container or wall sign |
-| `MODIFICATION_DIALOG` | Opens a dialog to modify an existing shop                                |
-| `TRADE_DIALOG`        | Opens a dialog to buy from or sell to an existing shop                   |
+| Identifier           | Description                                                              |
+|----------------------|--------------------------------------------------------------------------|
+| `SHOP_CREATE_DIALOG` | Opens a dialog to create a new shop by clicking a container or wall sign |
+| `SHOP_EDIT_DIALOG`   | Opens a dialog to modify an existing shop                                |
+| `TRADE_DIALOG`       | Opens a dialog to buy from or sell to an existing shop                   |
 
 ### Recommended configuration
 
@@ -46,10 +45,10 @@ QuickShop-Hikari-Dialog registers three behavior identifiers that must be assign
 # plugins/QuickShop-Hikari/interaction.yml
 
 STANDING_LEFT_CLICK_SIGN: TRADE_DIALOG
-STANDING_RIGHT_CLICK_SIGN: MODIFICATION_DIALOG
+STANDING_RIGHT_CLICK_SIGN: SHOP_EDIT_DIALOG
 STANDING_LEFT_CLICK_SHOPBLOCK: TRADE_DIALOG
 STANDING_RIGHT_CLICK_SHOPBLOCK: NONE # reserved for opening the chest
-STANDING_LEFT_CLICK_CONTAINER: CREATION_DIALOG
+STANDING_LEFT_CLICK_CONTAINER: SHOP_CREATE_DIALOG
 STANDING_RIGHT_CLICK_CONTAINER: NONE
 ```
 
@@ -59,12 +58,12 @@ You may freely reassign these identifiers to other click actions depending on yo
 
 ## Permissions
 
-| Permission                            | Description                          | Default |
-|---------------------------------------|--------------------------------------|---------|
-| `qshdialog.command.admin.reload`      | Reload config and translations       | OP      |
-| `qshdialog.command.shopdialog.create` | Use the `/shopdialog create` command | `true`  |
-| `qshdialog.command.shopdialog.modify` | Use the `/shopdialog modify` command | `true`  |
-| `qshdialog.command.shopdialog.trade`  | Use the `/shopdialog trade` command  | `true`  |
+| Permission                              | Description                          | Default |
+|-----------------------------------------|--------------------------------------|---------|
+| `qshdialog.command.qshdialog.reload`    | Reload config and translations       | `OP`    |
+| `qshdialog.command.shopdialog.create`   | Use the `/shopdialog create` command | `true`  |
+| `qshdialog.command.shopdialog.edit`     | Use the `/shopdialog edit` command   | `true`  |
+| `qshdialog.command.tradedialog`         | Use the `/tradedialog` command       | `true`  |
 
 QuickShop-Hikari's own permissions continue to control which dialog inputs are shown to each player.
 
