@@ -58,12 +58,12 @@ You may freely reassign these identifiers to other click actions depending on yo
 
 ## Permissions
 
-| Permission                              | Description                          | Default |
-|-----------------------------------------|--------------------------------------|---------|
-| `qshdialog.command.qshdialog.reload`    | Reload config and translations       | `OP`    |
-| `qshdialog.command.shopdialog.create`   | Use the `/shopdialog create` command | `true`  |
-| `qshdialog.command.shopdialog.edit`     | Use the `/shopdialog edit` command   | `true`  |
-| `qshdialog.command.tradedialog`         | Use the `/tradedialog` command       | `true`  |
+| Permission                            | Description                          | Default |
+|---------------------------------------|--------------------------------------|---------|
+| `qshdialog.command.qshdialog.reload`  | Reload config and translations       | `OP`    |
+| `qshdialog.command.shopdialog.create` | Use the `/shopdialog create` command | `true`  |
+| `qshdialog.command.shopdialog.edit`   | Use the `/shopdialog edit` command   | `true`  |
+| `qshdialog.command.tradedialog`       | Use the `/tradedialog` command       | `true`  |
 
 QuickShop-Hikari's own permissions continue to control which dialog inputs are shown to each player.
 
@@ -73,39 +73,64 @@ QuickShop-Hikari's own permissions continue to control which dialog inputs are s
 
 The following tags are available inside translation messages.
 
-### `<shop:...>`
+### Shop placeholders
 
-| Tag                           | Description                                 |
-|-------------------------------|---------------------------------------------|
-| `<shop:name>`                 | Raw shop name (empty string if unset)       |
-| `<shop:name_or_default>`      | Shop name, falling back to `<owner>'s Shop` |
-| `<shop:owner_name>`           | Owner's username                            |
-| `<shop:owner_display_name>`   | Owner's display name                        |
-| `<shop:owner_balance>`        | Owner's current balance                     |
-| `<shop:price>`                | Shop price                                  |
-| `<shop:trade_type>`           | Localised trade type label                  |
-| `<shop:currency>`             | Currency identifier                         |
-| `<shop:stock>`                | Current stock count (in trade units)        |
-| `<shop:space>`                | Available container space (in trade units)  |
-| `<shop:display_visible>`      | `true` / `false`                            |
-| `<shop:infinite_stock>`       | `true` / `false`                            |
-| `<shop:product_display_name>` | Product's effective display name            |
+Available in any message that receives a `ShopBlock` context (shop create/edit/trade dialogs).
 
-### `<item:...>`
+| Tag                              | Description                                                |
+|----------------------------------|------------------------------------------------------------|
+| `<shop_name>`                    | Raw shop name (empty string if unset)                      |
+| `<shop_name_or_default>`         | Shop name, falling back to `<owner>'s Shop`                |
+| `<shop_owner_name>`              | Owner's username                                           |
+| `<shop_owner_balance>`           | Owner's current balance (plain number)                     |
+| `<shop_owner_balance_formatted>` | Owner's current balance, formatted by the economy provider |
+| `<shop_price>`                   | Shop price (plain number)                                  |
+| `<shop_price_formatted>`         | Shop price, formatted by the economy provider              |
+| `<shop_trade_type>`              | Localised trade type label                                 |
+| `<shop_currency>`                | Currency identifier (empty string if using default)        |
+| `<shop_stock>`                   | Current stock count, in trade units                        |
+| `<shop_space>`                   | Available container space, in trade units                  |
+| `<shop_display_visible>`         | `true` / `false`                                           |
+| `<shop_infinite_stock>`          | `true` / `false`                                           |
+| `<shop_product_name>`            | Product's `item_name` component                            |
+| `<shop_product_display_name>`    | Product's effective display name                           |
+| `<shop_product_id>`              | Product's namespaced key (e.g. `minecraft:diamond`)        |
 
-| Tag                   | Description                         |
-|-----------------------|-------------------------------------|
-| `<item:min_price>`    | Minimum allowed price for this item |
-| `<item:max_price>`    | Maximum allowed price for this item |
-| `<item:max_quantity>` | Maximum stack size of the product   |
+### User placeholders
+
+Available in all messages that receive an audience (i.e. virtually every message).
+
+| Tag                                     | Description                                                             |
+|-----------------------------------------|-------------------------------------------------------------------------|
+| `<user_balance>`                        | Player's current balance (plain number)                                 |
+| `<user_balance_formatted>`              | Player's current balance, formatted by the economy provider             |
+| `<user_shops_current>`                  | Number of shops the player currently owns (`-1` if limits are disabled) |
+| `<user_shops_max>`                      | Player's shop limit (`-1` if limits are disabled)                       |
+| `<user_cost:shop_create>`               | Cost to create a shop (plain number)                                    |
+| `<user_cost:shop_create_formatted>`     | Cost to create a shop, formatted by the economy provider                |
+| `<user_cost:shop_edit_name>`            | Cost to rename a shop (plain number)                                    |
+| `<user_cost:shop_edit_name_formatted>`  | Cost to rename a shop, formatted by the economy provider                |
+| `<user_cost:shop_edit_price>`           | Cost to change a shop's price (plain number)                            |
+| `<user_cost:shop_edit_price_formatted>` | Cost to change a shop's price, formatted by the economy provider        |
+
+### Price range placeholders
+
+| Tag                              | Description                                          |
+|----------------------------------|------------------------------------------------------|
+| `<price:'<item_key>':min>`       | Minimum allowed price for the given item             |
+| `<price:'<item_key>':max>`       | Maximum allowed price for the given item             |
+
+`<item_key>` is a namespaced item key such as `minecraft:diamond`. Other tags can be nested inside the argument, for example:
+
+```properties
+qsh_dialog.shop.create.dialog.input.price=Price (Range: <price:'<shop_product_id>':min> - <price:'<shop_product_id>':max>)
+```
 
 ### `<quickshop:key>` / `<quickshop:key:arg0:arg1>`
 
-Renders a QuickShop-Hikari message by its translation key, with optional arguments.  
+Renders a QuickShop-Hikari message by its translation key, with optional arguments.
 Each argument is parsed as MiniMessage, so other tags can be nested:
 
 ```properties
-qsh_dialog.trade.error.shop_out_of_stock=<quickshop:shop-stock-too-low:'<shop:stock>':'<shop:product_display_name>'>
+qsh_dialog.trade.purchase.fail.shop_out_of_stock=<quickshop:shop-stock-too-low:'<shop_stock>':'<shop_product_display_name>'>
 ```
-
----
