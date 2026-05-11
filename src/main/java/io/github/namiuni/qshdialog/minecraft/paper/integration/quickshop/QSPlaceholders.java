@@ -227,9 +227,7 @@ public final class QSPlaceholders {
             if (user == null) {
                 return Tag.preProcessParsed("-1");
             }
-            final int count = this.qsConfig.isShopLimitEnabled()
-                    ? this.shopCounter.currentShops(user)
-                    : -1;
+            final int count = this.shopCounter.currentShops(user);
             return Tag.preProcessParsed(Integer.toString(count));
         });
 

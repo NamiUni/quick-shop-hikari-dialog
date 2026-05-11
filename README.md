@@ -112,21 +112,21 @@ Available in all messages that receive an audience (i.e. virtually every message
 
 ### Shop count
 
-| Tag                         | Description                                                             |
-|-----------------------------|-------------------------------------------------------------------------|
-| `<shop_count:[player]>`     | Number of shops the player currently owns (`-1` if limits are disabled) |
-| `<shop_count_max:[player]>` | Player's shop limit (`-1` if limits are disabled)                       |
+| Tag                         | Description                                       |
+|-----------------------------|---------------------------------------------------|
+| `<shop_count:[player]>`     | Number of shops the player currently owns         |
+| `<shop_count_max:[player]>` | Player's shop limit (`-1` if limits are disabled) |
 
 ### Shop fee
 
-| Tag                                        | Description                                                      |
-|--------------------------------------------|------------------------------------------------------------------|
-| `<shop_fee:create:(player)>`               | Cost to create a shop                                            |
-| `<shop_fee:create_formatted:(player)>`     | Cost to create a shop, formatted by the economy provider         |
-| `<shop_fee:edit_name:(player)>`            | Cost to rename a shop                                            |
-| `<shop_fee:edit_name_formatted:(player)>`  | Cost to rename a shop, formatted by the economy provider         |
-| `<shop_fee:edit_price:(player)>`           | Cost to change a shop's price                                    |
-| `<shop_fee:edit_price_formatted:(player)>` | Cost to change a shop's price, formatted by the economy provider |
+| Tag                                          | Description                                                      |
+|----------------------------------------------|------------------------------------------------------------------|
+| `<shop_fee:create:(player)>`                 | Cost to create a shop                                            |
+| `<shop_fee:create_formatted:(player)>`       | Cost to create a shop, formatted by the economy provider         |
+| `<shop_fee:change_name:(player)>`            | Cost to rename a shop                                            |
+| `<shop_fee:change_name_formatted:(player)>`  | Cost to rename a shop, formatted by the economy provider         |
+| `<shop_fee:change_price:(player)>`           | Cost to change a shop's price                                    |
+| `<shop_fee:change_price_formatted:(player)>` | Cost to change a shop's price, formatted by the economy provider |
 
 ### Price placeholders
 
