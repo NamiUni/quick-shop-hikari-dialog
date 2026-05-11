@@ -23,6 +23,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.dialog.ShopInputType;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.annotations.ConfigHeader;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.annotations.ConfigName;
 import java.util.List;
+import java.util.Locale;
 import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
@@ -49,7 +50,13 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
           STANDING_LEFT_CLICK_CONTAINER: SHOP_CREATE_DIALOG
           STANDING_RIGHT_CLICK_CONTAINER:  NONE
         """)
-public record PrimaryConfiguration(DialogConfig dialog) {
+public record PrimaryConfiguration(
+        @Comment("""
+                Fallback locale used for translation rendering when the player's locale cannot be determined.
+                Example: en_US, ja_JP""")
+        Locale defaultLocale,
+        DialogConfig dialog
+) {
 
     @ConfigSerializable
     public record DialogConfig(
@@ -67,6 +74,7 @@ public record PrimaryConfiguration(DialogConfig dialog) {
     }
 
     public static final PrimaryConfiguration DEFAULT = new PrimaryConfiguration(
+            Locale.getDefault(),
             new DialogConfig(
                     List.of(
                             ShopInputType.SHOP_NAME,

@@ -21,7 +21,9 @@ package io.github.namiuni.qshdialog.minecraft.paper.infrastructure.translation;
 
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.DataDirectory;
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.PluginSource;
+import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.configurations.PrimaryConfiguration;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
@@ -47,25 +49,26 @@ final class TranslatorLoader {
     private static final String BASE_NAME = "messages";
     private static final String FILE_SUFFIX = ".properties";
 
-    private static final String ROOT_EXPORT_NAME = BASE_NAME + "_en_US" + FILE_SUFFIX;
-
     private final ComponentLogger logger;
     private final MiniMessage miniMessage;
     private final Path translationDir;
     private final Path pluginResource;
     private final Key translationKey;
+    private final Provider<PrimaryConfiguration> primaryConfig;
 
     @Inject
     TranslatorLoader(
             final ComponentLogger logger,
             final MiniMessage miniMessage,
             final @DataDirectory Path dataDirectory,
-            final @PluginSource Path pluginResource
+            final @PluginSource Path pluginResource,
+            final Provider<PrimaryConfiguration> primaryConfig
     ) {
         this.logger = logger;
         this.miniMessage = miniMessage;
         this.translationDir = dataDirectory.resolve("translations");
         this.pluginResource = pluginResource;
+        this.primaryConfig = primaryConfig;
 
         try {
             Files.createDirectories(this.translationDir);
@@ -78,10 +81,23 @@ final class TranslatorLoader {
 
     Translator loadTranslator() {
         final MiniMessageTranslationStore store = MiniMessageTranslationStore.create(this.translationKey, this.miniMessage);
-        store.defaultLocale(Locale.ROOT);
+        store.defaultLocale(this.primaryConfig.get().defaultLocale());
 
         final Set<Locale> diskLocales = this.registerDiskTranslations(store);
-        this.registerJarTranslations(store, diskLocales);
+        final Set<Locale> jarLocales = this.registerJarTranslations(store, diskLocales);
+
+        Stream.concat(diskLocales.stream(), jarLocales.stream())
+                .distinct()
+                .filter(locale -> Objects.equals(this.primaryConfig.get().defaultLocale(), locale))
+                .findFirst()
+                .ifPresentOrElse(
+                        store::defaultLocale,
+                        () -> {
+                            store.defaultLocale(Locale.ROOT);
+                            final Locale configuredDefault = this.primaryConfig.get().defaultLocale();
+                            this.logger.warn("Configured default locale '{}' was not found. Falling back to ROOT.", configuredDefault);
+                        }
+                );
 
         return store;
     }
@@ -102,8 +118,8 @@ final class TranslatorLoader {
                         if (locale == Locale.ROOT) {
                             this.logger.warn(
                                     "Skipped '{}': ROOT locale must not be overridden from disk. " +
-                                    "Place your English customisations in '{}' instead.",
-                                    fileName, ROOT_EXPORT_NAME
+                                    "Place your English customisations in 'messages_en_US.properties' instead.",
+                                    fileName
                             );
                             return;
                         }
@@ -121,21 +137,26 @@ final class TranslatorLoader {
         return registered;
     }
 
-    private void registerJarTranslations(final MiniMessageTranslationStore store, final Set<Locale> diskLocales) {
+    private Set<Locale> registerJarTranslations(final MiniMessageTranslationStore store, final Set<Locale> diskLocales) {
+        final Set<Locale> registered = new HashSet<>();
         try (FileSystem jar = FileSystems.newFileSystem(this.pluginResource, TranslatorLoader.class.getClassLoader())) {
             final Path root = jar.getRootDirectories().iterator().next();
             try (Stream<Path> paths = Files.walk(root)) {
                 paths
                         .filter(Files::isRegularFile)
                         .filter(path -> isTranslationFile(path.getFileName().toString()))
-                        .forEach(path -> this.processJarEntry(store, diskLocales, path));
+                        .forEach(path -> {
+                            final Locale locale = this.processJarEntry(store, diskLocales, path);
+                            registered.add(locale);
+                        });
             }
         } catch (final IOException exception) {
             this.logger.warn("Could not scan JAR for translations. Skipping resource export.", exception);
         }
+        return registered;
     }
 
-    private void processJarEntry(
+    private Locale processJarEntry(
             final MiniMessageTranslationStore store,
             final Set<Locale> diskLocales,
             final Path jarPath
@@ -148,11 +169,12 @@ final class TranslatorLoader {
             this.logger.debug("[{}] Registered from JAR: {} ({})", TranslatorLoader.class.getSimpleName(), fileName, locale);
         }
 
-        final String diskFileName = locale == Locale.ROOT ? ROOT_EXPORT_NAME : fileName;
-        final Path diskTarget = this.translationDir.resolve(diskFileName);
-        if (Files.notExists(diskTarget)) {
-            this.exportDefault(jarPath, diskTarget, diskFileName);
+        final Path diskTarget = this.translationDir.resolve(fileName);
+        if (locale != Locale.ROOT && Files.notExists(diskTarget)) {
+            this.exportDefault(jarPath, diskTarget, fileName);
         }
+
+        return locale;
     }
 
     private void exportDefault(final Path source, final Path target, final String fileName) {
