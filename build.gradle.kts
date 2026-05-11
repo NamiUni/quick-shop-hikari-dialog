@@ -114,6 +114,7 @@ tasks {
     runServer {
         minecraftVersion("26.1.2")
         systemProperty("log4j.configurationFile", "log4j2.xml")
+        jvmArgs("--sun-misc-unsafe-memory-access=allow")
         downloadPlugins {
             modrinth("luckperms", "v5.5.17-bukkit")
             modrinth("miniplaceholders", "4zOT6txC")
