@@ -83,7 +83,7 @@ Available in any message that receives a Shop context (shop create/edit/trade di
 | Tag                              | Description                                                |
 |----------------------------------|------------------------------------------------------------|
 | `<shop:name>`                    | Raw shop name (empty string if unset)                      |
-| `<shop:name_or:[fallback]>`      | Shop name, falling back to `<owner_name>'s Shop`           |
+| `<shop:name_or:[fallback]>`      | Shop name or any name                                      |
 | `<shop:owner_name>`              | Owner's username                                           |
 | `<shop:owner_balance>`           | Owner's current balance (plain number)                     |
 | `<shop:owner_balance_formatted>` | Owner's current balance, formatted by the economy provider |
