@@ -74,7 +74,7 @@ public record PrimaryConfiguration(
     }
 
     public static final PrimaryConfiguration DEFAULT = new PrimaryConfiguration(
-            Locale.getDefault(),
+            Locale.ROOT,
             new DialogConfig(
                     List.of(
                             ShopInputType.SHOP_NAME,
