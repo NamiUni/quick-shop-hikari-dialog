@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "io.github.namiuni"
-version = "1.0.6"
+version = "2.0.0"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
