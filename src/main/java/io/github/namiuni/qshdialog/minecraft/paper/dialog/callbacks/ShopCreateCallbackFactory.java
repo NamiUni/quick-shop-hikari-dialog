@@ -79,7 +79,7 @@ public final class ShopCreateCallbackFactory {
             }
 
             final ShopBlock shop = preparingShop.withComponent(inputComponent);
-            final TagResolver newPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
+            final TagResolver newPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopTagResolver(shop));
             final String world = shop.container().getWorld().getName();
 
             switch (this.shopService.createShop(user, shop)) {

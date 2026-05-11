@@ -67,8 +67,8 @@ public interface TranslationService {
     Component shopCreationDialogTitle(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.description")
-    @Message(locale = Locales.ROOT, content = "Set your new shop up, then click <b><jis_green>Create</jis_green></b>. (Cost: <user_cost:shop_create_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "ショップを設定したら <b><jis_green>作成</jis_green></b> をクリックしてください。 (費用: <user_cost:shop_create_formatted>)")
+    @Message(locale = Locales.ROOT, content = "Set your new shop up, then click <b><jis_green>Create</jis_green></b>. (Cost: <shop_fee:create_formatted:'<player_name>'>)")
+    @Message(locale = Locales.JA_JP, content = "各項目を入力したら <b><jis_green>作成</jis_green></b> をクリックしてください。 (費用: <shop_fee:create_formatted:'<player_name>'>)")
     Component shopCreationDialogDescription(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.input.shop_name")
@@ -112,8 +112,8 @@ public interface TranslationService {
     Component shopCreationInputUnlimitedStock(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.input.price")
-    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_id>':min> - <price:'<shop_product_id>':max>)")
-    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_id>':min> - <price:'<shop_product_id>':max>)")
+    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop:product_id>':min> - <price:'<shop:product_id>':max>)")
+    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop:product_id>':min> - <price:'<shop:product_id>':max>)")
     Component shopCreationInputPrice(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.dialog.input.unit")
@@ -141,8 +141,8 @@ public interface TranslationService {
     // =========================================================================
 
     @Key("qsh_dialog.shop.create.success")
-    @Message(locale = Locales.ROOT, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green>You placed <user_shops_current>/<user_shops_max> shops.")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green><user_shops_current>/<user_shops_max>店舗設置しました。")
+    @Message(locale = Locales.ROOT, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green>You placed <shop_count:'<player_name>'>/<shop_count_max:'<player_name>'> shops.")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:success-created-shop> <gray>(Cost: <total_cost_formatted>)</gray>\n<green><shop_count:'<player_name>'>/<shop_count_max:'<player_name>'>店舗設置しました。")
     Component shopCreationSuccess(Pointered target, BigDecimal totalCost, String totalCostFormatted, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.fail.no_target_block")
@@ -166,12 +166,12 @@ public interface TranslationService {
     Component shopCreationFailureInsufficientFunds(Pointered target, BigDecimal totalCost, String totalCostFormatted, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.fail.price_out_of_range")
-    @Message(locale = Locales.ROOT, content = "<jis_red>The price must be between <price:'<shop_product_key>':min> and <price:'<shop_product_key>':max>.")
-    @Message(locale = Locales.JA_JP, content = "<jis_red>価格は <price:'<shop_product_key>':min> ～ <price:'<shop_product_key>':max> の範囲で設定してください。")
+    @Message(locale = Locales.ROOT, content = "<jis_red>The price must be between <price:'<shop:product_id>':min> and <price:'<shop:product_id>':max>.")
+    @Message(locale = Locales.JA_JP, content = "<jis_red>価格は <price:'<shop:product_id>':min> ～ <price:'<shop:product_id>':max> の範囲で設定してください。")
     Component shopCreationFailurePriceOutOfRange(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.create.fail.container_not_found")
-    @Message(locale = Locales.ROOT, content = "<jis_red>No container was found")
+    @Message(locale = Locales.ROOT, content = "<jis_red>No container was found.")
     @Message(locale = Locales.JA_JP, content = "<jis_red>コンテナが見つかりません。")
     Component shopCreationFailureContainerNotFound(Pointered target, TagResolver placeholders);
 
@@ -210,8 +210,8 @@ public interface TranslationService {
     Component shopModificationDialogDescription(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.shop_name")
-    @Message(locale = Locales.ROOT, content = "Shop Name (Cost: <user_cost:shop_edit_name_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "ショップ名 (費用: <user_cost:shop_edit_name_formatted>)")
+    @Message(locale = Locales.ROOT, content = "Shop Name (Cost: <shop_fee:edit_name_formatted:'<player_name>'>)")
+    @Message(locale = Locales.JA_JP, content = "ショップ名 (費用: <shop_fee:edit_name_formatted:'<player_name>'>)")
     Component shopModificationInputName(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.trade_type")
@@ -250,8 +250,8 @@ public interface TranslationService {
     Component shopModificationInputUnlimitedStock(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.price")
-    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, Cost: <user_cost:shop_edit_price_formatted>)")
-    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop_product_key>':min> - <price:'<shop_product_key>':max>, 費用: <user_cost:shop_edit_price_formatted>)")
+    @Message(locale = Locales.ROOT, content = "Price (Range: <price:'<shop:product_id>':min> - <price:'<shop:product_id>':max>, Cost: <shop_fee:edit_price_formatted:'<player_name>'>)")
+    @Message(locale = Locales.JA_JP, content = "価格 (範囲: <price:'<shop:product_id>':min> - <price:'<shop:product_id>':max>, 費用: <shop_fee:edit_price_formatted:'<player_name>'>)")
     Component shopModificationInputPrice(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.dialog.input.unit")
@@ -304,8 +304,8 @@ public interface TranslationService {
     Component shopModificationFailureInsufficientFunds(Pointered target, BigDecimal totalCost, String totalCostFormatted, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.fail.price_out_of_range")
-    @Message(locale = Locales.ROOT, content = "<jis_red>The price must be between <price:'<shop_product_key>':min> and <price:'<shop_product_key>':max>.")
-    @Message(locale = Locales.JA_JP, content = "<jis_red>価格は <price:'<shop_product_key>':min> ～ <price:'<shop_product_key>':max> の範囲で設定してください。")
+    @Message(locale = Locales.ROOT, content = "<jis_red>The price must be between <price:'<shop:product_id>':min> and <price:'<shop:product_id>':max>.")
+    @Message(locale = Locales.JA_JP, content = "<jis_red>価格は <price:'<shop:product_id>':min> ～ <price:'<shop:product_id>':max> の範囲で設定してください。")
     Component shopModificationFailurePriceOutOfRange(Pointered target, BigDecimal input, TagResolver placeholders);
 
     @Key("qsh_dialog.shop.edit.fail.price_invalid")
@@ -318,8 +318,8 @@ public interface TranslationService {
     // =========================================================================
 
     @Key("qsh_dialog.trade.purchase.dialog.title")
-    @Message(locale = Locales.ROOT, content = "<head:'<shop_owner_name>'> <shop_name_or_default>")
-    @Message(locale = Locales.JA_JP, content = "<head:'<shop_owner_name>'> <shop_name_or_default>")
+    @Message(locale = Locales.ROOT, content = "<head:'<shop:owner_name>'> <shop:name_or:'<shop:owner_name>'s Shop'>")
+    @Message(locale = Locales.JA_JP, content = "<head:'<shop:owner_name>'> <shop:name_or:'<shop:owner_name>のお店'>")
     Component tradePurchaseDialogTitle(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.trade.purchase.dialog.description")
@@ -352,18 +352,18 @@ public interface TranslationService {
     // =========================================================================
 
     @Key("qsh_dialog.trade.purchase.fail.shop_out_of_stock")
-    @Message(locale = Locales.ROOT, content = "<quickshop:shop-stock-too-low:'<shop_stock>':'<shop_product_display_name>'>")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:shop-stock-too-low:'<shop_stock>':'<shop_product_display_name>'>")
+    @Message(locale = Locales.ROOT, content = "<quickshop:shop-stock-too-low:'<shop:stock>':'<shop:product_display_name>'>")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:shop-stock-too-low:'<shop:stock>':'<shop:product_display_name>'>")
     Component tradePurchaseFailureShopOutOfStock(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.trade.purchase.fail.customer_inventory_full")
-    @Message(locale = Locales.ROOT, content = "<quickshop:not-enough-space:'<shop_space>'>")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:not-enough-space:'<shop_space>'>")
+    @Message(locale = Locales.ROOT, content = "<quickshop:not-enough-space:'<shop:space>'>")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:not-enough-space:'<shop:space>'>")
     Component tradePurchaseFailureCustomerInventoryFull(Pointered target, int actualSpace, TagResolver placeholders);
 
     @Key("qsh_dialog.trade.purchase.fail.customer_insufficient_funds")
-    @Message(locale = Locales.ROOT, content = "<quickshop:you-cant-afford-to-buy:'<shop_price_formatted>':'<user_balance_formatted>'>")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:you-cant-afford-to-buy:'<shop_price_formatted>':'<user_balance_formatted>'>")
+    @Message(locale = Locales.ROOT, content = "<quickshop:you-cant-afford-to-buy:'<shop:price_formatted>':'<player_balance_formatted>'>")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:you-cant-afford-to-buy:'<shop:price_formatted>':'<player_balance_formatted>'>")
     Component tradePurchaseFailureCustomerInsufficientFunds(Pointered target, TagResolver placeholders);
 
     // =========================================================================
@@ -371,8 +371,8 @@ public interface TranslationService {
     // =========================================================================
 
     @Key("qsh_dialog.trade.sell.dialog.title")
-    @Message(locale = Locales.ROOT, content = "<head:'<shop_owner_name>'> <shop_name_or_default>")
-    @Message(locale = Locales.JA_JP, content = "<head:'<shop_owner_name>'> <shop_name_or_default>")
+    @Message(locale = Locales.ROOT, content = "<head:'<shop:owner_name>'> <shop:name_or:'<shop:owner_name>'s Shop'>")
+    @Message(locale = Locales.JA_JP, content = "<head:'<shop:owner_name>'> <shop:name_or:'<shop:owner_name>のお店'>")
     Component tradeSellDialogTitle(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.trade.sell.dialog.description")
@@ -405,18 +405,18 @@ public interface TranslationService {
     // =========================================================================
 
     @Key("qsh_dialog.trade.sell.fail.shop_inventory_full")
-    @Message(locale = Locales.ROOT, content = "<quickshop:shop-has-no-space:'<shop_space>':'<shop_product_display_name>'>")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:shop-has-no-space:'<shop_space>':'<shop_product_display_name>'>")
+    @Message(locale = Locales.ROOT, content = "<quickshop:shop-has-no-space:'<shop:space>':'<shop:product_display_name>'>")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:shop-has-no-space:'<shop:space>':'<shop:product_display_name>'>")
     Component tradeSellFailureShopInventoryFull(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.trade.sell.fail.shop_insufficient_funds")
-    @Message(locale = Locales.ROOT, content = "<quickshop:the-owner-cant-afford-to-buy-from-you:'<shop_price_formatted>':'<shop_owner_balance_formatted>'>")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:the-owner-cant-afford-to-buy-from-you:'<shop_price_formatted>':'<shop_owner_balance_formatted>'>")
+    @Message(locale = Locales.ROOT, content = "<quickshop:the-owner-cant-afford-to-buy-from-you:'<shop:price_formatted>':'<shop:owner_balance_formatted>'>")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:the-owner-cant-afford-to-buy-from-you:'<shop:price_formatted>':'<shop:owner_balance_formatted>'>")
     Component tradeSellFailureShopInsufficientFunds(Pointered target, TagResolver placeholders);
 
     @Key("qsh_dialog.trade.sell.fail.customer_insufficient_items")
-    @Message(locale = Locales.ROOT, content = "<quickshop:you-dont-have-that-many-items:0:'<shop_product_display_name>'>")
-    @Message(locale = Locales.JA_JP, content = "<quickshop:you-dont-have-that-many-items:0:'<shop_product_display_name>'>")
+    @Message(locale = Locales.ROOT, content = "<quickshop:you-dont-have-that-many-items:0:'<shop:product_display_name>'>")
+    @Message(locale = Locales.JA_JP, content = "<quickshop:you-dont-have-that-many-items:0:'<shop:product_display_name>'>")
     Component tradeSellFailureCustomerInsufficientItems(Pointered target, TagResolver placeholders);
 
     // =========================================================================
@@ -429,7 +429,7 @@ public interface TranslationService {
     Component tradeCommonFailureShopUnavailable(Pointered target);
 
     @Key("qsh_dialog.trade.fail.shop_not_found")
-    @Message(locale = Locales.ROOT, content = "<jis_red>No shop was found")
+    @Message(locale = Locales.ROOT, content = "<jis_red>No shop was found.")
     @Message(locale = Locales.JA_JP, content = "<jis_red>ショップが見つかりません。")
     Component tradeCommonFailureShopNotFound(Pointered target);
 

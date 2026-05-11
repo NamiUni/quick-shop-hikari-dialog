@@ -67,7 +67,7 @@ public final class ShopCreateDialogFactory {
     }
 
     public DialogLike createDialog(final UserSession user, final ShopBlock shop) {
-        final TagResolver placeholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
+        final TagResolver placeholders = TagResolver.resolver(this.qsPlaceholders.shopTagResolver(shop));
         return Dialog.create(builder -> builder.empty()
                 .base(this.createBase(user, shop, placeholders))
                 .type(this.createType(user, shop, placeholders)));

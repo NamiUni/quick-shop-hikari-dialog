@@ -41,7 +41,7 @@ public record ShopComponent(
         // Base
         long id,
         Location location,
-        @Nullable String name,
+        @Nullable String shopName,
         UserSession owner,
         TradeType tradeType,
         @Nullable String currency,
@@ -76,7 +76,7 @@ public record ShopComponent(
                 .location(this.location)
                 .owner(this.owner)
                 .product(this.product)
-                .name(this.name)
+                .name(this.shopName)
                 .tradeType(this.tradeType)
                 .currency(this.currency)
                 .price(this.price)

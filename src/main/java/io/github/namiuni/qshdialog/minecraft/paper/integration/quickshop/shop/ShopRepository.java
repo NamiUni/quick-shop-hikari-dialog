@@ -107,7 +107,7 @@ public final class ShopRepository {
                 null,
                 this.quickShop.getJavaPlugin().getName(),
                 symbolLink,
-                shopComponent.name(),
+                shopComponent.shopName(),
                 permissionGroups,
                 new QSBenefitProvider()
         );
@@ -122,8 +122,8 @@ public final class ShopRepository {
             throw new ShopNotFoundException("The shop does not exist!");
         }
 
-        if (!Objects.equals(shopComponent.name(), qsShop.getShopName())) {
-            qsShop.setShopName(shopComponent.name());
+        if (!Objects.equals(shopComponent.shopName(), qsShop.getShopName())) {
+            qsShop.setShopName(shopComponent.shopName());
         }
 
         if (!shopComponent.owner().qsUser().equals(qsShop.getOwner())) {

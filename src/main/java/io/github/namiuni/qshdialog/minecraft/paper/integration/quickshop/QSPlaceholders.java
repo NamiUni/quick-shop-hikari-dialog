@@ -38,17 +38,19 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.pointer.Pointered;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.intellij.lang.annotations.Subst;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public final class QSPlaceholders {
@@ -86,12 +88,13 @@ public final class QSPlaceholders {
         this.qsConfig = qsConfig;
 
         this.globalPlaceholders = TagResolver.resolver(
-                this.createPricePlaceholders(),
-                this.createQuickshopPlaceholders()
+                this.createPriceResolver(),
+                this.createQuickShopResolver(),
+                this.createShopCountResolver(),
+                this.createShopFeeResolver()
         );
-        this.audiencePlaceholders = TagResolver.resolver(
-                this.createUserPlaceholders()
-        );
+
+        this.audiencePlaceholders = this.createPlayerResolver();
     }
 
     public TagResolver globalPlaceholders() {
@@ -102,132 +105,208 @@ public final class QSPlaceholders {
         return this.audiencePlaceholders;
     }
 
-    public TagResolver shopPlaceholder(final ShopBlock shop) {
-        final ShopComponent shopComponent = shop.component();
+    public TagResolver shopTagResolver(final ShopBlock shop) {
+        final ShopComponent component = shop.component();
         final String worldName = shop.container().getWorld().getName();
 
-        final String nameOrDefault = Optional.ofNullable(shopComponent.name())
-                .filter(name -> !name.isEmpty())
-                .orElse(shopComponent.owner().name() + "'s Shop");
-        final Component tradeTypeComponent = switch (shopComponent.tradeType()) {
-            case SELLING -> Component.translatable("qsh_dialog.trade_type.selling");
-            case BUYING -> Component.translatable("qsh_dialog.trade_type.buying");
-        };
+        return TagResolver.resolver("shop", (queue, context) -> {
+            if (!queue.hasNext()) {
+                return Tag.preProcessParsed("");
+            }
+            return switch (queue.pop().value()) {
+                case "name" -> Tag.preProcessParsed(
+                        Objects.requireNonNullElse(component.shopName(), ""));
 
-        final BigDecimal ownerBalance = this.economyService.getBalance(
-                shop.component().owner(),
-                worldName,
-                shopComponent.currency()
-        );
+                case "name_or" -> {
+                    final String name = component.shopName();
+                    if (name != null && !name.isEmpty()) {
+                        yield Tag.preProcessParsed(name);
+                    }
+                    yield queue.hasNext()
+                            ? Tag.selfClosingInserting(context.deserialize(queue.pop().value()))
+                            : Tag.preProcessParsed("");
+                }
 
-        return TagResolver.builder()
-                .resolver(Placeholder.component("shop_product_name", shopComponent.product().getItemMeta().itemName()))
-                .resolver(Placeholder.component("shop_product_display_name", shopComponent.product().effectiveName()))
-                .resolver(Placeholder.parsed("shop_product_id", shopComponent.product().getType().key().asString()))
-                .resolver(Placeholder.parsed("shop_owner_name", Objects.requireNonNullElse(shopComponent.owner().name(), "")))
-                .resolver(Formatter.number("shop_owner_balance", ownerBalance))
-                .resolver(Placeholder.parsed("shop_owner_balance_formatted", this.economyFormatter.format(ownerBalance, worldName)))
-                .resolver(Formatter.number("shop_price", shopComponent.price()))
-                .resolver(Placeholder.parsed("shop_price_formatted", this.economyFormatter.format(shopComponent.price(), worldName)))
-                .resolver(Placeholder.component("shop_trade_type", tradeTypeComponent))
-                .resolver(Placeholder.parsed("shop_name", Objects.requireNonNullElse(shopComponent.name(), "")))
-                .resolver(Placeholder.parsed("shop_name_or_default", nameOrDefault))
-                .resolver(Placeholder.parsed("shop_currency", shopComponent.currency() == null ? "" : shopComponent.currency()))
-                .resolver(Placeholder.parsed("shop_display_visible", String.valueOf(shopComponent.displayVisible())))
-                .resolver(Placeholder.parsed("shop_infinite_stock", String.valueOf(shopComponent.infiniteStock())))
-                .resolver(Placeholder.parsed("shop_stock", String.valueOf(this.shopInventory.stockCount(shop))))
-                .resolver(Placeholder.parsed("shop_space", String.valueOf(this.shopInventory.spaceCount(shop))))
-                .build();
+                case "owner_name" -> Tag.preProcessParsed(component.owner().name());
+
+                case "owner_balance" -> {
+                    final BigDecimal balance = this.economyService.getBalance(
+                            component.owner(), worldName, component.currency());
+                    yield Tag.preProcessParsed(balance.toPlainString());
+                }
+
+                case "owner_balance_formatted" -> {
+                    final BigDecimal balance = this.economyService.getBalance(
+                            component.owner(), worldName, component.currency());
+                    yield Tag.preProcessParsed(this.economyFormatter.format(balance, worldName));
+                }
+
+                case "price" -> Tag.preProcessParsed(component.price().toPlainString());
+
+                case "price_formatted" -> Tag.preProcessParsed(
+                        this.economyFormatter.format(component.price(), worldName));
+
+                case "trade_type" -> Tag.selfClosingInserting(switch (component.tradeType()) {
+                    case SELLING -> Component.translatable("qsh_dialog.trade_type.selling");
+                    case BUYING -> Component.translatable("qsh_dialog.trade_type.buying");
+                });
+
+                case "currency" -> Tag.preProcessParsed(
+                        Objects.requireNonNullElse(component.currency(), ""));
+
+                case "stock" -> Tag.preProcessParsed(
+                        String.valueOf(this.shopInventory.stockCount(shop)));
+
+                case "space" -> Tag.preProcessParsed(
+                        String.valueOf(this.shopInventory.spaceCount(shop)));
+
+                case "display" -> Tag.preProcessParsed(
+                        String.valueOf(component.displayVisible()));
+
+                case "unlimited_stock" -> Tag.preProcessParsed(
+                        String.valueOf(component.infiniteStock()));
+
+                case "product_id" -> Tag.preProcessParsed(
+                        component.product().getType().key().asString());
+
+                case "product_name" -> Tag.selfClosingInserting(
+                        component.product().getItemMeta().itemName());
+
+                case "product_display_name" -> Tag.selfClosingInserting(
+                        component.product().effectiveName());
+
+                default -> Tag.preProcessParsed("");
+            };
+        });
     }
 
-    private TagResolver createUserPlaceholders() {
-        final TagResolver userBalance = TagResolver.resolver("user_balance", (_, context) -> {
-            if (!(context.target() instanceof UserSession user)) {
-                return Tag.preProcessParsed("");
-            } else {
-                final BigDecimal balance = this.economyService.getBalance(user, user.world(), null);
-                return Tag.preProcessParsed(balance.toPlainString());
-            }
-        });
+    // =========================================================================
+    // Private resolver builders
+    // =========================================================================
 
-        final TagResolver userBalanceFormatted = TagResolver.resolver("user_balance_formatted", (_, context) -> {
-            if (!(context.target() instanceof UserSession user)) {
-                return Tag.preProcessParsed("");
-            } else {
-                final BigDecimal balance = this.economyService.getBalance(user, user.world(), null);
-                final String formatted = this.economyFormatter.format(balance, user.world());
-                return Tag.preProcessParsed(formatted);
-            }
-        });
-
-        final TagResolver userCost = TagResolver.resolver("user_cost", (queue, context) -> {
+    private TagResolver createPlayerResolver() {
+        final TagResolver playerName = TagResolver.resolver("player_name", (_, context) -> {
             if (!(context.target() instanceof UserSession user)) {
                 return Tag.preProcessParsed("");
             }
-
-            final List<String> parts = new ArrayList<>();
-            while (queue.hasNext()) {
-                parts.add(queue.pop().value());
-            }
-
-            final String qualifier = parts.getFirst();
-            switch (qualifier) {
-                case "shop_create" -> {
-                    final BigDecimal createCost = this.costCalculator.calculateCreateCost(user);
-                    return Tag.preProcessParsed(createCost.toPlainString());
-                }
-                case "shop_create_formatted" -> {
-                    final BigDecimal createCost = this.costCalculator.calculateCreateCost(user);
-                    return Tag.preProcessParsed(this.economyFormatter.format(createCost, user.world()));
-                }
-                case "shop_edit_name" -> {
-                    final BigDecimal namingCost = this.costCalculator.calculateNamingCost(user);
-                    return Tag.preProcessParsed(namingCost.toPlainString());
-                }
-                case "shop_edit_name_formatted" -> {
-                    final BigDecimal namingCost = this.costCalculator.calculateNamingCost(user);
-                    return Tag.preProcessParsed(this.economyFormatter.format(namingCost, user.world()));
-                }
-                case "shop_edit_price" -> {
-                    final BigDecimal pricingCost = this.costCalculator.calculatePricingCost(user);
-                    return Tag.preProcessParsed(pricingCost.toPlainString());
-                }
-                case "shop_edit_price_formatted" -> {
-                    final BigDecimal pricingCost = this.costCalculator.calculatePricingCost(user);
-                    return Tag.preProcessParsed(this.economyFormatter.format(pricingCost, user.world()));
-                }
-                default -> {
-                    return Tag.preProcessParsed("");
-                }
-            }
+            return Tag.preProcessParsed(user.name());
         });
 
-        final TagResolver userShops = TagResolver.resolver("user_shops_current", (_, context) -> {
+        final TagResolver playerDisplayName = TagResolver.resolver("player_display_name", (_, context) -> {
             if (!(context.target() instanceof UserSession user)) {
                 return Tag.preProcessParsed("");
-            } else {
-                final int shops = this.qsConfig.isShopLimitEnabled()
-                        ? this.shopCounter.currentShops(user)
-                        : -1;
-                return Tag.preProcessParsed(Integer.toString(shops));
             }
+            return Tag.selfClosingInserting(user.displayName().asComponent());
         });
 
-        final TagResolver userShopsLimit = TagResolver.resolver("user_shops_max", (_, context) -> {
+        final TagResolver playerBalance = TagResolver.resolver("player_balance", (_, context) -> {
             if (!(context.target() instanceof UserSession user)) {
                 return Tag.preProcessParsed("");
-            } else {
-                final int shopsLimit = this.qsConfig.isShopLimitEnabled()
-                        ? this.shopCounter.maximumShops(user)
-                        : -1;
-                return Tag.preProcessParsed(Integer.toString(shopsLimit));
             }
+            final BigDecimal balance = this.economyService.getBalance(user, user.world(), null);
+            return Tag.preProcessParsed(balance.toPlainString());
         });
 
-        return TagResolver.resolver(userBalance, userBalanceFormatted, userCost, userShops, userShopsLimit);
+        final TagResolver playerBalanceFormatted = TagResolver.resolver("player_balance_formatted", (_, context) -> {
+            if (!(context.target() instanceof UserSession user)) {
+                return Tag.preProcessParsed("");
+            }
+            final BigDecimal balance = this.economyService.getBalance(user, user.world(), null);
+            return Tag.preProcessParsed(this.economyFormatter.format(balance, user.world()));
+        });
+
+        return TagResolver.resolver(playerName, playerDisplayName, playerBalance, playerBalanceFormatted);
     }
 
-    private TagResolver createPricePlaceholders() {
+    private TagResolver createShopCountResolver() {
+        final TagResolver shopCount = TagResolver.resolver("shop_count", (queue, context) -> {
+            if (!queue.hasNext()) {
+                return Tag.preProcessParsed("-1");
+            }
+            final UserSession user = this.resolvePlayerFromArg(queue.pop().value(), context);
+            if (user == null) {
+                return Tag.preProcessParsed("-1");
+            }
+            final int count = this.qsConfig.isShopLimitEnabled()
+                    ? this.shopCounter.currentShops(user)
+                    : -1;
+            return Tag.preProcessParsed(Integer.toString(count));
+        });
+
+        final TagResolver shopCountMax = TagResolver.resolver("shop_count_max", (queue, context) -> {
+            if (!queue.hasNext()) {
+                return Tag.preProcessParsed("-1");
+            }
+            final UserSession user = this.resolvePlayerFromArg(queue.pop().value(), context);
+            if (user == null) {
+                return Tag.preProcessParsed("-1");
+            }
+            final int max = this.qsConfig.isShopLimitEnabled()
+                    ? this.shopCounter.maximumShops(user)
+                    : -1;
+            return Tag.preProcessParsed(Integer.toString(max));
+        });
+
+        return TagResolver.resolver(shopCount, shopCountMax);
+    }
+
+    private TagResolver createShopFeeResolver() {
+        return TagResolver.resolver("shop_fee", (queue, context) -> {
+            if (!queue.hasNext()) {
+                return Tag.preProcessParsed("");
+            }
+            final String qualifier = queue.pop().value();
+
+            final UserSession user = queue.hasNext()
+                    ? this.resolvePlayerFromArg(queue.pop().value(), context)
+                    : null;
+            final String world = user != null
+                    ? user.world()
+                    : Bukkit.getWorlds().getFirst().getName();
+
+            return switch (qualifier) {
+                case "create" -> {
+                    final BigDecimal cost = user != null
+                            ? this.costCalculator.calculateCreateCost(user)
+                            : this.qsConfig.shopCreateCost();
+                    yield Tag.preProcessParsed(cost.toPlainString());
+                }
+                case "create_formatted" -> {
+                    final BigDecimal cost = user != null
+                            ? this.costCalculator.calculateCreateCost(user)
+                            : this.qsConfig.shopCreateCost();
+                    yield Tag.preProcessParsed(this.economyFormatter.format(cost, world));
+                }
+                case "edit_name" -> {
+                    final BigDecimal cost = user != null
+                            ? this.costCalculator.calculateNamingCost(user)
+                            : this.qsConfig.shopModifyNameCost();
+                    yield Tag.preProcessParsed(cost.toPlainString());
+                }
+                case "edit_name_formatted" -> {
+                    final BigDecimal cost = user != null
+                            ? this.costCalculator.calculateNamingCost(user)
+                            : this.qsConfig.shopModifyNameCost();
+                    yield Tag.preProcessParsed(this.economyFormatter.format(cost, world));
+                }
+                case "edit_price" -> {
+                    final BigDecimal cost = user != null
+                            ? this.costCalculator.calculatePricingCost(user)
+                            : this.qsConfig.shopModifyPriceCost();
+                    yield Tag.preProcessParsed(cost.toPlainString());
+                }
+                case "edit_price_formatted" -> {
+                    final BigDecimal cost = user != null
+                            ? this.costCalculator.calculatePricingCost(user)
+                            : this.qsConfig.shopModifyPriceCost();
+                    yield Tag.preProcessParsed(this.economyFormatter.format(cost, world));
+                }
+                default -> Tag.preProcessParsed("");
+            };
+        });
+    }
+
+    private TagResolver createPriceResolver() {
         return TagResolver.resolver("price", (queue, context) -> {
             if (!(context.target() instanceof UserSession user)) {
                 return Tag.preProcessParsed("");
@@ -237,22 +316,27 @@ public final class QSPlaceholders {
             while (queue.hasNext()) {
                 parts.add(queue.pop().value());
             }
+            if (parts.size() < 2) {
+                return Tag.preProcessParsed("");
+            }
 
+            final @Subst("namespace") String itemId = parts.getFirst();
             final String qualifier = parts.getLast();
             if (!"min".equals(qualifier) && !"max".equals(qualifier)) {
                 return Tag.preProcessParsed("");
             }
+
             final ItemStack item = RegistryAccess.registryAccess()
                     .getRegistry(RegistryKey.ITEM)
-                    .getOrThrow(Key.key(parts.getFirst()))
+                    .getOrThrow(Key.key(itemId))
                     .createItemStack();
             final NumberRange<BigDecimal> range = this.priceAnalytics.priceRange(user, item);
-            final BigDecimal value = "min".equals(parts.getLast()) ? range.min() : range.max();
+            final BigDecimal value = "min".equals(qualifier) ? range.min() : range.max();
             return Tag.preProcessParsed(value.toPlainString());
         });
     }
 
-    private TagResolver createQuickshopPlaceholders() {
+    private TagResolver createQuickShopResolver() {
         return TagResolver.resolver("quickshop", (queue, context) -> {
             if (!queue.hasNext()) {
                 return Tag.preProcessParsed("");
@@ -266,8 +350,7 @@ public final class QSPlaceholders {
             final List<String> args = new ArrayList<>();
             final PlainTextComponentSerializer plain = PlainTextComponentSerializer.plainText();
             while (queue.hasNext()) {
-                final String rawArg = queue.pop().value();
-                args.add(plain.serialize(context.deserialize(rawArg)));
+                args.add(plain.serialize(context.deserialize(queue.pop().value())));
             }
 
             final Component message = this.textManager
@@ -275,5 +358,11 @@ public final class QSPlaceholders {
                     .forLocale(user.locale().toString());
             return Tag.selfClosingInserting(message);
         });
+    }
+
+    private @Nullable UserSession resolvePlayerFromArg(final String rawArg, final Context context) {
+        final String name = PlainTextComponentSerializer.plainText().serialize(context.deserialize(rawArg));
+        final Player player = Bukkit.getPlayerExact(name);
+        return player != null ? UserSession.of(player) : null;
     }
 }

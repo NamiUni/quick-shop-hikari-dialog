@@ -111,7 +111,7 @@ public final class ShopService {
         final BigDecimal pricingCost = newShop.component().price().compareTo(oldShop.get().component().price()) == 0
                 ? BigDecimal.ZERO
                 : this.qsConfig.shopModifyPriceCost();
-        final BigDecimal namingCost = Objects.equals(newShop.component().name(), oldShop.get().component().name())
+        final BigDecimal namingCost = Objects.equals(newShop.component().shopName(), oldShop.get().component().shopName())
                 ? BigDecimal.ZERO
                 : this.qsConfig.shopModifyNameCost();
         final BigDecimal totalCost = pricingCost.add(namingCost);

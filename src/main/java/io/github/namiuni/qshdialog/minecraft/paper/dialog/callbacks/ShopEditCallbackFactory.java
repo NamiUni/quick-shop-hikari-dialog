@@ -69,7 +69,7 @@ public final class ShopEditCallbackFactory {
     }
 
     public DialogAction createAction(final UserSession user, final ShopBlock shop) {
-        final TagResolver originalPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
+        final TagResolver originalPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopTagResolver(shop));
 
         return DialogAction.customClick((response, _) -> {
             final ShopComponent updatedComponent;
@@ -81,7 +81,7 @@ public final class ShopEditCallbackFactory {
             }
 
             final ShopBlock updatedShop = shop.withComponent(updatedComponent);
-            final TagResolver newPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(updatedShop));
+            final TagResolver newPlaceholders = TagResolver.resolver(this.qsPlaceholders.shopTagResolver(updatedShop));
             final String world = shop.container().getWorld().getName();
 
             switch (this.shopService.updateShop(user, updatedShop)) {

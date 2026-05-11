@@ -73,12 +73,12 @@ public final class QSConfiguration {
     }
 
     public int shopNameMaxLength() {
-        return this.configNode.get().node("shop", "name-max-length").getInt(32);
+        return this.configNode.get().node("shop", "shopName-max-length").getInt(32);
     }
 
     public BigDecimal shopModifyNameCost() {
         try {
-            return this.configNode.get().node("shop", "name-fee").get(BigDecimal.class, BigDecimal.valueOf(0.0));
+            return this.configNode.get().node("shop", "shopName-fee").get(BigDecimal.class, BigDecimal.valueOf(0.0));
         } catch (final SerializationException exception) {
             throw new UncheckedIOException(exception);
         }

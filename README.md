@@ -73,54 +73,69 @@ QuickShop-Hikari's own permissions continue to control which dialog inputs are s
 
 The following tags are available inside translation messages.
 
+(argument) = Optional  
+[argument] = Required
+
 ### Shop placeholders
 
-Available in any message that receives a `ShopBlock` context (shop create/edit/trade dialogs).
+Available in any message that receives a Shop context (shop create/edit/trade dialogs).
 
 | Tag                              | Description                                                |
 |----------------------------------|------------------------------------------------------------|
-| `<shop_name>`                    | Raw shop name (empty string if unset)                      |
-| `<shop_name_or_default>`         | Shop name, falling back to `<owner>'s Shop`                |
-| `<shop_owner_name>`              | Owner's username                                           |
-| `<shop_owner_balance>`           | Owner's current balance (plain number)                     |
-| `<shop_owner_balance_formatted>` | Owner's current balance, formatted by the economy provider |
-| `<shop_price>`                   | Shop price (plain number)                                  |
-| `<shop_price_formatted>`         | Shop price, formatted by the economy provider              |
-| `<shop_trade_type>`              | Localised trade type label                                 |
-| `<shop_currency>`                | Currency identifier (empty string if using default)        |
-| `<shop_stock>`                   | Current stock count, in trade units                        |
-| `<shop_space>`                   | Available container space, in trade units                  |
-| `<shop_display_visible>`         | `true` / `false`                                           |
-| `<shop_infinite_stock>`          | `true` / `false`                                           |
-| `<shop_product_name>`            | Product's `item_name` component                            |
-| `<shop_product_display_name>`    | Product's effective display name                           |
-| `<shop_product_id>`              | Product's namespaced key (e.g. `minecraft:diamond`)        |
+| `<shop:name>`                    | Raw shop name (empty string if unset)                      |
+| `<shop:name_or:[fallback]>`      | Shop name, falling back to `<owner_name>'s Shop`           |
+| `<shop:owner_name>`              | Owner's username                                           |
+| `<shop:owner_balance>`           | Owner's current balance (plain number)                     |
+| `<shop:owner_balance_formatted>` | Owner's current balance, formatted by the economy provider |
+| `<shop:price>`                   | Shop price (plain number)                                  |
+| `<shop:price_formatted>`         | Shop price, formatted by the economy provider              |
+| `<shop:trade_type>`              | Localised trade type label                                 |
+| `<shop:currency>`                | Currency identifier (empty string if using default)        |
+| `<shop:stock>`                   | Current stock count, in trade units                        |
+| `<shop:space>`                   | Available container space, in trade units                  |
+| `<shop:display>`                 | `true` / `false`                                           |
+| `<shop:unlimited_stock>`         | `true` / `false`                                           |
+| `<shop:product_id>`              | Product's namespaced key (e.g. `minecraft:diamond`)        |
+| `<shop:product_name>`            | Product's `item_name` component                            |
+| `<shop:product_display_name>`    | Product's effective display name                           |
 
-### User placeholders
+### Player placeholders
 
 Available in all messages that receive an audience (i.e. virtually every message).
 
-| Tag                                     | Description                                                             |
-|-----------------------------------------|-------------------------------------------------------------------------|
-| `<user_balance>`                        | Player's current balance (plain number)                                 |
-| `<user_balance_formatted>`              | Player's current balance, formatted by the economy provider             |
-| `<user_shops_current>`                  | Number of shops the player currently owns (`-1` if limits are disabled) |
-| `<user_shops_max>`                      | Player's shop limit (`-1` if limits are disabled)                       |
-| `<user_cost:shop_create>`               | Cost to create a shop (plain number)                                    |
-| `<user_cost:shop_create_formatted>`     | Cost to create a shop, formatted by the economy provider                |
-| `<user_cost:shop_edit_name>`            | Cost to rename a shop (plain number)                                    |
-| `<user_cost:shop_edit_name_formatted>`  | Cost to rename a shop, formatted by the economy provider                |
-| `<user_cost:shop_edit_price>`           | Cost to change a shop's price (plain number)                            |
-| `<user_cost:shop_edit_price_formatted>` | Cost to change a shop's price, formatted by the economy provider        |
+| Tag                          | Description                                                 |
+|------------------------------|-------------------------------------------------------------|
+| `<player_name>`              | Player's name                                               |
+| `<player_display_name>`      | Player's display name                                       |
+| `<player_balance>`           | Player's current balance                                    |
+| `<player_balance_formatted>` | Player's current balance, formatted by the economy provider |
 
-### Price range placeholders
+### Shop count
 
-| Tag                              | Description                                          |
-|----------------------------------|------------------------------------------------------|
-| `<price:'<item_key>':min>`       | Minimum allowed price for the given item             |
-| `<price:'<item_key>':max>`       | Maximum allowed price for the given item             |
+| Tag                         | Description                                                             |
+|-----------------------------|-------------------------------------------------------------------------|
+| `<shop_count:[player]>`     | Number of shops the player currently owns (`-1` if limits are disabled) |
+| `<shop_count_max:[player]>` | Player's shop limit (`-1` if limits are disabled)                       |
 
-`<item_key>` is a namespaced item key such as `minecraft:diamond`. Other tags can be nested inside the argument, for example:
+### Shop fee
+
+| Tag                                        | Description                                                      |
+|--------------------------------------------|------------------------------------------------------------------|
+| `<shop_fee:create:(player)>`               | Cost to create a shop                                            |
+| `<shop_fee:create_formatted:(player)>`     | Cost to create a shop, formatted by the economy provider         |
+| `<shop_fee:edit_name:(player)>`            | Cost to rename a shop                                            |
+| `<shop_fee:edit_name_formatted:(player)>`  | Cost to rename a shop, formatted by the economy provider         |
+| `<shop_fee:edit_price:(player)>`           | Cost to change a shop's price                                    |
+| `<shop_fee:edit_price_formatted:(player)>` | Cost to change a shop's price, formatted by the economy provider |
+
+### Price placeholders
+
+| Tag                     | Description                                          |
+|-------------------------|------------------------------------------------------|
+| `<price:[item_id]:min>` | Minimum allowed price for the given item             |
+| `<price:[item_id]:max>` | Maximum allowed price for the given item             |
+
+`[item_id]` is a namespaced item key such as `minecraft:diamond`. Other tags can be nested inside the argument, for example:
 
 ```properties
 qsh_dialog.shop.create.dialog.input.price=Price (Range: <price:'<shop_product_id>':min> - <price:'<shop_product_id>':max>)

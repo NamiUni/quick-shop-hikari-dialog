@@ -69,7 +69,7 @@ public final class TradePurchaseDialogFactory {
     }
 
     public @Nullable DialogLike createDialog(final UserSession user, final ShopBlock shop) {
-        final TagResolver placeholders = TagResolver.resolver(this.qsPlaceholders.shopPlaceholder(shop));
+        final TagResolver placeholders = TagResolver.resolver(this.qsPlaceholders.shopTagResolver(shop));
 
         final Result<Integer, TradeQuantityFailure> quantityResult = this.quantityCalculator.purchasableQuantity(user, shop);
         if (quantityResult instanceof Result.Error<Integer, TradeQuantityFailure>(final TradeQuantityFailure failure)) {

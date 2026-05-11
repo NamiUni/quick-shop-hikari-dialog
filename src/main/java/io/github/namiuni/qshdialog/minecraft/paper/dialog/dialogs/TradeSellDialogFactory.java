@@ -68,7 +68,7 @@ public final class TradeSellDialogFactory {
 
     public @Nullable DialogLike createDialog(final UserSession user, final ShopBlock shop) {
         final TagResolver placeholders = TagResolver.builder()
-                .resolver(this.qsPlaceholders.shopPlaceholder(shop))
+                .resolver(this.qsPlaceholders.shopTagResolver(shop))
                 .build();
 
         final Result<Integer, TradeQuantityFailure> quantityResult = this.quantityCalculator.sellableQuantity(user, shop);

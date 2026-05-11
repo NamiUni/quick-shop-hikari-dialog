@@ -133,7 +133,7 @@ public final class ShopInputs {
             case EDIT -> this.translations.shopModificationInputName(user, placeholders);
         };
         return DialogInput.text(DialogInputKeys.SHOP_NAME, label)
-                .initial(Objects.requireNonNullElse(component.name(), ""))
+                .initial(Objects.requireNonNullElse(component.shopName(), ""))
                 .maxLength(this.qsConfig.shopNameMaxLength())
                 .build();
     }

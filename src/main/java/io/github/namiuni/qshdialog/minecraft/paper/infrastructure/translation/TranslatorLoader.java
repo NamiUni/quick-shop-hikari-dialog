@@ -176,7 +176,7 @@ final class TranslatorLoader {
         final String tag = fileName.substring(BASE_NAME.length() + 1, fileName.length() - FILE_SUFFIX.length());
         final Locale locale = Translator.parseLocale(tag);
         if (locale == null) {
-            throw new IllegalArgumentException("Cannot parse locale from translation file name: " + fileName);
+            throw new IllegalArgumentException("Cannot parse locale from translation file shopName: " + fileName);
         }
 
         return locale;
