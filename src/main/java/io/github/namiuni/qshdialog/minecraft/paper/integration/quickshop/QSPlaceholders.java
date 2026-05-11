@@ -275,25 +275,25 @@ public final class QSPlaceholders {
                             : this.qsConfig.shopCreateCost();
                     yield Tag.preProcessParsed(this.economyFormatter.format(cost, world));
                 }
-                case "edit_name" -> {
+                case "change_name" -> {
                     final BigDecimal cost = user != null
                             ? this.costCalculator.calculateNamingCost(user)
                             : this.qsConfig.shopModifyNameCost();
                     yield Tag.preProcessParsed(cost.toPlainString());
                 }
-                case "edit_name_formatted" -> {
+                case "change_name_formatted" -> {
                     final BigDecimal cost = user != null
                             ? this.costCalculator.calculateNamingCost(user)
                             : this.qsConfig.shopModifyNameCost();
                     yield Tag.preProcessParsed(this.economyFormatter.format(cost, world));
                 }
-                case "edit_price" -> {
+                case "change_price" -> {
                     final BigDecimal cost = user != null
                             ? this.costCalculator.calculatePricingCost(user)
                             : this.qsConfig.shopModifyPriceCost();
                     yield Tag.preProcessParsed(cost.toPlainString());
                 }
-                case "edit_price_formatted" -> {
+                case "change_price_formatted" -> {
                     final BigDecimal cost = user != null
                             ? this.costCalculator.calculatePricingCost(user)
                             : this.qsConfig.shopModifyPriceCost();

@@ -90,7 +90,7 @@ public final class TradeSellDialogFactory {
 
         final DialogBase base = DialogBase.builder(this.translations.tradeSellDialogTitle(user, placeholders))
                 .body(List.of(DialogBody.item(shop.component().product())
-                        .description(DialogBody.plainMessage(this.translations.tradePurchaseDialogDescription(user, placeholders)))
+                        .description(DialogBody.plainMessage(this.translations.tradeSellDialogDescription(user, placeholders)))
                         .build()))
                 .inputs(List.of(this.tradeInputs.tradeQuantityForSell(maxQuantity, 1, user, placeholders))) // TODO スタック
                 .build();
