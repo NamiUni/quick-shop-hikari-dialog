@@ -31,12 +31,15 @@ import io.github.namiuni.qshdialog.minecraft.paper.integration.quickshop.listene
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.util.Set;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 @SuppressWarnings("UnstableApiUsage")
 public final class QSHDialogPlugin extends JavaPlugin {
+
+    private static final int PLUGIN_ID = 31252;
 
     private final PluginProviderContext context;
 
@@ -58,5 +61,7 @@ public final class QSHDialogPlugin extends JavaPlugin {
             final Set<CommandFactory> commands = injector.getInstance(Key.get(new TypeLiteral<>() { }));
             commands.forEach(command -> event.registrar().register(command.createCommand(), command.description(), command.aliases()));
         });
+
+        new Metrics(this, PLUGIN_ID);
     }
 }

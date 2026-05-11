@@ -48,6 +48,8 @@ dependencies {
 
     // Misc
     implementation(libs.result4j)
+    implementation(libs.bstats.bukkit)
+
     annotationProcessor(libs.kotonoha.resourcebundle.generator.processor)
 }
 
@@ -97,6 +99,16 @@ tasks {
     shadowJar {
         archiveBaseName = paperPluginYaml.name
         archiveClassifier = null as String?
+
+        gremlin {
+            listOf("xyz.jpenilla.gremlin")
+                .forEach {
+                    relocate(it, "libraries.$it")
+                }
+        }
+
+        relocate("org.bstats", "libraries.org.bstats")
+        relocate("com.github.sviperll", "libraries.com.github.sviperll")
     }
 
     runServer {
