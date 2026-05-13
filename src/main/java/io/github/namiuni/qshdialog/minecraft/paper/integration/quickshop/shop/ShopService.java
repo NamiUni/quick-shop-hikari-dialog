@@ -146,6 +146,6 @@ public final class ShopService {
     ) {
         final NumberRange<BigDecimal> validRange = this.priceAnalytics.priceRange(user, shopComponent.product());
         final BigDecimal price = shopComponent.price();
-        return 0 >= price.compareTo(validRange.min()) && price.compareTo(validRange.max()) <= 0;
+        return price.compareTo(validRange.min()) >= 0 && price.compareTo(validRange.max()) <= 0;
     }
 }
