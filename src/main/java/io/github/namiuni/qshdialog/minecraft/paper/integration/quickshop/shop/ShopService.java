@@ -120,7 +120,7 @@ public final class ShopService {
             failures.add(new ShopFailure.OperatorInsufficientFunds(totalCost));
         }
 
-        if (!failures.isEmpty()) {
+        if (failures.isEmpty()) {
             try {
                 this.shopRepository.update(newShop);
                 if (totalCost.compareTo(BigDecimal.ZERO) != 0) {
