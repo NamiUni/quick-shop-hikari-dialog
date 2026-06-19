@@ -10,6 +10,7 @@ spotless = "8.4.0"
 # Java
 result4j = "1.2.0"
 guice = "7.0.0"
+asm = "9.9.1"
 adventure = "4.26.1"
 paper-api = "1.21.11-R0.1-SNAPSHOT"
 configurate = "4.2.0"
@@ -22,6 +23,7 @@ mini-placeholders = "3.2.0"
 [libraries]
 result4j = { group = "com.github.sviperll", name = "result4j", version.ref = "result4j" }
 guice = { group = "com.google.inject", name = "guice", version.ref = "guice" }
+asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
 paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper-api" }
 configurate-yaml = { group = "org.spongepowered", name = "configurate-yaml", version.ref = "configurate" }
 configurate-hocon = { group = "org.spongepowered", name = "configurate-hocon", version.ref = "configurate" }

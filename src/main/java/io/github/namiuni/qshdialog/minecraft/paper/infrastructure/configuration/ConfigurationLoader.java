@@ -27,9 +27,7 @@ import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.
 import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.serializer.ShopInputTypeSerializer;
 import java.nio.file.Path;
 import java.util.Locale;
-import net.kyori.adventure.serializer.configurate4.ConfigurateComponentSerializer;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.NullMarked;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
@@ -50,7 +48,6 @@ public final class ConfigurationLoader<T extends Record> {
             final Class<T> configClass,
             final T defaultConfig,
             final @DataDirectory Path dataDirectory,
-            final MiniMessage miniMessage,
             final ComponentLogger logger
     ) {
         this.configClass = configClass;
@@ -65,18 +62,12 @@ public final class ConfigurationLoader<T extends Record> {
         final ConfigHeader headerAnnotation = configClass.getAnnotation(ConfigHeader.class);
         final String configHeader = headerAnnotation.value();
 
-        final var kyoriSerializer = ConfigurateComponentSerializer.builder()
-                .scalarSerializer(miniMessage)
-                .build()
-                .serializers();
-
         this.configLoader = HoconConfigurationLoader.builder()
                 .prettyPrinting(true)
                 .defaultOptions(options -> options
                         .shouldCopyDefaults(true)
                         .header(configHeader)
                         .serializers(builder -> builder
-                                .registerAll(kyoriSerializer)
                                 .register(Locale.class, LocaleSerializer.INSTANCE)
                                 .register(ShopInputType.class, ShopInputTypeSerializer.INSTANCE)
                         )

@@ -120,7 +120,7 @@ public final class ShopService {
             failures.add(new ShopFailure.OperatorInsufficientFunds(totalCost));
         }
 
-        if (!failures.isEmpty()) {
+        if (failures.isEmpty()) {
             try {
                 this.shopRepository.update(newShop);
                 if (totalCost.compareTo(BigDecimal.ZERO) != 0) {
@@ -146,6 +146,6 @@ public final class ShopService {
     ) {
         final NumberRange<BigDecimal> validRange = this.priceAnalytics.priceRange(user, shopComponent.product());
         final BigDecimal price = shopComponent.price();
-        return 0 >= price.compareTo(validRange.min()) && price.compareTo(validRange.max()) <= 0;
+        return price.compareTo(validRange.min()) >= 0 && price.compareTo(validRange.max()) <= 0;
     }
 }

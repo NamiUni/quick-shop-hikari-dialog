@@ -28,7 +28,6 @@ import io.github.namiuni.qshdialog.minecraft.paper.infrastructure.configuration.
 import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -50,14 +49,12 @@ public final class ConfigurationModule extends AbstractModule {
     @SuppressWarnings("unused")
     ConfigurationLoader<PrimaryConfiguration> primaryConfigLoader(
             final @DataDirectory Path dataDirectory,
-            final MiniMessage miniMessage,
             final ComponentLogger logger
     ) {
         return new ConfigurationLoader<>(
                 PrimaryConfiguration.class,
                 PrimaryConfiguration.DEFAULT,
                 dataDirectory,
-                miniMessage,
                 logger
         );
     }

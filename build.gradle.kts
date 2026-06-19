@@ -32,11 +32,33 @@ spotless {
 dependencies {
     compileOnly(libs.paper.api)
     compileOnly(libs.configurate.yaml)
-    runtimeDownload(libs.guice)
     runtimeDownload(libs.configurate.hocon)
-    runtimeDownload(libs.adventure.serializer.configurate)
-    runtimeDownload(libs.kotonoha.message)
-    runtimeDownload(libs.kotonoha.message.extra.miniplaceholders)
+    // Bundled kotonoha is compiled against geantyref 2.0.1, but it resolves geantyref
+    // from the library loader (excluded from its bundle below to keep one copy). Pin
+    // 2.0.1 here so the shared copy satisfies kotonoha as well as Configurate.
+    runtimeDownload("io.leangen.geantyref:geantyref:2.0.1")
+
+    // Gremlin's runtime-downloaded jars are loaded by Paper's isolated library class
+    // loader, which CANNOT see Paper's bundled Adventure. Libraries that reference
+    // Adventure are therefore bundled into the plugin jar instead, so they are loaded
+    // by the plugin class loader (which can see both Paper's Adventure and the library
+    // loader). Adventure/MiniMessage are excluded so they resolve to Paper's single
+    // copy. geantyref carries no Adventure references and stays in the library loader;
+    // excluding it here keeps a single shared copy there.
+    implementation(libs.kotonoha.message) {
+        exclude(group = "net.kyori")            // Adventure/MiniMessage -> Paper
+        exclude(group = "io.leangen.geantyref") // single copy stays in library loader
+    }
+    implementation(libs.kotonoha.message.extra.miniplaceholders) {
+        exclude(group = "net.kyori")            // Adventure/MiniMessage -> Paper
+    }
+
+    // The default Guice jar bundles a shaded ASM that cannot read Java 25 bytecode
+    // (Unsupported class file major version 69). The "classes" variant is unshaded, so
+    // pair it with a current ASM that supports Java 25. Downloaded at runtime; Gremlin
+    // preserves the classifier in the generated dependency list.
+    runtimeDownload(variantOf(libs.guice) { classifier("classes") })
+    runtimeDownload(libs.asm)
 
     // Quick Shop
     compileOnly(libs.simplereloadlib)
